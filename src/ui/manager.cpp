@@ -12,6 +12,11 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <iostream>
+#include <emscripten.h>
+#endif
+
 #include "ui/manager.h"
 
 #include "base/scoped_value.h"
@@ -155,6 +160,30 @@ void Manager::setDisplay(she::Display* display)
   onNewDisplayConfiguration();
 }
 
+#ifdef __EMSCRIPTEN__
+void Manager::run()
+{
+  MessageLoop loop(this);
+
+  if (first_time) {
+    first_time = false;
+
+    Manager::getDefault()->invalidate();
+    set_mouse_cursor(kArrowCursor);
+  }
+
+  emscripten_set_main_loop([]() {
+    MessageLoop loop(Manager::getDefault());
+    loop.pumpMessages();
+
+    // Print a message to console
+    std::cout << "Loop" << std::endl;
+
+    if (Manager::getDefault()->children().empty())
+      emscripten_cancel_main_loop();
+  }, 0, 1);
+}
+#else
 void Manager::run()
 {
   MessageLoop loop(this);
@@ -169,6 +198,7 @@ void Manager::run()
   while (!children().empty())
     loop.pumpMessages();
 }
+#endif
 
 void Manager::flipDisplay()
 {

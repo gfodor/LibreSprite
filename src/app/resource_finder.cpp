@@ -105,6 +105,10 @@ void ResourceFinder::includeDataDir(const char* filename)
   // $BINDIR/../share/libresprite/data/filename (installed in /usr/ or /usr/local/)
   sprintf(buf, "../share/libresprite/data/%s", filename);
   includeBinDir(buf);
+#elif __EMSCRIPTEN__
+
+  sprintf(buf, "/%s", filename);
+  addPath(buf);
   
 #else
 

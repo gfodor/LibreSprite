@@ -306,7 +306,7 @@ if(USE_SDL2_BACKEND)
     find_package(SDL2_IMAGE REQUIRED)
     include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
   else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"png\"]' -s DISABLE_EXCEPTION_CATCHING=0")
   endif()
 endif()
 
@@ -417,3 +417,7 @@ add_subdirectory(third_party)
 # Main ASE targets
 
 add_subdirectory(src)
+
+if(EMSCRIPTEN)
+  target_link_options(libresprite PRIVATE --preload-file bin/data/@/ --use-preload-plugins)
+endif()

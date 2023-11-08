@@ -554,6 +554,7 @@ int main(int argc, char* argv[]) {
     SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) != 0) {
         std::cerr << "Critical: Could not initialize SDL2. Aborting." << std::endl;
+        // Get the error from SDL_GetError() and print it
         return -1;
     }
     if (!IMG_Init( IMG_INIT_PNG | IMG_INIT_WEBP | IMG_INIT_JPG )) {
