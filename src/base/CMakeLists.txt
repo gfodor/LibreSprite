@@ -52,7 +52,7 @@ set(BASE_SOURCES
   sha1.cpp
   sha1_rfc3174.c
   split_string.cpp
-  string.cpp
+  base_string.cpp
   system_console.cpp
   thread.cpp
   time.cpp

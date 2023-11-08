@@ -32,6 +32,17 @@ public:
     w(w), h(h) {
   }
 
+#ifdef PIXMAN_VERSION_MAJOR
+  RectT<int>& operator=(const pixman_box32& box) {
+      // Assuming Box has x1, y1, x2, y2 which are directly assignable to RectT<int>
+      this->x = box.x1;
+      this->y = box.y1;
+      this->width = box.x2 - box.x1;
+      this->height = box.y2 - box.y1;
+      return *this;
+  }
+#endif
+
   // Creates a new rectangle with the specified size with the origin in 0,0.
   explicit RectT(const SizeT<T>& size) :
     x(0), y(0),

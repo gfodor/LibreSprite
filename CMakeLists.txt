@@ -135,19 +135,29 @@ if(NOT WIN32 AND NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu89")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+if (NOT EMSCRIPTEN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+endif()
 
 if(APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 
 # zlib
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIRS})
+if(NOT EMSCRIPTEN)
+  find_package(ZLIB REQUIRED)
+  include_directories(${ZLIB_INCLUDE_DIRS})
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_ZLIB=1")
+endif()
 
 # libpng
-find_package(PNG REQUIRED)
-include_directories(${PNG_INCLUDE_DIRS})
+if(NOT EMSCRIPTEN)
+  find_package(PNG REQUIRED)
+  include_directories(${PNG_INCLUDE_DIRS})
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_LIBPNG=1")
+endif()
 
 # libwebp
 if(WITH_WEBP_SUPPORT)
@@ -157,63 +167,77 @@ if(WITH_WEBP_SUPPORT)
 endif()
 
 # freetype
-find_package(Freetype REQUIRED)
-include_directories(${FREETYPE_INCLUDE_DIRS})
+if(NOT EMSCRIPTEN)
+  find_package(Freetype REQUIRED)
+  include_directories(${FREETYPE_INCLUDE_DIRS})
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1")
+endif()
 
-find_package(GIF REQUIRED)
-include_directories(${GIF_INCLUDE_DIRS})
+if(NOT EMSCRIPTEN)
+  find_package(GIF REQUIRED)
+  include_directories(${GIF_INCLUDE_DIRS})
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_GIFLIB=1")
+endif()
 
 ##find_package(GTest REQUIRED)
 #include_directories(${GTEST_INCLUDE_DIRS})
 
-find_package(JPEG REQUIRED)
-include_directories(${JPEG_INCLUDE_DIRS})
-
-# Lua
-find_package(Lua)
-if(LUA_FOUND)
-  add_definitions(-DSCRIPT_ENGINE_LUA=1)
-  include_directories(${LUA_INCLUDE_DIR})
+if(NOT EMSCRIPTEN)
+  find_package(JPEG REQUIRED)
+  include_directories(${JPEG_INCLUDE_DIRS})
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_LIBJPEG=1")
 endif()
 
-# v8
-find_package(V8)
-if(V8_FOUND)
-  include_directories(${V8_INCLUDE_DIR})
-  add_definitions(-DSCRIPT_ENGINE_V8=1)
-
-  include(CheckCXXSourceRuns)
-  set(CMAKE_REQUIRED_LIBRARIES ${V8_LIBRARY} ${V8_LIBBASE_LIBRARY} ${V8_LIBPLATFORM_LIBRARY})
-  set(CMAKE_REQUIRED_INCLUDES ${V8_INCLUDE_DIR})
-  message(STATUS ${V8_POINTER_COMPRESSION_OUTPUT})
-  # Since V8_COMPRESS_POINTERS is not defined here, the resulting program would
-  # die if the system v8 library had enabled pointer compression.
-  check_cxx_source_runs("
-    #include <v8.h>
-    #include <libplatform/libplatform.h>
-    int main(void) {
-      v8::V8::InitializeICU();
-      static std::unique_ptr<v8::Platform> m_platform;
-      m_platform = v8::platform::NewDefaultPlatform();
-      v8::V8::InitializePlatform(m_platform.get());
-      v8::V8::Initialize();
-      return 0;
-    }
-	" DISABLE_POINTER_COMPRESSION)
-
-  # pointers compression doesn't work on 32bit machines
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    if(DISABLE_POINTER_COMPRESSION EQUAL 1)
-      message(STATUS "Disabling V8 pointer compression")
-    else()
-      message(STATUS "Enabling V8 pointer compression")
-      add_definitions(-DV8_COMPRESS_POINTERS)
-    endif()
+# Lua
+if(NOT EMSCRIPTEN)
+  find_package(Lua)
+  if(LUA_FOUND)
+    add_definitions(-DSCRIPT_ENGINE_LUA=1)
+    include_directories(${LUA_INCLUDE_DIR})
   endif()
 
-  message(STATUS "Optional V8 library found. Enabling V8 scripting engine.")
-else()
-  message(STATUS "Optional V8 library NOT found. Disabling V8 scripting engine.")
+# v8
+  find_package(V8)
+  if(V8_FOUND)
+    include_directories(${V8_INCLUDE_DIR})
+    add_definitions(-DSCRIPT_ENGINE_V8=1)
+
+    include(CheckCXXSourceRuns)
+    set(CMAKE_REQUIRED_LIBRARIES ${V8_LIBRARY} ${V8_LIBBASE_LIBRARY} ${V8_LIBPLATFORM_LIBRARY})
+    set(CMAKE_REQUIRED_INCLUDES ${V8_INCLUDE_DIR})
+    message(STATUS ${V8_POINTER_COMPRESSION_OUTPUT})
+    # Since V8_COMPRESS_POINTERS is not defined here, the resulting program would
+    # die if the system v8 library had enabled pointer compression.
+    check_cxx_source_runs("
+      #include <v8.h>
+      #include <libplatform/libplatform.h>
+      int main(void) {
+        v8::V8::InitializeICU();
+        static std::unique_ptr<v8::Platform> m_platform;
+        m_platform = v8::platform::NewDefaultPlatform();
+        v8::V8::InitializePlatform(m_platform.get());
+        v8::V8::Initialize();
+        return 0;
+      }
+          " DISABLE_POINTER_COMPRESSION)
+
+    # pointers compression doesn't work on 32bit machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      if(DISABLE_POINTER_COMPRESSION EQUAL 1)
+        message(STATUS "Disabling V8 pointer compression")
+      else()
+        message(STATUS "Enabling V8 pointer compression")
+        add_definitions(-DV8_COMPRESS_POINTERS)
+      endif()
+    endif()
+
+    message(STATUS "Optional V8 library found. Enabling V8 scripting engine.")
+  else()
+    message(STATUS "Optional V8 library NOT found. Disabling V8 scripting engine.")
+  endif()
 endif()
 
 if(USE_ALLEG4_BACKEND)
@@ -276,15 +300,26 @@ endif()
 if(USE_SDL2_BACKEND)
   add_definitions(-DUSE_SDL2_BACKEND)
 
-  find_package(SDL2 REQUIRED)
-  include_directories(${SDL2_INCLUDE_DIRS})
-  find_package(SDL2_IMAGE REQUIRED)
-  include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
+  if(NOT EMSCRIPTEN)
+    find_package(SDL2 REQUIRED)
+    include_directories(${SDL2_INCLUDE_DIRS})
+    find_package(SDL2_IMAGE REQUIRED)
+    include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2")
+  endif()
 endif()
 
 # -- Unix --
 
-if(UNIX AND NOT APPLE AND NOT BEOS)
+if(EMSCRIPTEN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unneeded-internal-declaration")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-private-field")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-macro-redefined")
+endif()
+
+if(NOT EMSCRIPTEN AND UNIX AND NOT APPLE AND NOT BEOS)
   # Pthreads
   find_package(Threads REQUIRED)
   list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})

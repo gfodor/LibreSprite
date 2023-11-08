@@ -144,7 +144,7 @@ namespace ft {
 
       forEachGlyph(
         str,
-        [&bounds, this](Glyph& glyph) {
+        [&bounds](Glyph& glyph) {
           bounds |= gfx::Rect(int(glyph.x),
                               int(glyph.y),
                               glyph.ft_glyph->advance.x / double(1 << 16),

@@ -132,6 +132,7 @@ public:
   }
 
   bool send(HttpResponse& response) {
+    return false;
   }
 
   void abort() {
