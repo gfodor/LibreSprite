@@ -16,3 +16,6 @@
 [submodule "src/undo"]
 	path = src/undo
 	url = https://github.com/aseprite/undo.git
+[submodule "src/tinyxml"]
+	path = src/tinyxml
+	url = https://github.com/gfodor/tinyxml
