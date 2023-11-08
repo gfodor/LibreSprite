@@ -176,9 +176,6 @@ void Manager::run()
     MessageLoop loop(Manager::getDefault());
     loop.pumpMessages();
 
-    // Print a message to console
-    std::cout << "Loop" << std::endl;
-
     if (Manager::getDefault()->children().empty())
       emscripten_cancel_main_loop();
   }, 0, 1);
