@@ -91,6 +91,7 @@ add_subdirectory(doc)
 add_subdirectory(filters)
 add_subdirectory(fixmath)
 add_subdirectory(flic)
+
 add_subdirectory(gen)
 add_subdirectory(gfx)
 add_subdirectory(net)

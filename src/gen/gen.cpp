@@ -58,6 +58,8 @@ static void run(int argc, const char* argv[])
   }
 }
 
+#ifndef __EMSCRIPTEN__
+
 int main(int argc, const char* argv[])
 {
   try {
@@ -69,3 +71,5 @@ int main(int argc, const char* argv[])
     return 1;
   }
 }
+
+#endif

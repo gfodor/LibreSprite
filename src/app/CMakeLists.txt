@@ -494,4 +494,53 @@ if(NOT EMSCRIPTEN)
     ${LUA_LIBRARIES}
     ${V8_LIBRARIES}
     ${FREETYPE_LIBRARIES})
+else()
+  # Define a list of folder and project name pairs
+  set(PROJECT_PAIRS
+    src/base	base-lib
+    src/cfg	cfg-lib
+    src/clip	clip
+    src/css	css-lib
+    src/doc	doc-lib
+    src/filters	filters-lib
+    src/fixmath	fixmath-lib
+    src/flic	flic-lib
+    src/gfx	gfx-lib
+    src/net	net-lib
+    src/render	render-lib
+    src/she	she
+    src/pixman-1/pixman	pixman-1_core
+    src/tinyxml	tinyxml
+    src/observable	obs
+    src/ui	ui-lib
+    src/undo	undo
+    third_party/modp_b64  modp_b64
+  )
+
+# Iterate over the pairs
+  while(PROJECT_PAIRS)
+    list(POP_FRONT PROJECT_PAIRS FOLDER PROJECT)
+
+    # Add the subdirectory
+    #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../${FOLDER} ${PROJECT})
+
+    ## Get the sources from the project
+    get_target_property(PROJECT_SOURCES ${PROJECT} SOURCES)
+
+    # Provide the paths to the source files
+    set(PROJECT_SOURCE_PATHS "")
+    foreach(SOURCE_FILE IN LISTS PROJECT_SOURCES)
+      list(APPEND PROJECT_SOURCE_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../${FOLDER}/${SOURCE_FILE}")
+    endforeach()
+
+    ## Include the sources directly into the executable
+    target_sources(app-lib PRIVATE ${PROJECT_SOURCE_PATHS})
+
+    ## Add include directories if needed
+    target_include_directories(app-lib PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/../../${FOLDER}
+    )
+  endwhile()
+
+
 endif()
