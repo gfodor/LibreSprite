@@ -156,11 +156,6 @@ if(WITH_WEBP_SUPPORT)
   include_directories(${WEBP_INCLUDE_DIR})
 endif()
 
-# pixman
-find_library(PIXMAN_LIBRARY NAMES pixman pixman-1)
-find_path(PIXMAN_INCLUDE_DIR NAMES pixman.h PATH_SUFFIXES pixman-1)
-include_directories(${PIXMAN_INCLUDE_DIR})
-
 # freetype
 find_package(Freetype REQUIRED)
 include_directories(${FREETYPE_INCLUDE_DIRS})

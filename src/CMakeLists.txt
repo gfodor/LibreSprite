@@ -60,6 +60,9 @@ endif()
 ######################################################################
 # Aseprite Libraries (in preferred order to be built)
 
+add_subdirectory(pixman-1)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/pixman-1/pixman)
+
 add_subdirectory(tinyxml)
 include_directories(tinyxml)
 

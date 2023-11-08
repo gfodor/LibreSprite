@@ -19,3 +19,6 @@
 [submodule "src/tinyxml"]
 	path = src/tinyxml
 	url = https://github.com/gfodor/tinyxml
+[submodule "src/pixman"]
+	path = src/pixman-1
+	url = https://github.com/gfodor/pixman.git
