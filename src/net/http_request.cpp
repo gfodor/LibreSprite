@@ -14,6 +14,7 @@
 #include "net/http_headers.h"
 #include "net/http_response.h"
 
+#ifndef USE_FETCH
 #include <curl/curl.h>
 
 namespace net {
@@ -115,3 +116,50 @@ void HttpRequest::abort()
 }
 
 } // namespace net
+#else
+
+namespace net {
+
+class HttpRequestImpl {
+public:
+  HttpRequestImpl(const std::string& url) {
+  }
+
+  ~HttpRequestImpl() {
+  }
+
+  void setHeaders(const HttpHeaders& headers) {
+  }
+
+  bool send(HttpResponse& response) {
+  }
+
+  void abort() {
+  }
+};
+
+HttpRequest::HttpRequest(const std::string& url)
+  : m_impl(new HttpRequestImpl(url))
+{
+}
+
+HttpRequest::~HttpRequest()
+{
+}
+
+void HttpRequest::setHeaders(const HttpHeaders& headers)
+{
+}
+
+bool HttpRequest::send(HttpResponse& response)
+{
+  return false;
+}
+
+void HttpRequest::abort()
+{
+}
+
+} // namespace net
+
+#endif
