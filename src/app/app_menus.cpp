@@ -31,7 +31,7 @@
 #include "base/path.h"
 #include "ui/ui.h"
 
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 #include <cstdio>
 #include <cstring>

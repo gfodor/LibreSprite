@@ -10,7 +10,7 @@
 #include "base/exception.h"
 #include "base/shared_ptr.h"
 
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 #include <string>
 

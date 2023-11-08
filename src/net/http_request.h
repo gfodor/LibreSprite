@@ -12,6 +12,8 @@
 
 #include <string>
 
+#ifndef USE_FETCH
+
 namespace net {
 
 class HttpHeaders;
@@ -34,5 +36,7 @@ private:
 };
 
 } // namespace net
+
+#endif
 
 #endif

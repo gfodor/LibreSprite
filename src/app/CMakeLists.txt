@@ -480,10 +480,10 @@ target_link_libraries(app-lib
   render-lib
   script-lib
   she
+  tinyxml
   ui-lib
   undo
   ${KEEP_INJECTIONS_END}
-  ${TINYXML_LIBRARY}
   ${JPEG_LIBRARIES}
   ${GIF_LIBRARIES}
   ${PNG_LIBRARIES}

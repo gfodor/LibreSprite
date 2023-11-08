@@ -156,11 +156,6 @@ if(WITH_WEBP_SUPPORT)
   include_directories(${WEBP_INCLUDE_DIR})
 endif()
 
-# tinyxml
-find_library(TINYXML_LIBRARY NAMES tinyxml)
-find_path(TINYXML_INCLUDE_DIR NAMES tinyxml.h)
-include_directories(${TINYXML_INCLUDE_DIR})
-
 # pixman
 find_library(PIXMAN_LIBRARY NAMES pixman pixman-1)
 find_path(PIXMAN_INCLUDE_DIR NAMES pixman.h PATH_SUFFIXES pixman-1)
@@ -232,8 +227,12 @@ if(USE_ALLEG4_BACKEND)
   include_directories(${LOADPNG_INCLUDE_DIR})
 endif()
 
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
+if(NOT EMSCRIPTEN)
+  find_package(CURL REQUIRED)
+  include_directories(${CURL_INCLUDE_DIRS})
+else()
+  add_definitions(-DUSE_FETCH)
+endif()
 
 # simpleini
 include_directories(${SIMPLEINI_DIR})

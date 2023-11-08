@@ -7,7 +7,7 @@
 #pragma once
 
 #include <string>
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 void gen_pref_header(TiXmlDocument* doc, const std::string& inputFn);
 void gen_pref_impl(TiXmlDocument* doc, const std::string& inputFn);

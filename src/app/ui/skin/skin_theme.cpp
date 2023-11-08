@@ -39,7 +39,7 @@
 #include "ui/intern.h"
 #include "ui/ui.h"
 
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 #define BGCOLOR                 (getWidgetBgColor(widget))
 

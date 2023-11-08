@@ -11,7 +11,7 @@
 
 #include "app/xml_exception.h"
 
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 #include <cstdio>
 

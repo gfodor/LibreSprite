@@ -60,6 +60,9 @@ endif()
 ######################################################################
 # Aseprite Libraries (in preferred order to be built)
 
+add_subdirectory(tinyxml)
+include_directories(tinyxml)
+
 # Disable observable tests
 set(OBSERVABLE_TESTS OFF CACHE BOOL "Compile observable tests")
 add_subdirectory(observable)

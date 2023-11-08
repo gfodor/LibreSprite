@@ -11,7 +11,7 @@
 #include "gen/pref_types.h"
 #include "gen/skin_class.h"
 #include "gen/ui_class.h"
-#include "tinyxml.h"
+#include "tinyxml/tinyxml.h"
 
 #include <iostream>
 
