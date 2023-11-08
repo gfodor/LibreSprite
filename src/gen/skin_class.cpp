@@ -6,7 +6,7 @@
 
 #include "gen/skin_class.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gen/common.h"
 
 #include <iostream>

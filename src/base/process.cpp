@@ -52,7 +52,11 @@ pid get_current_process_id()
 
 bool is_process_running(pid pid)
 {
+#ifndef __EMSCRIPTEN__
   return (kill(pid, 0) == 0);
+#else
+  return false;
+#endif
 }
 
 #endif

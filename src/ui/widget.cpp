@@ -13,7 +13,7 @@
 #include "ui/widget.h"
 
 #include "base/memory.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/display.h"
 #include "she/font.h"
 #include "she/surface.h"

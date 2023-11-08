@@ -26,7 +26,7 @@
 #include "base/path.h"
 #include "base/process.h"
 #include "base/split_string.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 namespace app {
 namespace crash {

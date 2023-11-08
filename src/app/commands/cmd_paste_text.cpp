@@ -22,7 +22,7 @@
 #include "app/util/freetype_utils.h"
 #include "base/bind.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "doc/image.h"
 #include "doc/image_ref.h"
 #include "render/quantization.h"

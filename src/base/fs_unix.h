@@ -23,7 +23,7 @@
 #endif
 
 #include "base/path.h"
-#include "base/time.h"
+#include "base/base_time.h"
 
 #define MAXPATHLEN 1024
 

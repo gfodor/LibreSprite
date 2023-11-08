@@ -14,7 +14,7 @@
 #include "app/script/app_scripting.h"
 #include "base/file_handle.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "script/engine.h"
 #include "script/engine_delegate.h"
 #include <fstream>

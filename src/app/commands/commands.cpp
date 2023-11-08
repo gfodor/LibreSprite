@@ -13,7 +13,7 @@
 
 #include "app/commands/command.h"
 #include "app/console.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "ui/ui.h"
 
 #include <cstring>

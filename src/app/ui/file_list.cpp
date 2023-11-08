@@ -14,7 +14,7 @@
 #include "app/modules/gfx.h"
 #include "app/thumbnail_generator.h"
 #include "app/ui/skin/skin_theme.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/font.h"
 #include "she/surface.h"
 #include "ui/ui.h"

@@ -12,7 +12,7 @@
 
 #include "base/file_handle.h"
 #include "base/log.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <stdlib.h>
 #include "SimpleIni.h"

@@ -17,7 +17,7 @@
 #include "base/bind.h"
 #include "base/path.h"
 #include "base/fs.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "script/script_object.h"
 #include "script/engine.h"
 

@@ -11,7 +11,7 @@
 
 #include "she/common/freetype_font.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
 

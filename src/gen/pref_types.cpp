@@ -8,7 +8,7 @@
 #include "base/file_handle.h"
 #include "base/path.h"
 #include "base/split_string.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gen/common.h"
 #include "gen/pref_types.h"
 

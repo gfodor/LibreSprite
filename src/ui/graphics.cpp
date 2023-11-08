@@ -10,7 +10,7 @@
 
 #include "ui/graphics.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gfx/clip.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"

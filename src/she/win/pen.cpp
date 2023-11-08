@@ -14,7 +14,7 @@
 #include "base/fs.h"
 #include "base/log.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 typedef UINT (API* WTInfoW_Func)(UINT, UINT, LPVOID);
 typedef HCTX (API* WTOpenW_Func)(HWND, LPLOGCONTEXTW, BOOL);

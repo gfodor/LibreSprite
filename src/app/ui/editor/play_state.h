@@ -9,7 +9,7 @@
 
 #include "app/ui/editor/state_with_wheel_behavior.h"
 #include "base/connection.h"
-#include "base/time.h"
+#include "base/base_time.h"
 #include "doc/frame.h"
 #include "ui/timer.h"
 

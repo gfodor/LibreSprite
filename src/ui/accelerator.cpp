@@ -13,7 +13,7 @@
 #include "base/debug.h"
 #include "base/replace_string.h"
 #include "base/split_string.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <cctype>
 #include <cstdlib>

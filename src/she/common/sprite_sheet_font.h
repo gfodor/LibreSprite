@@ -8,7 +8,7 @@
 #pragma once
 
 #include "base/debug.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gfx/rect.h"
 #include "she/font.h"
 #include "she/surface.h"

@@ -13,7 +13,7 @@
 
 #include "she/gtk/native_dialogs.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/display.h"
 #include "she/error.h"
 

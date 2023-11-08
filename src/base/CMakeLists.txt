@@ -55,7 +55,7 @@ set(BASE_SOURCES
   base_string.cpp
   system_console.cpp
   thread.cpp
-  time.cpp
+  base_time.cpp
   trim_string.cpp
   version.cpp)
 

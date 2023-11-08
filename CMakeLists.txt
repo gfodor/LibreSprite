@@ -409,11 +409,11 @@ if(WITH_DESKTOP_INTEGRATION)
 endif()
 
 ######################################################################
-# Main ASE targets
-
-add_subdirectory(src)
-
-######################################################################
 # Third party libraries
 
 add_subdirectory(third_party)
+
+######################################################################
+# Main ASE targets
+
+add_subdirectory(src)

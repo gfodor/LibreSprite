@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 #pragma once
 
-#include "base/string.h"
+#include "base/base_string.h"
 
 #ifdef _WIN32
   #ifdef __MINGW32__

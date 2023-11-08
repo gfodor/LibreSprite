@@ -16,7 +16,7 @@
 #include "app/resource_finder.h"
 #include "base/fs.h"
 #include "base/path.h"
-#include "base/time.h"
+#include "base/base_time.h"
 
 namespace app {
 namespace crash {

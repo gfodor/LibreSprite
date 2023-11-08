@@ -15,7 +15,7 @@
 #include "app/file/file_format.h"
 #include "app/file/file_formats_manager.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "doc/cel.h"
 #include "doc/file/col_file.h"
 #include "doc/file/gpl_file.h"

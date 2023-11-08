@@ -12,7 +12,7 @@
 #include "app/file/split_filename.h"
 #include "base/convert_to.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <cstring>
 

@@ -466,30 +466,32 @@ add_library(app-lib
   ${data_recovery_files}
   ${generated_files})
 
-target_link_libraries(app-lib
-  base-lib
-  cfg-lib
-  clip
-  css-lib
-  doc-lib
-  filters-lib
-  fixmath-lib
-  flic-lib
-  gfx-lib
-  net-lib
-  pixman-1
-  render-lib
-  script-lib
-  she
-  tinyxml
-  ui-lib
-  undo
-  ${KEEP_INJECTIONS_END}
-  ${JPEG_LIBRARIES}
-  ${GIF_LIBRARIES}
-  ${PNG_LIBRARIES}
-  ${WEBP_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${LUA_LIBRARIES}
-  ${V8_LIBRARIES}
-  ${FREETYPE_LIBRARIES})
+if(NOT EMSCRIPTEN)
+  target_link_libraries(app-lib
+    base-lib
+    cfg-lib
+    clip
+    css-lib
+    doc-lib
+    filters-lib
+    fixmath-lib
+    flic-lib
+    gfx-lib
+    net-lib
+    pixman-1
+    render-lib
+    script-lib
+    she
+    tinyxml
+    ui-lib
+    undo
+    ${KEEP_INJECTIONS_END}
+    ${JPEG_LIBRARIES}
+    ${GIF_LIBRARIES}
+    ${PNG_LIBRARIES}
+    ${WEBP_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+    ${LUA_LIBRARIES}
+    ${V8_LIBRARIES}
+    ${FREETYPE_LIBRARIES})
+endif()

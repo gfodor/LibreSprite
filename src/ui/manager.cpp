@@ -15,7 +15,7 @@
 #include "ui/manager.h"
 
 #include "base/scoped_value.h"
-#include "base/time.h"
+#include "base/base_time.h"
 #include "she/display.h"
 #include "she/event.h"
 #include "she/event_queue.h"

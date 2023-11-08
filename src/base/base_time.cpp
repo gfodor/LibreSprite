@@ -8,7 +8,7 @@
 #include "config.h"
 #endif
 
-#include "base/time.h"
+#include "base/base_time.h"
 
 #if _WIN32
   #include <windows.h>

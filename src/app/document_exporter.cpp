@@ -24,7 +24,7 @@
 #include "base/path.h"
 #include "base/replace_string.h"
 #include "base/shared_ptr.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "doc/algorithm/shrink_bounds.h"
 #include "doc/cel.h"
 #include "doc/dithering_method.h"

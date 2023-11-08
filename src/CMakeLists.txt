@@ -60,11 +60,9 @@ endif()
 ######################################################################
 # Aseprite Libraries (in preferred order to be built)
 
-if (NOT EMSCRIPTEN)
-  add_subdirectory(pixman-1)
-  add_subdirectory(tinyxml)
-endif()
-
+add_subdirectory(pixman-1)
+add_subdirectory(tinyxml)
+# 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/pixman-1/pixman)
 include_directories(tinyxml)
 
@@ -130,7 +128,7 @@ if(WIN32)
     main/settings.manifest)
 endif()
 
-if(UNIX AND NOT APPLE AND USE_ALLEG4_BACKEND)
+if(NOT EMSCRIPTEN AND UNIX AND NOT APPLE AND USE_ALLEG4_BACKEND)
   set(x11_resources main/xpm_icon.c)
 endif()
 

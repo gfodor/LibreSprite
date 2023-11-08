@@ -11,7 +11,7 @@
   #include <dbghelp.h>
 #endif
 
-#include "base/string.h"
+#include "base/base_string.h"
 
 static std::wstring memoryDumpFile;
 

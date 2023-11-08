@@ -21,8 +21,10 @@ if (NOT EMSCRIPTEN)
 else()
   # Define a list of folder and project name pairs
   set(PROJECT_PAIRS
-    base	base-lib
-    observable	obs
+    src/base	base-lib
+    src/observable	obs
+    third_party/modp_b64  modp_b64
+    src/tinyxml	tinyxml
     # folder project-name
     # You can add more pairs below
   )
@@ -40,7 +42,7 @@ else()
     # Provide the paths to the source files
     set(PROJECT_SOURCE_PATHS "")
     foreach(SOURCE_FILE IN LISTS PROJECT_SOURCES)
-      list(APPEND PROJECT_SOURCE_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../${FOLDER}/${SOURCE_FILE}")
+      list(APPEND PROJECT_SOURCE_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../${FOLDER}/${SOURCE_FILE}")
     endforeach()
 
     ## Include the sources directly into the executable
@@ -48,7 +50,7 @@ else()
 
     ## Add include directories if needed
     target_include_directories(gen PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}/../${FOLDER}
+      ${CMAKE_CURRENT_SOURCE_DIR}/../../${FOLDER}
     )
   endwhile()
 

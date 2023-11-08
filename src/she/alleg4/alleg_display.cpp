@@ -12,7 +12,7 @@
 
 #include "base/concurrent_queue.h"
 #include "base/exception.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/alleg4/alleg_display.h"
 #include "she/alleg4/alleg_surface.h"
 #include "she/common/system.h"

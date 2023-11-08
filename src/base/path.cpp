@@ -11,7 +11,7 @@
 #include "base/path.h"
 
 #include "base/fs.h"            // TODO we should merge base/path.h and base/fs.h
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <algorithm>
 #include <cctype>

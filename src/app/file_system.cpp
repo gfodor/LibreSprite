@@ -19,7 +19,7 @@
 
 #include "base/fs.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/display.h"
 #include "she/surface.h"
 #include "she/system.h"

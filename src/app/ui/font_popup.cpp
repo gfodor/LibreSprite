@@ -20,7 +20,7 @@
 #include "base/bind.h"
 #include "base/fs.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "doc/conversion_she.h"
 #include "doc/image.h"
 #include "doc/image_ref.h"

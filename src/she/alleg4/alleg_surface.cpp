@@ -10,7 +10,7 @@
 
 #include "she/alleg4/alleg_surface.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
 

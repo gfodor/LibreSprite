@@ -10,7 +10,7 @@
 
 #include "ui/timer.h"
 
-#include "base/time.h"
+#include "base/base_time.h"
 #include "ui/manager.h"
 #include "ui/message.h"
 #include "ui/widget.h"

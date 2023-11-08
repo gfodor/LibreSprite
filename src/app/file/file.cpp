@@ -27,7 +27,7 @@
 #include "base/path.h"
 #include "base/scoped_lock.h"
 #include "base/shared_ptr.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "doc/doc.h"
 #include "render/quantization.h"
 #include "render/render.h"

@@ -14,7 +14,7 @@
 #include "app/resource_finder.h"
 #include "base/path.h"
 #include "base/split_string.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "cfg/cfg.h"
 
 #ifdef __APPLE__

@@ -27,7 +27,7 @@
 #include "base/bind.h"
 #include "base/fs.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "css/sheet.h"
 #include "gfx/border.h"
 #include "gfx/point.h"

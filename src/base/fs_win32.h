@@ -10,9 +10,9 @@
 #include <sys/stat.h>
 
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "base/win32_exception.h"
-#include "base/time.h"
+#include "base/base_time.h"
 
 namespace base {
 

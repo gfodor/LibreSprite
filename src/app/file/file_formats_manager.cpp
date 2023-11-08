@@ -13,7 +13,7 @@
 
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <algorithm>
 #include <cstring>

@@ -8,7 +8,7 @@
 
 #include "base/disable_copying.h"
 #include "base/signal.h"
-#include "base/time.h"
+#include "base/base_time.h"
 
 namespace ui {
 

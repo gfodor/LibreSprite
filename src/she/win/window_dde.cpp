@@ -10,7 +10,7 @@
 
 #include "she/win/window_dde.h"
 
-#include "base/string.h"
+#include "base/base_string.h"
 #include "she/event.h"
 #include "she/event_queue.h"
 

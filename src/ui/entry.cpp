@@ -11,7 +11,7 @@
 #include "ui/entry.h"
 
 #include "base/bind.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "clip/clip.h"
 #include "she/font.h"
 #include "she/keys.h"

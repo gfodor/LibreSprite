@@ -26,7 +26,7 @@
 #include "base/path.h"
 #include "base/scoped_value.h"
 #include "base/split_string.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "ui/graphics.h"
 #include "ui/listitem.h"
 #include "ui/paint_event.h"

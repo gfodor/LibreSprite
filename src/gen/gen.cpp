@@ -7,7 +7,7 @@
 #include "base/file_handle.h"
 #include "base/path.h"
 #include "base/program_options.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "gen/pref_types.h"
 #include "gen/skin_class.h"
 #include "gen/ui_class.h"

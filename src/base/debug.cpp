@@ -13,7 +13,7 @@
 #include "base/debug.h"
 
 #include "base/convert_to.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <cstdarg>
 #include <cstdlib>

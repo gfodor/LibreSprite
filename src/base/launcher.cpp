@@ -12,7 +12,7 @@
 #include "base/fs.h"
 #include "base/launcher.h"
 #include "base/path.h"
-#include "base/string.h"
+#include "base/base_string.h"
 
 #include <cstdlib>
 

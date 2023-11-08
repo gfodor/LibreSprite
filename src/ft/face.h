@@ -8,7 +8,7 @@
 #pragma once
 
 #include "base/disable_copying.h"
-#include "base/string.h"
+#include "base/base_string.h"
 #include "ft/freetype_headers.h"
 #include "gfx/rect.h"
 
