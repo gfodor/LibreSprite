@@ -62,13 +62,6 @@ NewFileCommand::NewFileCommand()
 void NewFileCommand::onExecute(Context* context)
 {
   Preferences& pref = Preferences::instance();
-  int ncolors = get_default_palette()->size();
-  char buf[1024];
-  app::Color bg_table[] = {
-    app::Color::fromMask(),
-    app::Color::fromRgb(255, 255, 255),
-    app::Color::fromRgb(0, 0, 0),
-  };
 
   // Load the window widget
   app::gen::NewSprite window;
@@ -103,85 +96,100 @@ void NewFileCommand::onExecute(Context* context)
   // Select background color
   window.bgColor()->setSelectedItem(bg);
 
-  // Open the window
-  window.openWindowInForeground();
+  std::cout << "New window opening" << std::endl;
 
-  if (window.closer() == window.okButton()) {
-    bool ok = false;
+  // Open the window and pass it a closure to print the result on exit
+  window.openWindowInForeground([context](ui::Window* windowOrig) -> void {
+    std::cout << "New window closing" << std::endl;
 
-    // Get the options
-    format = (doc::PixelFormat)window.colorMode()->selectedItem();
-    w = window.width()->textInt();
-    h = window.height()->textInt();
-    bg = window.bgColor()->selectedItem();
+    app::gen::NewSprite* window = static_cast<app::gen::NewSprite*>(windowOrig);
 
-    static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
-    static_assert(IMAGE_INDEXED == 2, "Indexed pixel format should be 2");
+    if (window->closer() == window->okButton()) {
+      char buf[1024];
+      int ncolors = get_default_palette()->size();
+      app::Color bg_table[] = {
+        app::Color::fromMask(),
+        app::Color::fromRgb(255, 255, 255),
+        app::Color::fromRgb(0, 0, 0),
+      };
 
-    format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
-    w = MID(1, w, 65535);
-    h = MID(1, h, 65535);
-    bg = MID(0, bg, 2);
+      Preferences& pref = Preferences::instance();
+      bool ok = false;
 
-    // Select the color
-    app::Color color = app::Color::fromMask();
+      // Get the options
+      PixelFormat format = (doc::PixelFormat)window->colorMode()->selectedItem();
+      int w = window->width()->textInt();
+      int h = window->height()->textInt();
+      int bg = window->bgColor()->selectedItem();
 
-    if (bg >= 0 && bg <= 3) {
-      color = bg_table[bg];
-      ok = true;
-    }
+      static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
+      static_assert(IMAGE_INDEXED == 2, "Indexed pixel format should be 2");
 
-    if (ok) {
-      // Save the configuration
-      pref.newFile.width(w);
-      pref.newFile.height(h);
-      pref.newFile.colorMode(format);
-      pref.newFile.backgroundColor(bg);
+      format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
+      w = MID(1, w, 65535);
+      h = MID(1, h, 65535);
+      bg = MID(0, bg, 2);
 
-      // Create the new sprite
-      ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
-      ASSERT(w > 0 && h > 0);
+      // Select the color
+      app::Color color = app::Color::fromMask();
 
-      std::unique_ptr<Sprite> sprite(Sprite::createBasicSprite(format, w, h, ncolors));
-
-      if (sprite->pixelFormat() != IMAGE_GRAYSCALE)
-        get_default_palette()->copyColorsTo(sprite->palette(frame_t(0)));
-
-      // If the background color isn't transparent, we have to
-      // convert the `Layer 1' in a `Background'
-      if (color.getType() != app::Color::MaskType) {
-        Layer* layer = sprite->folder()->getFirstLayer();
-
-        if (layer && layer->isImage()) {
-          LayerImage* layerImage = static_cast<LayerImage*>(layer);
-          layerImage->configureAsBackground();
-
-          Image* image = layerImage->cel(frame_t(0))->image();
-
-          // TODO Replace this adding a new parameter to color utils
-          Palette oldPal = *get_current_palette();
-          set_current_palette(get_default_palette(), false);
-
-          doc::clear_image(image,
-            color_utils::color_for_target(color,
-              ColorTarget(
-                ColorTarget::BackgroundLayer,
-                sprite->pixelFormat(),
-                sprite->transparentColor())));
-
-          set_current_palette(&oldPal, false);
-        }
+      if (bg >= 0 && bg <= 3) {
+        color = bg_table[bg];
+        ok = true;
       }
 
-      // Show the sprite to the user
-      std::unique_ptr<Document> doc(new Document(sprite.get()));
-      sprite.release();
-      sprintf(buf, "Sprite-%04d", ++_sprite_counter);
-      doc->setFilename(buf);
-      doc->setContext(context);
-      doc.release();
+      if (ok) {
+        // Save the configuration
+        pref.newFile.width(w);
+        pref.newFile.height(h);
+        pref.newFile.colorMode(format);
+        pref.newFile.backgroundColor(bg);
+
+        // Create the new sprite
+        ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
+        ASSERT(w > 0 && h > 0);
+
+        std::unique_ptr<Sprite> sprite(Sprite::createBasicSprite(format, w, h, ncolors));
+
+        if (sprite->pixelFormat() != IMAGE_GRAYSCALE)
+          get_default_palette()->copyColorsTo(sprite->palette(frame_t(0)));
+
+        // If the background color isn't transparent, we have to
+        // convert the `Layer 1' in a `Background'
+        if (color.getType() != app::Color::MaskType) {
+          Layer* layer = sprite->folder()->getFirstLayer();
+
+          if (layer && layer->isImage()) {
+            LayerImage* layerImage = static_cast<LayerImage*>(layer);
+            layerImage->configureAsBackground();
+
+            Image* image = layerImage->cel(frame_t(0))->image();
+
+            // TODO Replace this adding a new parameter to color utils
+            Palette oldPal = *get_current_palette();
+            set_current_palette(get_default_palette(), false);
+
+            doc::clear_image(image,
+              color_utils::color_for_target(color,
+                ColorTarget(
+                  ColorTarget::BackgroundLayer,
+                  sprite->pixelFormat(),
+                  sprite->transparentColor())));
+
+            set_current_palette(&oldPal, false);
+          }
+        }
+
+        // Show the sprite to the user
+        std::unique_ptr<Document> doc(new Document(sprite.get()));
+        sprite.release();
+        sprintf(buf, "Sprite-%04d", ++_sprite_counter);
+        doc->setFilename(buf);
+        doc->setContext(context);
+        doc.release();
+      }
     }
-  }
+  });
 }
 
 Command* CommandFactory::createNewFileCommand()

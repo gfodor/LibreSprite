@@ -176,6 +176,15 @@ void Manager::run()
     MessageLoop loop(Manager::getDefault());
     loop.pumpMessages();
 
+    // Go through all the windows, and if any are in the foreground but are hidden, call handleWindowLeftForeground
+    for (auto widget : new_windows) {
+      auto window = static_cast<Window*>(widget);
+
+      if (window->isForeground() && window->hasFlags(ui::HIDDEN)) {
+        window->handleWindowLeftForeground();
+      }
+    }
+
     if (Manager::getDefault()->children().empty())
       emscripten_cancel_main_loop();
   }, 0, 1);

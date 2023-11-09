@@ -234,16 +234,19 @@ void Window::openWindow()
   }
 }
 
-void Window::openWindowInForeground()
+void Window::openWindowInForeground(std::function<void(ui::Window*)> onLeftForegroundHandler)
 {
   m_isForeground = true;
+  m_onLeftForegroundHandler = onLeftForegroundHandler;
 
   openWindow();
+}
 
-  MessageLoop loop(manager());
-  while (!hasFlags(HIDDEN))
-    loop.pumpMessages();
+void Window::handleWindowLeftForeground() {
+  if (m_onLeftForegroundHandler != nullptr)
+    m_onLeftForegroundHandler(this);
 
+  m_onLeftForegroundHandler = nullptr;
   m_isForeground = false;
 }
 
