@@ -75,6 +75,11 @@ if(APPLE)
     osx/native_dialogs.mm)
 endif()
 
+if(EMSCRIPTEN)
+  list(APPEND SHE_SOURCES
+    wasm/native_dialogs.cpp)
+endif()
+
 if(WITH_GTK_FILE_DIALOG_SUPPORT AND UNIX AND NOT APPLE AND NOT BEOS)
   if(WITH_DEPRECATED_GLIB_SUPPORT)
     add_definitions(-DASEPRITE_DEPRECATED_GLIB_SUPPORT)

@@ -28,7 +28,13 @@ std::string show_file_selector(
   FileSelectorType type,
   FileSelectorDelegate* delegate)
 {
-  if (Preferences::instance().experimental.useNativeFileDialog() &&
+  bool useNativeDialog = Preferences::instance().experimental.useNativeFileDialog();
+
+#ifdef __EMSCRIPTEN__
+  useNativeDialog = true;
+#endif
+
+  if (useNativeDialog &&
       she::instance()->nativeDialogs()) {
     she::FileDialog* dlg =
       she::instance()->nativeDialogs()->createFileDialog();

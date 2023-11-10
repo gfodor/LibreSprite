@@ -59,6 +59,13 @@ Job::~Job()
 
 void Job::startJob()
 {
+#ifdef __EMSCRIPTEN__
+  // In Emscripten we don't have threads, so we call directly to the
+  // onJob() method.
+  onJob();
+  return;
+#endif
+
   m_thread = new base::thread(&Job::thread_proc, this);
 
   if (m_alert_window) {

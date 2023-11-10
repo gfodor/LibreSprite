@@ -12,6 +12,8 @@
   #include "she/osx/native_dialogs.h"
 #elif defined(ASEPRITE_WITH_GTK_FILE_DIALOG_SUPPORT) && defined(__linux__)
   #include "she/gtk/native_dialogs.h"
+#elif defined(__EMSCRIPTEN__)
+  #include "she/wasm/native_dialogs.h"
 #else
   #include "she/native_dialogs.h"
 #endif
@@ -58,6 +60,9 @@ public:
 #elif defined(ASEPRITE_WITH_GTK_FILE_DIALOG_SUPPORT) && defined(__linux__)
     if (!m_nativeDialogs)
       m_nativeDialogs = new NativeDialogsGTK3();
+#elif defined(__EMSCRIPTEN__)
+    if (!m_nativeDialogs)
+      m_nativeDialogs = new NativeDialogsWasm();
 #endif
     return m_nativeDialogs;
   }

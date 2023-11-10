@@ -419,5 +419,5 @@ add_subdirectory(third_party)
 add_subdirectory(src)
 
 if(EMSCRIPTEN)
-  target_link_options(libresprite PRIVATE --bind --preload-file bin/data/@/ --use-preload-plugins)
+  target_link_options(libresprite PRIVATE --bind --preload-file bin/data/@/ --use-preload-plugins -sASYNCIFY -s ALLOW_MEMORY_GROWTH=1)
 endif()
