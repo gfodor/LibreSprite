@@ -65,14 +65,16 @@ void AdvancedModeCommand::onExecute(Context* context)
       get_config_bool("AdvancedMode", "Warning", true)) {
     Key* key = KeyboardShortcuts::instance()->command(this->id().c_str());
     if (!key->accels().empty()) {
-      app::gen::AdvancedMode window;
+      std::shared_ptr<Window> windowPtr = std::make_shared<app::gen::AdvancedMode>();
+      app::gen::AdvancedMode* window = static_cast<app::gen::AdvancedMode*>(windowPtr.get());
 
-      window.warningLabel()->setTextf("You can go back pressing \"%s\" key.",
+      window->warningLabel()->setTextf("You can go back pressing \"%s\" key.",
         key->accels().front().toString().c_str());
 
-      window.openWindowInForeground();
-
-      set_config_bool("AdvancedMode", "Warning", !window.donotShow()->isSelected());
+      Manager::getDefault()->openWindowInForeground(windowPtr, [](ui::Window* windowPtr) -> void {
+        app::gen::AdvancedMode* window = static_cast<app::gen::AdvancedMode*>(windowPtr);
+        set_config_bool("AdvancedMode", "Warning", !window->donotShow()->isSelected());
+      });
     }
   }
 }

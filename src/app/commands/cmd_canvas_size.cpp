@@ -298,52 +298,60 @@ bool CanvasSizeCommand::onEnabled(Context* context)
 
 void CanvasSizeCommand::onExecute(Context* context)
 {
-  const ContextReader reader(context);
-  const Sprite* sprite(reader.sprite());
+  std::function<void()> resizeCanvas = [this, context]() {
+    // Resize canvas
+    const ContextReader reader(context);
+    const Sprite* sprite(reader.sprite());
+
+    int x1 = -m_left;
+    int y1 = -m_top;
+    int x2 = sprite->width() + m_right;
+    int y2 = sprite->height() + m_bottom;
+
+    if (x2 <= x1) x2 = x1+1;
+    if (y2 <= y1) y2 = y1+1;
+
+    {
+      ContextWriter writer(reader);
+      Document* document = writer.document();
+      Sprite* sprite = writer.sprite();
+      Transaction transaction(writer.context(), "Canvas Size");
+      DocumentApi api = document->getApi(transaction);
+
+      api.cropSprite(sprite, gfx::Rect(x1, y1, x2-x1, y2-y1));
+      transaction.commit();
+
+      document->generateMaskBoundaries();
+      update_screen_for_document(document);
+    }
+  };
 
   if (context->isUIAvailable()) {
     // load the window widget
-    std::unique_ptr<CanvasSizeWindow> window(new CanvasSizeWindow());
+    std::shared_ptr<CanvasSizeWindow> window(new CanvasSizeWindow());
 
     window->remapWindow();
     window->centerWindow();
 
     load_window_pos(window.get(), "CanvasSize");
     window->setVisible(true);
-    window->openWindowInForeground();
-    save_window_pos(window.get(), "CanvasSize");
 
-    if (!window->pressedOk())
-      return;
+    Manager::getDefault()->openWindowInForeground(window, [this, resizeCanvas](ui::Window* windowPtr) -> void {
+      CanvasSizeWindow* window = static_cast<CanvasSizeWindow*>(windowPtr);
+      save_window_pos(window, "CanvasSize");
 
-    m_left   = window->getLeft();
-    m_right  = window->getRight();
-    m_top    = window->getTop();
-    m_bottom = window->getBottom();
-  }
+      if (!window->pressedOk())
+        return;
 
-  // Resize canvas
+      m_left   = window->getLeft();
+      m_right  = window->getRight();
+      m_top    = window->getTop();
+      m_bottom = window->getBottom();
 
-  int x1 = -m_left;
-  int y1 = -m_top;
-  int x2 = sprite->width() + m_right;
-  int y2 = sprite->height() + m_bottom;
-
-  if (x2 <= x1) x2 = x1+1;
-  if (y2 <= y1) y2 = y1+1;
-
-  {
-    ContextWriter writer(reader);
-    Document* document = writer.document();
-    Sprite* sprite = writer.sprite();
-    Transaction transaction(writer.context(), "Canvas Size");
-    DocumentApi api = document->getApi(transaction);
-
-    api.cropSprite(sprite, gfx::Rect(x1, y1, x2-x1, y2-y1));
-    transaction.commit();
-
-    document->generateMaskBoundaries();
-    update_screen_for_document(document);
+      resizeCanvas();
+    });
+  } else {
+    resizeCanvas();
   }
 }
 
