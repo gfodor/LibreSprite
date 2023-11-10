@@ -170,24 +170,26 @@ void Manager::run()
 
     Manager::getDefault()->invalidate();
     set_mouse_cursor(kArrowCursor);
-  }
 
-  emscripten_set_main_loop([]() {
-    MessageLoop loop(Manager::getDefault());
-    loop.pumpMessages();
+    emscripten_set_main_loop([]() {
+      MessageLoop loop(Manager::getDefault());
+      loop.pumpMessages();
 
-    // Go through all the windows, and if any are in the foreground but are hidden, call handleWindowLeftForeground
-    for (auto widget : new_windows) {
-      auto window = static_cast<Window*>(widget);
+      Manager* manager = Manager::getDefault();
 
-      if (window->isForeground() && window->hasFlags(ui::HIDDEN)) {
-        window->handleWindowLeftForeground();
+      if (manager->m_foregroundWindow && manager->m_foregroundWindow->hasFlags(ui::HIDDEN)) {
+        if (manager->m_onLeftForegroundHandler) {
+          manager->m_onLeftForegroundHandler(manager->m_foregroundWindow.get());
+          manager->m_onLeftForegroundHandler = nullptr;
+        }
+
+        manager->m_foregroundWindow = nullptr;
       }
-    }
 
-    if (Manager::getDefault()->children().empty())
-      emscripten_cancel_main_loop();
-  }, 0, 1);
+      if (manager->children().empty())
+        emscripten_cancel_main_loop();
+    }, 0, 1);
+  }
 }
 #else
 void Manager::run()
@@ -1534,6 +1536,17 @@ void Manager::broadcastKeyMsg(Message* msg)
   else {
     msg->addRecipient(this);
   }
+}
+
+void Manager::openWindowInForeground(std::shared_ptr<Window> window, std::function<void(Window*)> onLeftForegroundHandler) {
+  m_foregroundWindow = window;
+  m_onLeftForegroundHandler = onLeftForegroundHandler;
+
+  window->openWindow();
+}
+
+bool Manager::isForegroundWindow(Window* window) {
+  return m_foregroundWindow.get() == window;
 }
 
 /***********************************************************************

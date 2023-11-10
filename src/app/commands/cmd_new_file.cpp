@@ -63,8 +63,8 @@ void NewFileCommand::onExecute(Context* context)
 {
   Preferences& pref = Preferences::instance();
 
-  // Load the window widget
-  app::gen::NewSprite window;
+  std::shared_ptr<Window> windowPtr = std::make_shared<app::gen::NewSprite>();
+  app::gen::NewSprite* window = static_cast<app::gen::NewSprite*>(windowPtr.get());
 
   // Default values: Indexed, 320x240, Background color
   PixelFormat format = pref.newFile.colorMode();
@@ -87,22 +87,17 @@ void NewFileCommand::onExecute(Context* context)
     h = clipboardSize.h;
   }
 
-  window.width()->setTextf("%d", MAX(1, w));
-  window.height()->setTextf("%d", MAX(1, h));
+  window->width()->setTextf("%d", MAX(1, w));
+  window->height()->setTextf("%d", MAX(1, h));
 
   // Select image-type
-  window.colorMode()->setSelectedItem(format);
+  window->colorMode()->setSelectedItem(format);
 
   // Select background color
-  window.bgColor()->setSelectedItem(bg);
+  window->bgColor()->setSelectedItem(bg);
 
-  std::cout << "New window opening" << std::endl;
-
-  // Open the window and pass it a closure to print the result on exit
-  window.openWindowInForeground([context](ui::Window* windowOrig) -> void {
-    std::cout << "New window closing" << std::endl;
-
-    app::gen::NewSprite* window = static_cast<app::gen::NewSprite*>(windowOrig);
+  Manager::getDefault()->openWindowInForeground(windowPtr, [context](ui::Window* windowPtr) -> void {
+    app::gen::NewSprite* window = static_cast<app::gen::NewSprite*>(windowPtr);
 
     if (window->closer() == window->okButton()) {
       char buf[1024];

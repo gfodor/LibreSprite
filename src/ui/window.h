@@ -36,12 +36,11 @@ namespace ui {
     void moveWindow(const gfx::Rect& rect);
 
     void openWindow();
-    void openWindowInForeground(std::function<void(ui::Window*)> onLeftForegroundHandler = nullptr);
-    void handleWindowLeftForeground();
+    void openWindowInForeground();
     void closeWindow(Widget* closer);
 
     bool isTopLevel();
-    bool isForeground() const { return m_isForeground; }
+    bool isForeground();
     bool isDesktop() const { return m_isDesktop; }
     bool isOnTop() const { return m_isOnTop; }
     bool isWantFocus() const { return m_isWantFocus; }
@@ -79,11 +78,8 @@ namespace ui {
     bool m_isSizeable : 1;
     bool m_isOnTop : 1;
     bool m_isWantFocus : 1;
-    bool m_isForeground : 1;
     bool m_isAutoRemap : 1;
     int m_hitTest;
-
-    std::function<void(ui::Window*)> m_onLeftForegroundHandler;
   };
 
 } // namespace ui

@@ -98,6 +98,8 @@ namespace ui {
     // screen
     void dirtyRect(const gfx::Rect& bounds);
 
+    bool isForegroundWindow(Window* window);
+    void openWindowInForeground(std::shared_ptr<Window> window, std::function<void(Window*)> onLeftForegroundHandler = nullptr);
     void _openWindow(Window* window);
     void _closeWindow(Window* window, bool redraw_background);
 
@@ -170,6 +172,9 @@ namespace ui {
 
     // Current pressed buttons.
     MouseButtons m_mouseButtons;
+
+    std::shared_ptr<Window> m_foregroundWindow = nullptr;
+    std::function<void(Window*)> m_onLeftForegroundHandler;
   };
 
 } // namespace ui

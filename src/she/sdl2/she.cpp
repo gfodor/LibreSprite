@@ -237,25 +237,21 @@ namespace sdl {
                                 });
                             entry.second->present();
                         }
-                        std::cout << "Force Flip" << std::endl;
                         continue;
 
                     case SDL_WINDOWEVENT_MAXIMIZED:
                         sdl::isMaximized = true;
                         sdl::isMinimized = false;
-                        std::cout << "Maximized" << std::endl;
                         continue;
 
                     case SDL_WINDOWEVENT_MINIMIZED:
                         sdl::isMaximized = false;
                         sdl::isMinimized = true;
-                        std::cout << "Minimized" << std::endl;
                         continue;
 
                     case SDL_WINDOWEVENT_RESTORED:
                         sdl::isMaximized = false;
                         sdl::isMinimized = false;
-                        std::cout << "Restored" << std::endl;
                         continue;
 
                     case SDL_WINDOWEVENT_RESIZED: {
@@ -275,7 +271,6 @@ namespace sdl {
                     continue;
 
                 case SDL_MOUSEMOTION:
-                    std::cout << "MouseMotion" << std::endl;
                     event.setType(Event::MouseMove);
                     event.setModifiers(getSheModifiers());
                     event.setPosition({
@@ -285,7 +280,6 @@ namespace sdl {
                     return;
 
                 case SDL_MOUSEWHEEL:
-                    std::cout << "MouseWheel" << std::endl;
                     event.setType(Event::MouseWheel);
                     event.setModifiers(getSheModifiers());
                     event.setWheelDelta({-sdlEvent.wheel.x, -sdlEvent.wheel.y});
@@ -299,7 +293,6 @@ namespace sdl {
 
                 case SDL_MOUSEBUTTONUP:
                 case SDL_MOUSEBUTTONDOWN: {
-                    std::cout << "Mouse" << (sdlEvent.type == SDL_MOUSEBUTTONDOWN ? "Down" : "Up") << std::endl;
                     auto type = sdlEvent.type == SDL_MOUSEBUTTONDOWN ? Event::MouseDown : Event::MouseUp;
                     event.setType(type);
                     event.setPosition({
@@ -333,7 +326,6 @@ namespace sdl {
                   }
 
                   auto it = keyCodeMapping.find((SDL_Keycode) sdlEvent.key.keysym.sym);
-                  std::cout << "Key" << (isPressed ? "Down" : "Up") << std::endl;
 
                   if (it == keyCodeMapping.end()) {
                     std::cout << "Unknown scancode: " << sdlEvent.key.keysym.sym << std::endl;

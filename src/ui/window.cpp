@@ -47,7 +47,6 @@ Window::Window(Type type, const std::string& text)
   m_isSizeable = !m_isDesktop;
   m_isOnTop = false;
   m_isWantFocus = true;
-  m_isForeground = false;
   m_isAutoRemap = true;
 
   setVisible(false);
@@ -234,21 +233,11 @@ void Window::openWindow()
   }
 }
 
-void Window::openWindowInForeground(std::function<void(ui::Window*)> onLeftForegroundHandler)
+void Window::openWindowInForeground()
 {
-  m_isForeground = true;
-  m_onLeftForegroundHandler = onLeftForegroundHandler;
-
   openWindow();
 }
 
-void Window::handleWindowLeftForeground() {
-  if (m_onLeftForegroundHandler != nullptr)
-    m_onLeftForegroundHandler(this);
-
-  m_onLeftForegroundHandler = nullptr;
-  m_isForeground = false;
-}
 
 void Window::closeWindow(Widget* closer)
 {
@@ -268,6 +257,11 @@ bool Window::isTopLevel()
     return (this == UI_FIRST_WIDGET(manager->children()));
   else
     return false;
+}
+
+bool Window::isForeground()
+{
+  return Manager::getDefault()->isForegroundWindow(this);
 }
 
 bool Window::onProcessMessage(Message* msg)
