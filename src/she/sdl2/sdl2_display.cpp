@@ -50,16 +50,6 @@ namespace she {
 
     unique_display = this;
 
-    width = 800;
-    height = 600;
-
-    std::cout << "SDL2Display::SDL2Display" << std::endl;
-
-    // Print width and height
-
-    std::cout << "width: " << width << std::endl;
-    std::cout << "height: " << height << std::endl;
-
     m_window = SDL_CreateWindow("",
                                 SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
@@ -71,17 +61,6 @@ namespace she {
     sdl::windowIdToDisplay[SDL_GetWindowID(m_window)] = this;
     m_width = width;
     m_height = height;
-
-    // Get width and height from the SDL window
-
-    SDL_GetWindowSize(m_window, &width, &height);
-
-    std::cout << "new width: " << width << std::endl;
-    std::cout << "new height: " << height << std::endl;
-
-    // Set the window size to 1024x768
-
-    SDL_SetWindowSize(m_window, 1024, 768);
 
     SDL_ShowCursor(SDL_DISABLE);
 
@@ -171,6 +150,10 @@ namespace she {
     m_dirty = true;
     m_surface = newSurface;
     she::sdl::screen = newSurface;
+#ifdef __EMSCRIPTEN__
+    // This will properly raster into the HTML canvas
+    SDL_SetWindowSize(m_window, width(), height());
+#endif
   }
 
   Surface* SDL2Display::getSurface()

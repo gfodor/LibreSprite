@@ -47,6 +47,14 @@
 #include <list>
 #include <vector>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+EM_JS(int, get_canvas_width, (), { return Module.canvas.width; });
+EM_JS(int, get_canvas_height, (), { return Module.canvas.height; });
+
+#endif
+
 namespace app {
 
 using namespace gfx;
@@ -219,6 +227,11 @@ static void load_gui_config(int& w, int& h, bool& maximized,
   h = get_config_int("GfxMode", "Height", defSize.h);
   maximized = get_config_bool("GfxMode", "Maximized", false);
   windowLayout = get_config_string("GfxMode", "WindowLayout", "");
+
+#ifdef __EMSCRIPTEN__
+  w = get_canvas_width();
+  h = get_canvas_height();
+#endif
 }
 
 static void save_gui_config()
