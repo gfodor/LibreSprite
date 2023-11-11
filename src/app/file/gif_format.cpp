@@ -26,6 +26,8 @@
 #include "render/render.h"
 #include "ui/alert.h"
 #include "ui/button.h"
+#include "ui/manager.h"
+#include "ui/window.h"
 
 #include "gif_options.xml.h"
 
@@ -1303,26 +1305,33 @@ base::SharedPtr<FormatOptions> GifFormat::onGetFormatOptions(FileOp* fop)
 
     // Load the window to ask to the user the GIF options he wants.
 
-    app::gen::GifOptions win;
-    win.interlaced()->setSelected(gif_options->interlaced());
-    win.loop()->setSelected(gif_options->loop());
+    std::shared_ptr<ui::Window> winPtr = std::make_shared<app::gen::GifOptions>();
+    app::gen::GifOptions* win = static_cast<app::gen::GifOptions*>(winPtr.get());
 
-    win.openWindowInForeground();
+    win->interlaced()->setSelected(gif_options->interlaced());
+    win->loop()->setSelected(gif_options->loop());
 
-    if (win.closer() == win.ok()) {
-      gif_options->setInterlaced(win.interlaced()->isSelected());
-      gif_options->setLoop(win.loop()->isSelected());
+#ifdef __EMSCRIPTEN__
+    // Log a warning
+    Console console(fop->context());
+    console.printf("Warning: GIF options are not available in the web version, dialog control flow won't work.");
+    return gif_options;
+#endif
+
+    ui::Manager::getDefault()->openWindowInForeground(winPtr, [](ui::Window* winPtr) -> void { });
+
+    if (win->closer() == win->ok()) {
+      gif_options->setInterlaced(win->interlaced()->isSelected());
+      gif_options->setLoop(win->loop()->isSelected());
 
       set_config_bool("GIF", "Interlaced", gif_options->interlaced());
       set_config_bool("GIF", "Loop", gif_options->loop());
-    }
-    else {
+    } else {
       gif_options.reset(NULL);
     }
 
     return gif_options;
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     Console::showException(e);
     return base::SharedPtr<GifOptions>(0);
   }

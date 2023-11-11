@@ -332,17 +332,25 @@ base::SharedPtr<FormatOptions> WebPFormat::onGetFormatOptions(FileOp* fop)
 
     // Load the window to ask to the user the WebP options he wants.
 
-    app::gen::WebpOptions win;
-    win.lossless()->setSelected(webp_options->lossless());
-    win.lossy()->setSelected(!webp_options->lossless());
-    win.quality()->setValue(static_cast<int>(webp_options->getQuality()));
-    win.compression()->setValue(webp_options->getMethod());
-    win.imageHint()->setSelectedItemIndex(webp_options->getImageHint());
-    win.imagePreset()->setSelectedItemIndex(webp_options->getImagePreset());
+    std::shared_ptr<ui::Window> winPtr = std::make_shared<app::gen::WebpOptions>();
+    app::gen::WebpOptions* win = static_cast<app::gen::WebpOptions*>(winPtr.get());
+    win->lossless()->setSelected(webp_options->lossless());
+    win->lossy()->setSelected(!webp_options->lossless());
+    win->quality()->setValue(static_cast<int>(webp_options->getQuality()));
+    win->compression()->setValue(webp_options->getMethod());
+    win->imageHint()->setSelectedItemIndex(webp_options->getImageHint());
+    win->imagePreset()->setSelectedItemIndex(webp_options->getImagePreset());
 
-    win.openWindowInForeground();
+#ifdef __EMSCRIPTEN__
+    // Log a warning
+    Console console(fop->context());
+    console.printf("Warning: WEBP options are not available in the web version, dialog control flow won't work.");
+    return webp_options;
+#endif
 
-    if (win.closer() == win.ok()) {
+    ui::Manager::getDefault()->openWindowInForeground(winPtr, [](ui::Window* winPtr) -> void { });
+
+    if (win->closer() == win->ok()) {
       webp_options->setQuality(win.quality()->getValue());
       webp_options->setMethod(win.compression()->getValue());
       webp_options->setLossless(win.lossless()->isSelected());

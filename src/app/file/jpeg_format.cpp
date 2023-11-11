@@ -24,6 +24,8 @@
 #include "doc/doc.h"
 #include "ui/ui.h"
 
+#include "jpeg_options.xml.h"
+
 #include <csetjmp>
 #include <cstdio>
 #include <cstdlib>
@@ -364,13 +366,20 @@ base::SharedPtr<FormatOptions> JpegFormat::onGetFormatOptions(FileOp* fop)
     jpeg_options->quality = get_config_float("JPEG", "Quality", 1.0f);
 
     // Load the window to ask to the user the JPEG options he wants.
-    std::unique_ptr<ui::Window> window(app::load_widget<ui::Window>("jpeg_options.xml", "jpeg_options"));
+    std::shared_ptr<ui::Window> window = std::make_shared<app::gen::JpegOptions>();
     ui::Slider* slider_quality = app::find_widget<ui::Slider>(window.get(), "quality");
     ui::Widget* ok = app::find_widget<ui::Widget>(window.get(), "ok");
 
     slider_quality->setValue(int(jpeg_options->quality * 10.0f));
 
-    window->openWindowInForeground();
+#ifdef __EMSCRIPTEN__
+      // Log a warning
+      Console console(fop->context());
+      console.printf("Warning: GIF options are not available in the web version, dialog control flow won't work.");
+      return jpeg_options;
+#endif
+
+    ui::Manager::getDefault()->openWindowInForeground(window, [](ui::Window* winPtr) -> void { });
 
     if (window->closer() == ok) {
       jpeg_options->quality = slider_quality->getValue() / 10.0f;
