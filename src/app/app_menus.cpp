@@ -153,6 +153,17 @@ Menu* AppMenus::convertXmlelemToMenu(TiXmlElement* elem)
 
   TiXmlElement* child = elem->FirstChildElement();
   while (child) {
+    // Selectively render wasm menu items
+    if (child->Attribute("wasm") &&
+#if __EMSCRIPTEN__
+        strcmp(child->Attribute("wasm"), "false") == 0) {
+#else
+        strcmp(child->Attribute("wasm"), "true") == 0) {
+#endif
+      child = child->NextSiblingElement();
+      continue;
+    }
+
     Widget* menuitem = convertXmlelemToMenuitem(child);
     if (menuitem)
       menu->addChild(menuitem);

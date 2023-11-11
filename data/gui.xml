@@ -516,9 +516,11 @@
         <item command="OpenFile" text="&amp;Open..." />
         <item id="recent_list" text="Open &amp;Recent" />
         <separator />
-        <item command="SaveFile" text="&amp;Save" />
-        <item command="SaveFileAs" text="Save &amp;As..." />
-        <item command="SaveFileCopyAs" text="Save Cop&amp;y As..." />
+        <item command="SaveFile" text="&amp;Save" wasm="false" />
+        <item command="SaveFileAs" text="Save &amp;As..." wasm="false" />
+        <item command="SaveFileCopyAs" text="Save Cop&amp;y As..." wasm="false" />
+        <item command="SaveFileAsAseprite" text="Save As .aseprite..." wasm="true" />
+        <item command="SaveFileAsPNG" text="Save As .PNG..." wasm="true" />
         <item command="CloseFile" text="&amp;Close" />
         <item command="CloseAllFiles" text="Close All" />
         <separator />

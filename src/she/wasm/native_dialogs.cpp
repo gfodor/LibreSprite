@@ -18,7 +18,7 @@
 
 EM_JS(void, open_file_picker, (const char* acceptedExtensions), {
   Module.file_picker_done = false;
-  Module.file_picker_tempfile = null;
+  Module.file_picker_filename = null;
 
   const inputElement = document.createElement('input');
   inputElement.type = 'file';
@@ -43,16 +43,11 @@ EM_JS(void, open_file_picker, (const char* acceptedExtensions), {
       const arrayBuffer = loadEvent.target.result;
       const file_data = new Uint8Array(arrayBuffer);
 
-      // Generate a temporary file name and then write the bytes of the underlying file to MEMFS at that path.
       const filename = file.name;
-      const ext = filename.substr(filename.lastIndexOf('.') + 1);
-      const basename = filename.substr(0, filename.lastIndexOf('.'));
-      const tempfile = Date.now() + '-temp-picker.' + ext;
       
-      // Now write the file to MEMFS.
-      FS.writeFile(tempfile, file_data);
+      FS.writeFile(filename, file_data);
 
-      Module.file_picker_tempfile = tempfile;
+      Module.file_picker_filename = filename;
       Module.file_picker_done = true;
     };
 
@@ -74,12 +69,12 @@ EM_JS(bool, file_picker_done, (), {
     return !!Module.file_picker_done;
 });
 
-EM_JS(bool, has_file_picker_tempfile, (), {
-    return !!Module.file_picker_tempfile;
+EM_JS(bool, has_file_picker_filename, (), {
+    return !!Module.file_picker_filename;
 });
 
-EM_JS(void, get_file_picker_tempfile, (char* buffer, int size), {
-    stringToUTF8(Module.file_picker_tempfile, buffer, size);
+EM_JS(void, get_file_picker_filename, (char* buffer, int size), {
+    stringToUTF8(Module.file_picker_filename, buffer, size);
 });
 
 namespace she {
@@ -142,11 +137,11 @@ public:
 
     while (1) {
       if (file_picker_done()) {
-        if (has_file_picker_tempfile()) {
+        if (has_file_picker_filename()) {
           char buffer[1024];
-          get_file_picker_tempfile(buffer, sizeof(buffer));
+          get_file_picker_filename(buffer, sizeof(buffer));
           m_filename = buffer;
-          std::cout << "file_picker_tempfile: " << m_filename << std::endl;
+          std::cout << "file_picker_filename: " << m_filename << std::endl;
           return true;
         }
         else

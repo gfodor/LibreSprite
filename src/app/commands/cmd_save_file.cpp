@@ -34,6 +34,25 @@
 
 #include <memory>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+EM_JS(void, download_file_locally, (const char* memfs_filename), {
+  const filename = UTF8ToString(memfs_filename);
+  const data = FS.readFile(filename);
+
+  var a = document.createElement('a');
+  const blob = new Blob([data], {type: 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+#endif
+
 namespace app {
 
 class SaveAsCopyDelegate : public FileSelectorDelegate {
@@ -129,6 +148,11 @@ static void save_document_in_background(const Context* context,
     StatusBar::instance()
       ->setStatusText(2000, "File %s, saved.",
         document->name().c_str());
+
+#ifdef __EMSCRIPTEN__
+    download_file_locally(document->filename().c_str());
+#endif
+
   }
 }
 
@@ -258,6 +282,24 @@ protected:
   void onExecute(Context* context) override;
 };
 
+class SaveFileAsAsepriteCommand : public SaveFileBaseCommand {
+public:
+  SaveFileAsAsepriteCommand();
+  Command* clone() const override { return new SaveFileAsAsepriteCommand(*this); }
+
+protected:
+  void onExecute(Context* context) override;
+};
+
+class SaveFileAsPNGCommand : public SaveFileBaseCommand {
+public:
+  SaveFileAsPNGCommand();
+  Command* clone() const override { return new SaveFileAsPNGCommand(*this); }
+
+protected:
+  void onExecute(Context* context) override;
+};
+
 SaveFileCommand::SaveFileCommand()
   : SaveFileBaseCommand("SaveFile", "Save File", CmdRecordableFlag)
 {
@@ -285,6 +327,46 @@ void SaveFileCommand::onExecute(Context* context)
   else {
     saveAsDialog(context, "Save File");
   }
+}
+
+SaveFileAsAsepriteCommand::SaveFileAsAsepriteCommand()
+  : SaveFileBaseCommand("SaveFileAsAseprite", "Save File as .aseprite", CmdRecordableFlag)
+{
+}
+
+void SaveFileAsExtension(Context* context, std::string filenameFormat, const char* ext)
+{
+  ContextWriter writer(context);
+  Document* documentWriter = writer.document();
+  std::string oldFilename = documentWriter->filename();
+
+  // Change the file extension of oldFilename to .aseprite
+  std::string filename = oldFilename;
+  std::string::size_type p = filename.find_last_of('.');
+  if (p != std::string::npos)
+    filename.erase(p);
+  filename += ext;
+
+  documentWriter->setFilename(filename.c_str());
+
+  save_document_in_background(
+    context, documentWriter, true,
+    filenameFormat);
+}
+
+void SaveFileAsAsepriteCommand::onExecute(Context* context)
+{
+  SaveFileAsExtension(context, m_filenameFormat, ".aseprite");
+}
+
+SaveFileAsPNGCommand::SaveFileAsPNGCommand()
+  : SaveFileBaseCommand("SaveFileAsPNG", "Save File as .PNG", CmdRecordableFlag)
+{
+}
+
+void SaveFileAsPNGCommand::onExecute(Context* context)
+{
+  SaveFileAsExtension(context, m_filenameFormat, ".png");
 }
 
 class SaveFileAsCommand : public SaveFileBaseCommand {
@@ -356,6 +438,16 @@ Command* CommandFactory::createSaveFileCommand()
 Command* CommandFactory::createSaveFileAsCommand()
 {
   return new SaveFileAsCommand;
+}
+
+Command* CommandFactory::createSaveFileAsAsepriteCommand()
+{
+  return new SaveFileAsAsepriteCommand;
+}
+
+Command* CommandFactory::createSaveFileAsPNGCommand()
+{
+  return new SaveFileAsPNGCommand;
 }
 
 Command* CommandFactory::createSaveFileCopyAsCommand()
