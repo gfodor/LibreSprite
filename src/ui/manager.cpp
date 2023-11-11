@@ -1543,6 +1543,20 @@ void Manager::openWindowInForeground(std::shared_ptr<Window> window, std::functi
   m_onLeftForegroundHandler = onLeftForegroundHandler;
 
   window->openWindow();
+
+#ifndef __EMSCRIPTEN__
+  MessageLoop loop(manager());
+
+  while (!window->hasFlags(HIDDEN))
+    loop.pumpMessages();
+
+  if (m_onLeftForegroundHandler) {
+    m_onLeftForegroundHandler(m_foregroundWindow.get());
+    m_onLeftForegroundHandler = nullptr;
+  }
+
+  m_foregroundWindow = nullptr;
+#endif
 }
 
 bool Manager::isForegroundWindow(Window* window) {

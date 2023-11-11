@@ -16,6 +16,7 @@
 #include "base/mutex.h"
 #include "base/scoped_lock.h"
 #include "base/thread.h"
+#include "ui/manager.h"
 #include "ui/widget.h"
 #include "ui/window.h"
 
@@ -69,26 +70,28 @@ void Job::startJob()
   m_thread = new base::thread(&Job::thread_proc, this);
 
   if (m_alert_window) {
-    m_alert_window->openWindowInForeground();
+     std::shared_ptr<ui::Window> alertPtr = std::shared_ptr<ui::Window>(m_alert_window.get(), [](ui::Window* windowPtr) -> void { });
 
-    // The job was canceled by the user?
-    {
-      base::scoped_lock hold(*m_mutex);
-      if (!m_done_flag)
-        m_canceled_flag = true;
-    }
+     ui::Manager::getDefault()->openWindowInForeground(alertPtr, [this](ui::Window* windowPtr) -> void {
+       // The job was canceled by the user?
+       {
+         base::scoped_lock hold(*m_mutex);
+         if (!m_done_flag)
+           m_canceled_flag = true;
+       }
 
-    // In case of error, take the "cancel" path (i.e. it's like the
-    // user canceled the operation).
-    if (m_error) {
-      m_canceled_flag = true;
-      try {
-        std::rethrow_exception(m_error);
-      }
-      catch (const std::exception& ex) {
-        Console::showException(ex);
-      }
-    }
+       // In case of error, take the "cancel" path (i.e. it's like the
+       // user canceled the operation).
+       if (m_error) {
+         m_canceled_flag = true;
+         try {
+           std::rethrow_exception(m_error);
+         }
+         catch (const std::exception& ex) {
+           Console::showException(ex);
+         }
+       }
+     });
   }
 }
 
