@@ -43,6 +43,8 @@ public:
   std::string getClassName() const override { return "App"; }
 
   AppScriptObject() {
+    std::cout << "AppScriptObject() constructor" << std::endl;
+
     addProperty("activeFrameNumber", [this]{return updateSite() ? m_site.frame() : 0;})
       .doc("read-only. Returns the number of the currently active animation frame.");
 
@@ -55,7 +57,7 @@ public:
     addProperty("activeSprite", []{return inject<ScriptObject>{"activeSprite"}.get();})
       .doc("read-only. Returns the currently active Sprite.");
 
-    addProperty("activeDocument", []{return inject<ScriptObject>{"activeDocument"}.get();})
+    addProperty("activeDocument", []{ return inject<ScriptObject>{"activeDocument"}.get(); })
       .doc("read-only. Returns the currently active Document.");
 
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
@@ -67,7 +69,13 @@ public:
     addMethod("documentation", &AppScriptObject::documentation)
       .doc("prints this text.");
 
+    addMethod("newDocument", &AppScriptObject::newDocument)
+      .doc("creates a new document.");
+
+    std::cout << "AppScriptObject() constructor make" << std::endl;
     makeGlobal("app");
+
+    std::cout << "AppScriptObject() constructor init" << std::endl;
     init();
   }
 
@@ -159,12 +167,15 @@ public:
   }
 
   ScriptObject* init() {
-    if (!updateSite())
+    if (!updateSite()) {
+      std::cout << "No site" << std::endl;
       return nullptr;
+    }
 
     int layerIndex = m_site.layerIndex();
     int frameIndex = m_site.frame();
 
+    std::cout << "init: " << layerIndex << ", " << frameIndex << std::endl;
     m_documents.emplace_back("DocumentScriptObject");
 
     auto sprite = m_documents.back()->get<ScriptObject*>("sprite");
@@ -195,6 +206,21 @@ public:
     if (newDoc == oldDoc)
       return {};
 
+    std::cout << "Opened " << fn << std::endl;
+    m_documents.emplace_back("DocumentScriptObject");
+    return inject<ScriptObject>{"activeSprite"}.get();
+  }
+
+  script::Value newDocument() {
+    Command* newCommand = CommandsModule::instance()->getCommandByName(CommandId::NewFile);
+    Params params;
+    params.set("width", "128");
+    params.set("height", "128");
+    params.set("bg", "0");
+    params.set("format", "0");
+
+    std::cout << "New document" << std::endl;
+    UIContext::instance()->executeCommand(newCommand, params);
     m_documents.emplace_back("DocumentScriptObject");
     return inject<ScriptObject>{"activeSprite"}.get();
   }

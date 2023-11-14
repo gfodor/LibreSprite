@@ -50,12 +50,16 @@ static std::map<std::string, InternalScriptObject*> browserScriptRegistry;
 
 class BrowserScriptObject : public InternalScriptObject {
 public:
+  std::string getHandleId() {
+    return std::to_string(reinterpret_cast<uintptr_t>(this));
+  }
+
   BrowserScriptObject() : InternalScriptObject() {
-    browserScriptRegistry[this->getName()] = this;
+    browserScriptRegistry[this->getHandleId()] = this;
   }
 
   ~BrowserScriptObject() {
-    browserScriptRegistry.erase(this->getName());
+    browserScriptRegistry.erase(this->getHandleId());
   }
 
   static BrowserScriptObject* getByHandle(std::string handle) {
@@ -67,8 +71,16 @@ public:
   }
 
   val makeLocal() {
+    val window = val::global("window");
+    val librespriteObj = window["libresprite"];
+
+    if (librespriteObj.isUndefined()) {
+      librespriteObj = val::object();
+      window.set("libresprite", librespriteObj);
+    }
+
     val obj = val::object();
-    obj.set("__handle", this->getName());
+    obj.set("__handle", this->getHandleId());
 
     // Add the functions
     for (auto& entry : functions) {
@@ -90,18 +102,18 @@ public:
     //  obj.set("get_" + entry.first, val::function(entry.second.getter));
     //}
 
-    val window = val::global("window");
-    window.set("__temp", obj);
+    librespriteObj.set("__temp", obj);
 
     for (auto& entry : functions) {
       std::string className = m_className;
       std::string fnName = entry.first;
       std::string path = className + "." + fnName;
 
-      std::string script = "let foo = __temp; __temp." + fnName + " = (...arguments) => { arguments.unshift(foo.__handle); arguments.unshift(\""+ fnName + "\"); return foo.__" + fnName + "(...arguments); };";
+      std::string script = "let v = window.libresprite.__temp; v." + fnName + " = (...arguments) => { arguments.unshift(v.__handle); arguments.unshift(\""+ fnName + "\"); return v.__" + fnName + "(...arguments); };";
       emscripten_run_script(script.c_str());
     }
 
+    librespriteObj.set("__temp", val::undefined());
     emscripten_run_script("delete window.__temp;");
 
     return obj;

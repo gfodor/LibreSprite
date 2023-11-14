@@ -16,6 +16,9 @@ void base_trace(const char* msg, ...);
   #ifdef _WIN32
     #include <crtdbg.h>
     #define base_break() _CrtDbgBreak()
+  #elif __EMSCRIPTEN__
+    #include <emscripten.h>
+    #define base_break() EM_ASM({debugger;})
   #else
     #include <signal.h>
     #define base_break() raise(SIGTRAP)

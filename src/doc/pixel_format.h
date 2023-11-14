@@ -9,10 +9,11 @@
 namespace doc {
 
   enum PixelFormat {
-    IMAGE_RGB,
-    IMAGE_GRAYSCALE,
-    IMAGE_INDEXED,
-    IMAGE_BITMAP
+    IMAGE_RGB = 0,
+    IMAGE_GRAYSCALE = 1,
+    IMAGE_INDEXED = 2,
+    IMAGE_BITMAP = 3,
+    IMAGE_NONE = 4,
   };
 
 } // namespace doc

@@ -306,8 +306,12 @@ if(USE_SDL2_BACKEND)
     find_package(SDL2_IMAGE REQUIRED)
     include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
   else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"png\"]' -s DISABLE_EXCEPTION_CATCHING=0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"png\"]'")
   endif()
+endif()
+
+if(EMSCRIPTEN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -s DISABLE_EXCEPTION_CATCHING=0")
 endif()
 
 # -- Unix --
@@ -419,5 +423,5 @@ add_subdirectory(third_party)
 add_subdirectory(src)
 
 if(EMSCRIPTEN)
-  target_link_options(libresprite PRIVATE --bind --preload-file bin/data/@/ --use-preload-plugins -sASYNCIFY -s ALLOW_MEMORY_GROWTH=1)
+  target_link_options(libresprite PRIVATE -sDEMANGLE_SUPPORT=1 -sINITIAL_MEMORY=33554432 -sTOTAL_STACK=16777216 -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY --bind --preload-file bin/data/@/ --use-preload-plugins )
 endif()

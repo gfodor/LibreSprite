@@ -32,6 +32,8 @@
 
 #include "tinyxml.h"
 
+#include <stack>
+#include <tuple>
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
@@ -103,6 +105,7 @@ Widget* WidgetLoader::loadWidgetFromXmlFile(
 
     if (nodename && nodename == widgetId) {
       widget = convertXmlElementToWidget(xmlElement, NULL, NULL, widget);
+      fillWidgetWithXmlElementAttributesWithChildren(xmlElement, widget, widget);
       break;
     }
 
@@ -492,10 +495,6 @@ Widget* WidgetLoader::convertXmlElementToWidget(const TiXmlElement* elem, Widget
       widget = new SearchEntry;
   }
 
-  // Was the widget created?
-  if (widget)
-    fillWidgetWithXmlElementAttributesWithChildren(elem, root, widget);
-
   return widget;
 }
 
@@ -600,56 +599,69 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const TiXmlElement* elem, 
   }
 }
 
-void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const TiXmlElement* elem, ui::Widget* root, ui::Widget* widget)
-{
-  fillWidgetWithXmlElementAttributes(elem, root, widget);
+void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const TiXmlElement* elem, ui::Widget* root, ui::Widget* widget) {
+    std::stack<std::tuple<const TiXmlElement*, ui::Widget*, ui::Widget*>> elements;
 
-  if (!root)
-    root = widget;
+    elements.emplace(elem, root, widget);
 
-  // Children
-  const TiXmlElement* childElem = elem->FirstChildElement();
-  while (childElem) {
-    Widget* child = convertXmlElementToWidget(childElem, root, widget, NULL);
-    if (child) {
-      // Attach the child in the view
-      if (widget->type() == kViewWidget) {
-        static_cast<View*>(widget)->attachToView(child);
-        break;
-      }
-      // Add the child in the grid
-      else if (widget->type() == kGridWidget) {
-        const char* cell_hspan = childElem->Attribute("cell_hspan");
-        const char* cell_vspan = childElem->Attribute("cell_vspan");
-        const char* cell_align = childElem->Attribute("cell_align");
-        int hspan = cell_hspan ? strtol(cell_hspan, NULL, 10): 1;
-        int vspan = cell_vspan ? strtol(cell_vspan, NULL, 10): 1;
-        int align = cell_align ? convert_align_value_to_flags(cell_align): 0;
-        Grid* grid = dynamic_cast<Grid*>(widget);
-        ASSERT(grid != NULL);
+    while (!elements.empty()) {
+        std::tie(elem, root, widget) = elements.top();
+        elements.pop();
 
-        grid->addChildInCell(child, hspan, vspan, align);
-      }
-      // Attach the child in the view
-      else if (widget->type() == kComboBoxWidget &&
-               child->type() == kListItemWidget) {
-        ComboBox* combo = dynamic_cast<ComboBox*>(widget);
-        ASSERT(combo != NULL);
+        fillWidgetWithXmlElementAttributes(elem, root, widget);
 
-        combo->addItem(dynamic_cast<ListItem*>(child));
-      }
-      // Just add the child in any other kind of widget
-      else
-        widget->addChild(child);
+        if (!root) {
+            root = widget;
+        }
+
+        const TiXmlElement* childElem = elem->FirstChildElement();
+        while (childElem) {
+            Widget* child = convertXmlElementToWidget(childElem, root, widget, nullptr);
+            if (child) {
+                // Attach the child in the view
+                if (widget->type() == kViewWidget) {
+                  static_cast<View*>(widget)->attachToView(child);
+                  continue;
+                }
+                // Add the child in the grid
+                else if (widget->type() == kGridWidget) {
+                  const char* cell_hspan = childElem->Attribute("cell_hspan");
+                  const char* cell_vspan = childElem->Attribute("cell_vspan");
+                  const char* cell_align = childElem->Attribute("cell_align");
+                  int hspan = cell_hspan ? strtol(cell_hspan, NULL, 10): 1;
+                  int vspan = cell_vspan ? strtol(cell_vspan, NULL, 10): 1;
+                  int align = cell_align ? convert_align_value_to_flags(cell_align): 0;
+                  Grid* grid = dynamic_cast<Grid*>(widget);
+                  ASSERT(grid != NULL);
+          
+                  grid->addChildInCell(child, hspan, vspan, align);
+                }
+                // Attach the child in the view
+                else if (widget->type() == kComboBoxWidget &&
+                         child->type() == kListItemWidget) {
+                  ComboBox* combo = dynamic_cast<ComboBox*>(widget);
+                  ASSERT(combo != NULL);
+          
+                  combo->addItem(dynamic_cast<ListItem*>(child));
+                }
+                // Just add the child in any other kind of widget
+                else
+                  widget->addChild(child);
+
+                // Instead of calling the function recursively, push the child element onto the stack
+                elements.emplace(childElem, root, child);
+            }
+
+            childElem = childElem->NextSiblingElement();
+        }
+
+        // ... (same logic as in your original function) ...
+        if (widget->type() == kViewWidget) {
+          bool maxsize = bool_attr_is_true(elem, "maxsize");
+          if (maxsize)
+            static_cast<View*>(widget)->makeVisibleAllScrollableArea();
+        }
     }
-    childElem = childElem->NextSiblingElement();
-  }
-
-  if (widget->type() == kViewWidget) {
-    bool maxsize = bool_attr_is_true(elem, "maxsize");
-    if (maxsize)
-      static_cast<View*>(widget)->makeVisibleAllScrollableArea();
-  }
 }
 
 static int convert_align_value_to_flags(const char *value)

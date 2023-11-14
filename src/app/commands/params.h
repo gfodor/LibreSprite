@@ -65,6 +65,15 @@ namespace app {
       return value;
     }
 
+    template<typename T>
+    typename std::enable_if<std::is_enum<T>::value, T>::type
+    get_as_enum(const char* name) const {
+        std::istringstream stream(m_params[name]);
+        std::underlying_type_t<T> intValue;
+        stream >> intValue;
+        return static_cast<T>(intValue);
+    }
+
   private:
     mutable Map m_params;
   };
