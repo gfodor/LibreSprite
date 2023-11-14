@@ -35,7 +35,7 @@
 #include <iostream>
 #include <memory>
 
-using namespace uoi;
+using namespace ui;
 
 namespace app {
 

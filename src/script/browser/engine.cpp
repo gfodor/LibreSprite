@@ -80,41 +80,37 @@ public:
     }
 
     val obj = val::object();
-    obj.set("__handle", this->getHandleId());
 
-    // Add the functions
-    for (auto& entry : functions) {
-      std::string className = m_className;
-      std::string fnName = entry.first;
-      std::string path = className + "." + fnName;
-
-      //val fn = val::module_property(path.c_str());
-      val fn = val::module_property("callFuncV0");
-
-      std::cout << "Adding function " << path << std::endl;
-      obj.set("__" + entry.first, fn);
-    }
-
-    // Add the properties
-    //for (auto& entry : properties) {
-    //  // entry first is the name, entry second has .getter and .setter, add set_ and get_ to obj
-    //  obj.set("set_" + entry.first, val::function(entry.second.setter));
-    //  obj.set("get_" + entry.first, val::function(entry.second.getter));
-    //}
+    std::string handleId = this->getHandleId();
+    librespriteObj.set("__callFunc0", val::module_property("callFunc0"));
+    librespriteObj.set("__callGet0", val::module_property("callGet0"));
+    librespriteObj.set("__callSet0", val::module_property("callSet0"));
 
     librespriteObj.set("__temp", obj);
 
     for (auto& entry : functions) {
       std::string className = m_className;
       std::string fnName = entry.first;
-      std::string path = className + "." + fnName;
+      std::string callFunc = "callFunc0";
 
-      std::string script = "let v = window.libresprite.__temp; v." + fnName + " = (...arguments) => { arguments.unshift(v.__handle); arguments.unshift(\""+ fnName + "\"); return v.__" + fnName + "(...arguments); };";
+      std::string script = "libresprite.__temp." + fnName + " = (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\""+ fnName + "\"); return libresprite.__" + callFunc + "(...arguments); };";
+      emscripten_run_script(script.c_str());
+    }
+
+    for (auto& entry : properties) {
+      std::string className = m_className;
+      std::string fnName = entry.first;
+      std::string capitalized = entry.first;
+      capitalized[0] = toupper(capitalized[0]);
+      std::string callGetterFunc = "callGet0";
+      std::string callSetterFunc = "callSet0";
+
+      std::string script = "Object.defineProperty(libresprite.__temp, \"" + fnName + "\", { get: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\"" + fnName + "\"); return libresprite.__" + callGetterFunc + "(...arguments); }, set: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\""+ fnName + "\"); return libresprite.__" + callSetterFunc + "(...arguments); } });";
+
       emscripten_run_script(script.c_str());
     }
 
     librespriteObj.set("__temp", val::undefined());
-    emscripten_run_script("delete window.__temp;");
 
     return obj;
   }
@@ -161,26 +157,46 @@ val returnValue(const Value& value) {
     return {};
 }
 
-val callFuncV0(std::string name, std::string handle) {
+val callFunc0(std::string name, std::string handle) {
   auto obj = BrowserScriptObject::getByHandle(handle);
-  std::cout << "Calling function [" << name << "] on object " << handle << std::endl;
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) {
-    std::cout << "Function " << name << " not found" << std::endl;
-    return val(0);
-  }
+  if (it == obj->functions.end()) return val(0);
 
-  std::cout << "Found function " << name << std::endl;
   auto& func = it->second;
   func();
-  std::cout << "Called function " << name << std::endl;
+
+  return returnValue(func.result);
+}
+
+val callGet0(std::string name, std::string handle) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->properties.find(name);
+
+  if (it == obj->properties.end()) return val(0);
+
+  auto& func = it->second.getter;
+  func();
+
+  return returnValue(func.result);
+}
+
+val callSet0(std::string name, std::string handle, val value) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->properties.find(name);
+
+  if (it == obj->properties.end()) return val(0);
+
+  auto& func = it->second.setter;
+  func();
 
   return returnValue(func.result);
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
-  function("callFuncV0", &callFuncV0);
+  function("callFunc0", &callFunc0);
+  function("callGet0", &callGet0);
+  function("callSet0", &callSet0);
 }
 
 #endif
