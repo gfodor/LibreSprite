@@ -6,7 +6,6 @@ include_directories(${DUKTAPE_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
-
 # Debug C/C++ flags
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   if(LINUX)
@@ -21,10 +20,12 @@ else()
 endif()
 
 add_library(duktape ${DUKTAPE_DIR}/duktape.c)
+
 add_library(script-lib
   duktape/engine.cpp
   lua/engine.cpp
   v8/engine.cpp
+  browser/engine.cpp
   cout_delegate.cpp)
 
 if(UNIX)

@@ -11,6 +11,8 @@
 
 class DocumentScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "DocumentScriptObject"; }
+
   DocumentScriptObject() {
     addProperty("sprite", [this]{return m_sprite.get();});
   }

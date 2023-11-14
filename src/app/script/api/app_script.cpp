@@ -40,6 +40,8 @@ public:
   inject<ScriptObject> m_pixelColor{"pixelColor"};
   std::vector<inject<ScriptObject>>  m_documents;
 
+  std::string getClassName() const override { return "App"; }
+
   AppScriptObject() {
     addProperty("activeFrameNumber", [this]{return updateSite() ? m_site.frame() : 0;})
       .doc("read-only. Returns the number of the currently active animation frame.");

@@ -96,11 +96,7 @@ add_subdirectory(gen)
 add_subdirectory(gfx)
 add_subdirectory(net)
 add_subdirectory(render)
-
-if (NOT EMSCRIPTEN)
-  add_subdirectory(script)
-endif()
-
+add_subdirectory(script)
 add_subdirectory(she)
 add_subdirectory(ui)
 add_subdirectory(app)

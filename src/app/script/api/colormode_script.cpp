@@ -11,6 +11,8 @@
 
 class ColorModeScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "ColorModeScript"; }
+
   ColorModeScriptObject() {
     addProperty("RGB", []{return doc::IMAGE_RGB;});
     addProperty("GRAYSCALE", []{return doc::IMAGE_GRAYSCALE;});

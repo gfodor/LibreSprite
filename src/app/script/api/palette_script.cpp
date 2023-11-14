@@ -15,6 +15,8 @@
 
 class PaletteScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "PaletteScript"; }
+
   PaletteScriptObject() {
     addProperty("length",
                 [this]{return m_pal->size();},

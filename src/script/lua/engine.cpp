@@ -9,6 +9,7 @@
 #endif
 
 #if SCRIPT_ENGINE_LUA
+#ifndef __EMSCRIPTEN__
 
 #include "base/convert_to.h"
 #include "base/exception.h"
@@ -255,4 +256,5 @@ public:
 
 static InternalScriptObject::Regular<LuaScriptObject> luaSO("LuaScriptObject");
 
+#endif
 #endif

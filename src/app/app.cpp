@@ -653,6 +653,14 @@ void App::run()
     app::SendCrash sendCrash;
     sendCrash.search();
 
+#ifdef __EMSCRIPTEN__
+    script::EngineDelegate::setDefault("stdout");
+    script::Engine::setDefault("js");
+    AppScripting engine;
+    std::cout << "1 == 1: " << std::endl;
+    engine.eval("1 == 1");
+#endif
+
     // Run the GUI main message loop
     ui::Manager::getDefault()->run();
   }

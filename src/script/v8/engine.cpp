@@ -11,6 +11,7 @@
 #endif
 
 #if SCRIPT_ENGINE_V8
+#ifndef __EMSCRIPTEN__
 
 #include "base/convert_to.h"
 #include "base/exception.h"
@@ -307,4 +308,5 @@ public:
 
 static InternalScriptObject::Regular<V8ScriptObject> v8SO("V8ScriptObject");
 
+#endif
 #endif

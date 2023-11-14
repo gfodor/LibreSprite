@@ -11,6 +11,8 @@
 
 class ImageScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "ImageScriptObject"; }
+
   ImageScriptObject() {
     addProperty("width", [this]{return m_image->width();})
       .doc("read-only. The width of the image.");

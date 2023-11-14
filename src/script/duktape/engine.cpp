@@ -13,6 +13,8 @@
 #include <string>
 #include <unordered_map>
 
+#ifndef __EMSCRIPTEN__
+
 #include <duk_config.h>
 #include <duktape.h>
 
@@ -291,3 +293,5 @@ public:
 };
 
 static InternalScriptObject::Regular<DukScriptObject> dukSO("DukScriptObject");
+
+#endif

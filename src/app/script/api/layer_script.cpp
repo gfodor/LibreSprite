@@ -10,6 +10,8 @@
 
 class LayerScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "LayerScriptObject"; }
+
   LayerScriptObject() {
     addProperty("name",
                 [this]{return m_layer->name();},

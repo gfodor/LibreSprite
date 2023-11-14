@@ -10,6 +10,8 @@
 
 class PixelColorScriptObject : public script::ScriptObject {
 public:
+  std::string getClassName() const override { return "PixelColorScript"; }
+
   PixelColorScriptObject() {
     addFunction("rgba", doc::rgba)
       .doc("Converts R, G, B, A values into a single 32-bit RGBA color.")

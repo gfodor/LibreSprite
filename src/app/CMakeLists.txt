@@ -508,6 +508,7 @@ else()
     src/gfx	gfx-lib
     src/net	net-lib
     src/render	render-lib
+    src/script  script-lib
     src/she	she
     src/pixman-1/pixman	pixman-1_core
     src/tinyxml	tinyxml
