@@ -138,9 +138,13 @@ val returnValue(const Value& value) {
       return val();
 
     case Value::Type::INT:
+      return val((int)value);
+
     case Value::Type::DOUBLE:
+      return val((double)value);
+
     case Value::Type::STRING:
-      return val(value);
+      return val((std::string)value);
 
     case Value::Type::OBJECT:
       if (auto object = static_cast<ScriptObject*>(value)) {
