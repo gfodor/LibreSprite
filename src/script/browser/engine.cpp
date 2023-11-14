@@ -49,9 +49,15 @@ public:
 static std::map<std::string, InternalScriptObject*> browserScriptRegistry;
 
 class BrowserScriptObject : public InternalScriptObject {
-private:
-
 public:
+  BrowserScriptObject() : InternalScriptObject() {
+    browserScriptRegistry[this->getName()] = this;
+  }
+
+  ~BrowserScriptObject() {
+    browserScriptRegistry.erase(this->getName());
+  }
+
   static BrowserScriptObject* getByHandle(std::string handle) {
       auto it = browserScriptRegistry.find(handle);
       if (it != browserScriptRegistry.end()) {
@@ -148,8 +154,10 @@ val callFuncV0(std::string name, std::string handle) {
   std::cout << "Calling function [" << name << "] on object " << handle << std::endl;
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end())
+  if (it == obj->functions.end()) {
+    std::cout << "Function " << name << " not found" << std::endl;
     return val(0);
+  }
 
   std::cout << "Found function " << name << std::endl;
   auto& func = it->second;
