@@ -8,20 +8,11 @@
 #include "script/engine.h"
 #include "app/document.h"
 #include "app/ui_context.h"
+#include "app/script/api/document_script.h"
 
-class DocumentScriptObject : public script::ScriptObject {
-public:
-  std::string getClassName() const override { return "DocumentScriptObject"; }
-
-  DocumentScriptObject() {
-    addProperty("sprite", [this]{return m_sprite.get();});
-  }
-
-  void* getWrapped() override {return m_doc;}
-
-  Provides provides{this, "activeDocument"};
-  doc::Document* m_doc{app::UIContext::instance()->activeDocument()};
-  inject<ScriptObject> m_sprite{"SpriteScriptObject"};
-};
+DocumentScriptObject::DocumentScriptObject()
+{
+  addProperty("sprite", [this]{return m_sprite.get();});
+}
 
 static script::ScriptObject::Regular<DocumentScriptObject> reg("DocumentScriptObject");

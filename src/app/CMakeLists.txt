@@ -348,6 +348,7 @@ add_library(app-lib
   script/api/colormode_script.cpp
   script/api/console_script.cpp
   script/api/document_script.cpp
+  script/api/document_script.h
   script/api/image_script.cpp
   script/api/layer_script.cpp
   script/api/pixelcolor_script.cpp

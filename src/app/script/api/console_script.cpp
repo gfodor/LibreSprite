@@ -14,8 +14,6 @@
 
 class ConsoleScriptObject : public script::ScriptObject {
 public:
-  std::string getClassName() const override { return "ConsoleScriptObject"; }
-
   inject<script::EngineDelegate> delegate;
 
   ConsoleScriptObject() {

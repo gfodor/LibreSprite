@@ -24,8 +24,6 @@ namespace script {
 
 class StorageScriptObject : public script::ScriptObject {
 public:
-  std::string getClassName() const override { return "StorageScript"; }
-
   StorageScriptObject() {
     addMethod("get", &StorageScriptObject::get);
     addMethod("set", &StorageScriptObject::set);

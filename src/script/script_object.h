@@ -67,23 +67,29 @@ namespace script {
       return functions.emplace(name, func).first->second;
     }
 
-    void setClassName(const std::string& name) { m_className = name; }
-
     inject<script::Engine> m_engine;
     std::unordered_map<std::string, ObjectProperty> properties;
     std::unordered_map<std::string, DocumentedFunction> functions;
 
-  protected:
-    std::string m_className;
+    ScriptObject* getScriptObject() {return m_scriptObject;}
+    void setScriptObject(ScriptObject* obj) {m_scriptObject = obj;}
+
+  private:
+    ScriptObject* m_scriptObject = nullptr;
   };
 
   class ScriptObject : public Injectable<ScriptObject> {
   public:
     InternalScriptObject* getInternalScriptObject() {return m_internal;};
 
-    virtual std::string getClassName() const = 0;
     virtual void* getWrapped(){return nullptr;}
     virtual void setWrapped(void*){}
+
+    // Constructor sets this object on the internal
+
+    ScriptObject() {
+      m_internal->setScriptObject(this);
+    }
 
     template <typename Type = Value>
     Type get(const std::string& name) {
@@ -123,12 +129,10 @@ namespace script {
     }
 
     ObjectProperty& addProperty(const std::string& name, const Function& get = []{return Value{};}, const Function &set = [](const Value&){return Value{};}) {
-      m_internal->setClassName(getClassName());
       return m_internal->addProperty(name, get, set);
     }
 
     DocumentedFunction& addFunction(const std::string& name, const Function& func) {
-      m_internal->setClassName(getClassName());
       return m_internal->addFunction(name, func);
     }
 

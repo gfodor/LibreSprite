@@ -28,8 +28,6 @@ class SpriteScriptObject : public script::ScriptObject {
   std::unique_ptr<app::Transaction> m_transaction;
 
 public:
-  std::string getClassName() const override { return "SpriteScript"; }
-
   SpriteScriptObject() {
     if (m_document) {
       m_sprite = doc()->sprite();

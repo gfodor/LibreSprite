@@ -12,8 +12,6 @@
 
 class CelScriptObject : public script::ScriptObject {
 public:
-  std::string getClassName() const override { return "CelScript"; }
-
   CelScriptObject() {
     addProperty("x",
                 [this]{return m_cel->x();},

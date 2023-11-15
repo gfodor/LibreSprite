@@ -96,9 +96,9 @@ public:
     std::string handleId = this->getHandleId();
 
     librespriteObj.set("__", obj);
+    obj.set("_", handleId);
 
     for (auto& entry : functions) {
-      std::string className = m_className;
       std::string fnName = entry.first;
 
       DocumentedFunction& fn = entry.second;
@@ -109,7 +109,6 @@ public:
     }
 
     for (auto& entry : properties) {
-      std::string className = m_className;
       std::string fnName = entry.first;
       std::string capitalized = entry.first;
       capitalized[0] = toupper(capitalized[0]);
@@ -178,7 +177,9 @@ void pushValArgOntoFunc(val arg, Function& func) {
   } else if (typeofArgString == "boolean") {
     func.arguments.push_back(arg.as<bool>());
   } else {
-    printf("Unknown argument type: %s\n", typeofArgString.c_str());
+    std::string handleId = arg["_"].as<std::string>();
+    BrowserScriptObject *obj = BrowserScriptObject::getByHandle(handleId);
+    func.arguments.push_back(Value(obj->getScriptObject()));
   }
 }
 

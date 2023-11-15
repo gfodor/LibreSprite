@@ -14,6 +14,7 @@
 #include "app/document_api.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
+#include "app/script/api/document_script.h"
 #include "app/ui_context.h"
 #include "app/ui/document_view.h"
 #include "doc/site.h"
@@ -40,8 +41,6 @@ public:
   inject<ScriptObject> m_pixelColor{"pixelColor"};
   std::vector<inject<ScriptObject>>  m_documents;
 
-  std::string getClassName() const override { return "App"; }
-
   AppScriptObject() {
     std::cout << "AppScriptObject() constructor" << std::endl;
 
@@ -67,7 +66,17 @@ public:
     addProperty("activeSprite", []{return inject<ScriptObject>{"activeSprite"}.get();})
       .doc("read-only. Returns the currently active Sprite.");
 
-    addProperty("activeDocument", []{ return inject<ScriptObject>{"activeDocument"}.get(); })
+    addProperty("activeDocument",
+        []{ return inject<ScriptObject>{"activeDocument"}.get(); },
+        [] (const script::Value& documentObject) {
+          DocumentScriptObject* doc = dynamic_cast<DocumentScriptObject*>((ScriptObject *)documentObject);
+          if (doc) {
+            Document* document = (Document *)doc->getWrapped();
+            UIContext::instance()->setActiveDocument(document);
+          }
+
+          return 0;
+        })
       .doc("read-only. Returns the currently active Document.");
 
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
