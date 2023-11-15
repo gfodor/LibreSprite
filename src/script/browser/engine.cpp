@@ -84,7 +84,7 @@ public:
     std::string handleId = this->getHandleId();
     librespriteObj.set("__callFunc0", val::module_property("callFunc0"));
     librespriteObj.set("__callGet0", val::module_property("callGet0"));
-    librespriteObj.set("__callSet0", val::module_property("callSet0"));
+    librespriteObj.set("__callSet1", val::module_property("callSet1"));
 
     librespriteObj.set("__temp", obj);
 
@@ -103,7 +103,7 @@ public:
       std::string capitalized = entry.first;
       capitalized[0] = toupper(capitalized[0]);
       std::string callGetterFunc = "callGet0";
-      std::string callSetterFunc = "callSet0";
+      std::string callSetterFunc = "callSet1";
 
       std::string script = "Object.defineProperty(libresprite.__temp, \"" + fnName + "\", { get: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\"" + fnName + "\"); return libresprite.__" + callGetterFunc + "(...arguments); }, set: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\""+ fnName + "\"); return libresprite.__" + callSetterFunc + "(...arguments); } });";
 
@@ -185,14 +185,30 @@ val callGet0(std::string name, std::string handle) {
   return returnValue(func.result);
 }
 
-val callSet0(std::string name, std::string handle, val value) {
+val callSet1(std::string name, std::string handle, val value) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
 
   if (it == obj->properties.end()) return val(0);
 
   auto& func = it->second.setter;
-  func();
+  val typeofVal = value.typeof();
+  std::string typeofValString = typeofVal.as<std::string>();
+  std::cout << "typeofValString: " << typeofValString << std::endl;
+
+  if (typeofValString == "number") {
+    func.arguments.push_back(value.as<int>());
+    func();
+  } else if (typeofValString == "string") {
+    func.arguments.push_back(value.as<std::string>());
+    func();
+  } else if (typeofValString == "boolean") {
+    func.arguments.push_back(value.as<bool>());
+    func();
+  } else {
+    printf("Unknown type: %s\n", typeofVal.as<std::string>().c_str());
+    return val(0);
+  }
 
   return returnValue(func.result);
 }
@@ -200,7 +216,7 @@ val callSet0(std::string name, std::string handle, val value) {
 EMSCRIPTEN_BINDINGS(my_module) {
   function("callFunc0", &callFunc0);
   function("callGet0", &callGet0);
-  function("callSet0", &callSet0);
+  function("callSet1", &callSet1);
 }
 
 #endif

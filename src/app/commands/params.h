@@ -19,6 +19,9 @@ namespace app {
     typedef Map::iterator iterator;
     typedef Map::const_iterator const_iterator;
 
+    Params() {}
+    Params(std::initializer_list<Map::value_type> init) : m_params(init) {}
+
     iterator begin() { return m_params.begin(); }
     iterator end() { return m_params.end(); }
     const_iterator begin() const { return m_params.begin(); }

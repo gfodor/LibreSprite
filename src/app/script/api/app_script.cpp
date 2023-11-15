@@ -45,7 +45,17 @@ public:
   AppScriptObject() {
     std::cout << "AppScriptObject() constructor" << std::endl;
 
-    addProperty("activeFrameNumber", [this]{return updateSite() ? m_site.frame() : 0;})
+    addProperty("activeFrameNumber",
+        [this]{return updateSite() ? m_site.frame() : 0;},
+        [] (const script::Value& value) {
+            std::cout << "activeFrameNumber setter" << (std::string)value << std::endl;
+            Params params = {
+              { "frame", std::to_string(((int)value) + 1).c_str() }
+            };
+
+            UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::GotoFrame), params);
+            return (int)value;
+        })
       .doc("read-only. Returns the number of the currently active animation frame.");
 
     addProperty("activeLayerNumber", [this]{return updateSite() ? m_site.layerIndex() : 0;})
