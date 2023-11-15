@@ -221,18 +221,18 @@ public:
     return inject<ScriptObject>{"activeSprite"}.get();
   }
 
-  script::Value newDocument() {
+  script::Value newDocument(int width, int height) {
     Command* newCommand = CommandsModule::instance()->getCommandByName(CommandId::NewFile);
     Params params;
-    params.set("width", "128");
-    params.set("height", "128");
+    params.set("width", std::to_string(width).c_str());
+    params.set("height", std::to_string(height).c_str());
     params.set("bg", "0");
     params.set("format", "0");
 
     std::cout << "New document" << std::endl;
     UIContext::instance()->executeCommand(newCommand, params);
     m_documents.emplace_back("DocumentScriptObject");
-    return inject<ScriptObject>{"activeSprite"}.get();
+    return inject<ScriptObject>{"activeDocument"}.get();
   }
 
   void App_exit() {

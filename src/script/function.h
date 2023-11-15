@@ -107,6 +107,10 @@ namespace script {
       return **getVarArgsPtr();
     }
 
+    std::size_t getArity() const {
+      return argCount;
+    }
+
     Function() : call([](Value& ret, std::vector<Value>&){}), argCount(0) {}
 
     Function(Function&& other) {

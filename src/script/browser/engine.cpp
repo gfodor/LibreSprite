@@ -77,23 +77,34 @@ public:
     if (librespriteObj.isUndefined()) {
       librespriteObj = val::object();
       window.set("libresprite", librespriteObj);
+
+      val helperObj = val::object();
+      librespriteObj.set("_", helperObj);
+
+      helperObj.set("callFunc0", val::module_property("callFunc0"));
+      helperObj.set("callFunc1", val::module_property("callFunc1"));
+      helperObj.set("callFunc2", val::module_property("callFunc2"));
+      helperObj.set("callFunc3", val::module_property("callFunc3"));
+      helperObj.set("callFunc4", val::module_property("callFunc4"));
+      helperObj.set("callFunc5", val::module_property("callFunc5"));
+      helperObj.set("callGet0", val::module_property("callGet0"));
+      helperObj.set("callSet1", val::module_property("callSet1"));
     }
 
     val obj = val::object();
 
     std::string handleId = this->getHandleId();
-    librespriteObj.set("__callFunc0", val::module_property("callFunc0"));
-    librespriteObj.set("__callGet0", val::module_property("callGet0"));
-    librespriteObj.set("__callSet1", val::module_property("callSet1"));
 
-    librespriteObj.set("__temp", obj);
+    librespriteObj.set("__", obj);
 
     for (auto& entry : functions) {
       std::string className = m_className;
       std::string fnName = entry.first;
-      std::string callFunc = "callFunc0";
 
-      std::string script = "libresprite.__temp." + fnName + " = (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\""+ fnName + "\"); return libresprite.__" + callFunc + "(...arguments); };";
+      DocumentedFunction& fn = entry.second;
+      std::string callFunc = "callFunc" + std::to_string(fn.getArity());
+
+      std::string script = "libresprite.__." + fnName + " = (...arguments) => { arguments.unshift(\"" + handleId + "\", \""+ fnName + "\"); return libresprite._." + callFunc + "(...arguments); };";
       emscripten_run_script(script.c_str());
     }
 
@@ -105,26 +116,21 @@ public:
       std::string callGetterFunc = "callGet0";
       std::string callSetterFunc = "callSet1";
 
-      std::string script = "Object.defineProperty(libresprite.__temp, \"" + fnName + "\", { get: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\"" + fnName + "\"); return libresprite.__" + callGetterFunc + "(...arguments); }, set: (...arguments) => { arguments.unshift(\"" + handleId + "\"); arguments.unshift(\""+ fnName + "\"); return libresprite.__" + callSetterFunc + "(...arguments); } });";
+      std::string script = "Object.defineProperty(libresprite.__, \"" + fnName + "\", { get: (...arguments) => { arguments.unshift(\"" + handleId + "\", \"" + fnName + "\"); return libresprite._." + callGetterFunc + "(...arguments); }, set: (...arguments) => { arguments.unshift(\"" + handleId + "\",\""+ fnName + "\"); return libresprite._." + callSetterFunc + "(...arguments); } });";
 
       emscripten_run_script(script.c_str());
     }
 
-    librespriteObj.set("__temp", val::undefined());
+    emscripten_run_script("delete libresprite.__;");
 
     return obj;
   }
 
   void makeGlobal(const std::string& name) override {
+    val obj = makeLocal();
     val window = val::global("window");
     val librespriteObj = window["libresprite"];
-
-    if (librespriteObj.isUndefined()) {
-      librespriteObj = val::object();
-      window.set("libresprite", librespriteObj);
-    }
-
-    librespriteObj.set(name, makeLocal());
+    librespriteObj.set(name, obj);
   }
 };
 
@@ -161,6 +167,21 @@ val returnValue(const Value& value) {
     return {};
 }
 
+void pushValArgOntoFunc(val arg, Function& func) {
+  val typeofArg = arg.typeof();
+  std::string typeofArgString = typeofArg.as<std::string>();
+
+  if (typeofArgString == "number") {
+    func.arguments.push_back(arg.as<int>());
+  } else if (typeofArgString == "string") {
+    func.arguments.push_back(arg.as<std::string>());
+  } else if (typeofArgString == "boolean") {
+    func.arguments.push_back(arg.as<bool>());
+  } else {
+    printf("Unknown argument type: %s\n", typeofArgString.c_str());
+  }
+}
+
 val callFunc0(std::string name, std::string handle) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
@@ -168,6 +189,81 @@ val callFunc0(std::string name, std::string handle) {
   if (it == obj->functions.end()) return val(0);
 
   auto& func = it->second;
+  func();
+
+  return returnValue(func.result);
+}
+
+val callFunc1(std::string name, std::string handle, val arg1) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(0);
+
+  auto& func = it->second;
+  pushValArgOntoFunc(arg1, func);
+  func();
+
+  return returnValue(func.result);
+}
+
+val callFunc2(std::string name, std::string handle, val arg1, val arg2) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(0);
+
+  auto& func = it->second;
+  pushValArgOntoFunc(arg1, func);
+  pushValArgOntoFunc(arg2, func);
+  func();
+
+  return returnValue(func.result);
+}
+
+val callFunc3(std::string name, std::string handle, val arg1, val arg2, val arg3) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(0);
+
+  auto& func = it->second;
+  pushValArgOntoFunc(arg1, func);
+  pushValArgOntoFunc(arg2, func);
+  pushValArgOntoFunc(arg3, func);
+  func();
+
+  return returnValue(func.result);
+}
+
+val callFunc4(std::string name, std::string handle, val arg1, val arg2, val arg3, val arg4) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(0);
+
+  auto& func = it->second;
+  pushValArgOntoFunc(arg1, func);
+  pushValArgOntoFunc(arg2, func);
+  pushValArgOntoFunc(arg3, func);
+  pushValArgOntoFunc(arg4, func);
+  func();
+
+  return returnValue(func.result);
+}
+
+val callFunc5(std::string name, std::string handle, val arg1, val arg2, val arg3, val arg4, val arg5) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(0);
+
+  auto& func = it->second;
+  pushValArgOntoFunc(arg1, func);
+  pushValArgOntoFunc(arg2, func);
+  pushValArgOntoFunc(arg3, func);
+  pushValArgOntoFunc(arg4, func);
+  pushValArgOntoFunc(arg5, func);
   func();
 
   return returnValue(func.result);
@@ -192,29 +288,18 @@ val callSet1(std::string name, std::string handle, val value) {
   if (it == obj->properties.end()) return val(0);
 
   auto& func = it->second.setter;
-  val typeofVal = value.typeof();
-  std::string typeofValString = typeofVal.as<std::string>();
-  std::cout << "typeofValString: " << typeofValString << std::endl;
-
-  if (typeofValString == "number") {
-    func.arguments.push_back(value.as<int>());
-    func();
-  } else if (typeofValString == "string") {
-    func.arguments.push_back(value.as<std::string>());
-    func();
-  } else if (typeofValString == "boolean") {
-    func.arguments.push_back(value.as<bool>());
-    func();
-  } else {
-    printf("Unknown type: %s\n", typeofVal.as<std::string>().c_str());
-    return val(0);
-  }
-
+  pushValArgOntoFunc(value, func);
+  func();
   return returnValue(func.result);
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
   function("callFunc0", &callFunc0);
+  function("callFunc1", &callFunc1);
+  function("callFunc2", &callFunc2);
+  function("callFunc3", &callFunc3);
+  function("callFunc4", &callFunc4);
+  function("callFunc5", &callFunc5);
   function("callGet0", &callGet0);
   function("callSet1", &callSet1);
 }
