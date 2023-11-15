@@ -1,5 +1,36 @@
 #include "sprite_script.h"
+#include "app/commands/commands.h"
+#include "app/script/api/layer_script.h"
 #include <iostream>
+
+using namespace app;
+
+static int get_max_layer_num(Layer* layer)
+{
+  int max = 0;
+
+  if (std::strncmp(layer->name().c_str(), "Layer ", 6) == 0)
+    max = std::strtol(layer->name().c_str()+6, NULL, 10);
+
+  if (layer->isFolder()) {
+    LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
+    LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
+
+    for (; it != end; ++it) {
+      int tmp = get_max_layer_num(*it);
+      max = MAX(tmp, max);
+    }
+  }
+
+  return max;
+}
+
+static std::string get_unique_layer_name(Sprite* sprite)
+{
+  char buf[1024];
+  std::sprintf(buf, "Layer %d", get_max_layer_num(sprite->folder())+1);
+  return buf;
+}
 
 SpriteScriptObject::SpriteScriptObject() {
     if (m_document) {
@@ -42,6 +73,13 @@ SpriteScriptObject::SpriteScriptObject() {
       .doc("allows you to access a given layer.")
       .docArg("layerIndex", "The index of they layer, starting with zero from the bottom.")
       .docReturns("a Layer object or null if invalid.");
+
+    addMethod("newLayer", &SpriteScriptObject::newLayer)
+      .doc("creates a new layer.");
+
+    addMethod("removeLayer", &SpriteScriptObject::removeLayer)
+      .doc("removes a layer.")
+      .docArg("layer", "The layer object");
 
     addMethod("commit", &SpriteScriptObject::commit)
       .doc("commits the current transaction.");
@@ -99,6 +137,25 @@ script::ScriptObject* SpriteScriptObject::layer(int i) {
       it->second->setWrapped(layer);
     }
     return it->second.get();
+}
+
+script::ScriptObject* SpriteScriptObject::newLayer() {
+    app::DocumentApi api(doc(), transaction());
+    Layer* layer = api.newLayer(m_sprite, get_unique_layer_name(m_sprite));
+
+    auto it = m_layers.emplace(layer, "LayerScriptObject");
+    it.first->second->setWrapped(layer);
+    return it.first->second.get();
+}
+
+void SpriteScriptObject::removeLayer(script::ScriptObject* layer) {
+    if (!layer)
+      return;
+
+    Layer* layerPtr = (Layer *)static_cast<LayerScriptObject*>(layer)->getWrapped();
+
+    app::DocumentApi api(doc(), transaction());
+    api.removeLayer(layerPtr);
 }
 
 void SpriteScriptObject::resize(int w, int h) {

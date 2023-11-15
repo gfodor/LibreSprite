@@ -31,6 +31,8 @@ public:
     void save();
     void saveAs(const std::string& fileName, bool asCopy);
     void loadPalette(const std::string& fileName);
+    ScriptObject* newLayer();
+    void removeLayer(ScriptObject* layer);
 
 private:
     app::Document* doc();

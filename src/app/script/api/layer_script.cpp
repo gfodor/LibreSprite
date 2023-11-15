@@ -1,6 +1,9 @@
 #include "app/script/api/layer_script.h"
+#include "doc/layer_index.h"
+#include "doc/sprite.h"
 
 using namespace script;
+using namespace doc;
 
 LayerScriptObject::LayerScriptObject() {
     addProperty("name",
@@ -44,6 +47,9 @@ LayerScriptObject::LayerScriptObject() {
 
     addProperty("flags", [this]{return (int) m_layer->flags();})
       .doc("read-only. Returns all flags OR'd together as an int");
+
+    addProperty("layerIndex", [this]{ return (int)m_layer->sprite()->layerToIndex(m_layer); })
+      .doc("read-only. Returns the index of the layer in the stack.");
 
     addProperty("celCount", [this]{
       return m_layer->isImage() ? static_cast<doc::LayerImage*>(m_layer)->getCelsCount() : 0;
