@@ -1,16 +1,8 @@
-// LibreSprite
-// Copyright (C) 2021  LibreSprite contributors
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation.
+#include "app/script/api/layer_script.h"
 
-#include "script/script_object.h"
-#include "doc/layer.h"
+using namespace script;
 
-class LayerScriptObject : public script::ScriptObject {
-public:
-  LayerScriptObject() {
+LayerScriptObject::LayerScriptObject() {
     addProperty("name",
                 [this]{return m_layer->name();},
                 [this](const std::string& name){
@@ -62,9 +54,17 @@ public:
       .doc("retrieves a Cel")
       .docArg("index", "The number of the Cel")
       .docReturns("A Cel object or null if an invalid index is passed");
-  }
+}
 
-  ScriptObject* cel(int i){
+void* LayerScriptObject::getWrapped() {
+  return m_layer;
+}
+
+void LayerScriptObject::setWrapped(void* layer) {
+    m_layer = static_cast<doc::Layer*>(layer);
+}
+
+ScriptObject* LayerScriptObject::cel(int i) {
     auto cel = m_layer->cel(i);
     if (!cel)
       return nullptr;
@@ -74,13 +74,5 @@ public:
       it->second->setWrapped(cel.get());
     }
     return it->second.get();
-  }
+}
 
-  void* getWrapped() override {return m_layer;}
-  void setWrapped(void* layer) override { m_layer = static_cast<doc::Layer*>(layer); }
-
-  doc::Layer* m_layer;
-  std::unordered_map<doc::Cel*, inject<ScriptObject>> m_cels;
-};
-
-static script::ScriptObject::Regular<LayerScriptObject> layerSO("LayerScriptObject");

@@ -15,6 +15,9 @@
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/script/api/document_script.h"
+#include "app/script/api/sprite_script.h"
+#include "app/script/api/layer_script.h"
+#include "app/script/api/cel_script.h"
 #include "app/ui_context.h"
 #include "app/ui/document_view.h"
 #include "doc/site.h"
@@ -68,10 +71,19 @@ public:
         })
       .doc("read-only. Returns the number of the current layer.");
 
-    addProperty("activeImage", []{return inject<ScriptObject>{"activeImage"}.get();})
+    addProperty("activeImage", [this]{
+        DocumentScriptObject* doc = dynamic_cast<DocumentScriptObject*>((ScriptObject *)this->get("activeDocument"));
+        SpriteScriptObject* sprite = dynamic_cast<SpriteScriptObject*>((ScriptObject *)doc->get("sprite"));
+        LayerScriptObject* layer = dynamic_cast<LayerScriptObject*>((ScriptObject *)sprite->call("layer", (int)m_site.layerIndex()));
+        CelScriptObject* cel = dynamic_cast<CelScriptObject*>((ScriptObject *)layer->call("cel", (int)m_site.frame()));
+        return cel->get("image");
+      })
       .doc("read-only, can be null. Returns the current layer/frame's image.");
 
-    addProperty("activeSprite", []{return inject<ScriptObject>{"activeSprite"}.get();})
+    addProperty("activeSprite", [this]{
+        DocumentScriptObject* doc = dynamic_cast<DocumentScriptObject*>((ScriptObject *)this->get("activeDocument"));
+        return doc->get("sprite");
+      })
       .doc("read-only. Returns the currently active Sprite.");
 
     addProperty("activeDocument",

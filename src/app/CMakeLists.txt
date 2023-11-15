@@ -345,16 +345,19 @@ add_library(app-lib
 
   script/api/app_script.cpp
   script/api/cel_script.cpp
+  script/api/cel_script.h
   script/api/colormode_script.cpp
   script/api/console_script.cpp
   script/api/document_script.cpp
   script/api/document_script.h
   script/api/image_script.cpp
   script/api/layer_script.cpp
+  script/api/layer_script.h
   script/api/pixelcolor_script.cpp
   script/api/palette_script.cpp
   script/api/storage_script.cpp
   script/api/sprite_script.cpp
+  script/api/sprite_script.h
   script/api/selection_script.cpp
 
   send_crash.cpp

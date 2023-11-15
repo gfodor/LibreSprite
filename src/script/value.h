@@ -287,6 +287,5 @@ namespace script {
       if (type == Type::OBJECT) return data.object_v;
       return nullptr;
     }
-
   };
 }

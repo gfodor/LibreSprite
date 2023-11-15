@@ -1,18 +1,6 @@
-// LibreSprite
-// Copyright (C) 2021  LibreSprite contributors
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation.
+#include "cel_script.h"
 
-#include "doc/cel.h"
-#include "doc/image.h"
-#include "doc/sprite.h"
-#include "script/script_object.h"
-
-class CelScriptObject : public script::ScriptObject {
-public:
-  CelScriptObject() {
+CelScriptObject::CelScriptObject() {
     addProperty("x",
                 [this]{return m_cel->x();},
                 [this](int x){m_cel->setPosition(x, m_cel->y()); return x;});
@@ -22,14 +10,17 @@ public:
     addProperty("image", [this]{return m_image.get();});
     addProperty("frame", [this]{return m_cel->frame();});
     addMethod("setPosition", &CelScriptObject::setPosition);
-  }
+}
 
-  void setPosition(int x, int y){
+void CelScriptObject::setPosition(int x, int y) {
     m_cel->setPosition(x, y);
-  }
+}
 
-  void* getWrapped() override {return m_cel;}
-  void setWrapped(void* cel) override {
+void* CelScriptObject::getWrapped() {
+    return m_cel;
+}
+
+void CelScriptObject::setWrapped(void* cel) {
     m_cel = static_cast<doc::Cel*>(cel);
     auto image = m_cel->image();
     if (!image) {
@@ -38,10 +29,5 @@ public:
       m_cel->data()->setImage(imgref);
     }
     m_image->setWrapped(image);
-  }
+}
 
-  inject<ScriptObject> m_image{"ImageScriptObject"};
-  doc::Cel* m_cel;
-};
-
-static script::ScriptObject::Regular<CelScriptObject> celSO("CelScriptObject");
