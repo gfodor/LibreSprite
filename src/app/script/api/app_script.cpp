@@ -44,10 +44,9 @@ public:
   AppScriptObject() {
     std::cout << "AppScriptObject() constructor" << std::endl;
 
-    addProperty("activeFrameNumber",
+    addProperty("activeFrameIndex",
         [this]{return updateSite() ? m_site.frame() : 0;},
         [] (const script::Value& value) {
-            std::cout << "activeFrameNumber setter" << (std::string)value << std::endl;
             Params params = {
               { "frame", std::to_string(((int)value) + 1).c_str() }
             };
@@ -57,7 +56,16 @@ public:
         })
       .doc("read-only. Returns the number of the currently active animation frame.");
 
-    addProperty("activeLayerNumber", [this]{return updateSite() ? m_site.layerIndex() : 0;})
+    addProperty("activeLayerIndex", 
+        [this]{return updateSite() ? m_site.layerIndex() : 0;},
+        [] (const script::Value& value) {
+            Params params = {
+              { "layer", std::to_string(((int)value)).c_str() }
+            };
+
+            UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::GotoLayer), params);
+            return (int)value;
+        })
       .doc("read-only. Returns the number of the current layer.");
 
     addProperty("activeImage", []{return inject<ScriptObject>{"activeImage"}.get();})
@@ -67,7 +75,17 @@ public:
       .doc("read-only. Returns the currently active Sprite.");
 
     addProperty("activeDocument",
-        []{ return inject<ScriptObject>{"activeDocument"}.get(); },
+        [this] () -> ScriptObject*{ 
+          Document* activeDocument = UIContext::instance()->activeDocument();
+          for (auto& doc : m_documents) {
+            DocumentScriptObject* docObj = dynamic_cast<DocumentScriptObject*>((ScriptObject *)doc);
+            if (docObj && docObj->getWrapped() == activeDocument) {
+              return doc.get();
+            }
+          }
+
+          return nullptr;
+        },
         [] (const script::Value& documentObject) {
           DocumentScriptObject* doc = dynamic_cast<DocumentScriptObject*>((ScriptObject *)documentObject);
           if (doc) {
@@ -90,6 +108,9 @@ public:
 
     addMethod("newDocument", &AppScriptObject::newDocument)
       .doc("creates a new document.");
+
+    addMethod("closeDocument", &AppScriptObject::closeDocument)
+      .doc("closes the specified document");
 
     std::cout << "AppScriptObject() constructor make" << std::endl;
     makeGlobal("app");
@@ -241,7 +262,28 @@ public:
     std::cout << "New document" << std::endl;
     UIContext::instance()->executeCommand(newCommand, params);
     m_documents.emplace_back("DocumentScriptObject");
-    return inject<ScriptObject>{"activeDocument"}.get();
+    return this->get("activeDocument");
+  }
+
+  script::Value closeDocument(const script::Value& documentObject) {
+    DocumentScriptObject* doc = dynamic_cast<DocumentScriptObject*>((ScriptObject *)documentObject);
+    if (!doc) return false;
+
+    auto document = (Document *)doc->getWrapped();
+    UIContext::instance()->setActiveDocument(document);
+    UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::CloseFile));
+
+    // Remove it from m_documents, which will deregister
+    auto it = std::find_if(m_documents.begin(), m_documents.end(),
+      [doc](const auto& obj) {
+        return obj.get() == doc;
+      });
+    if (it != m_documents.end()) {
+      m_documents.erase(it);
+      return true;
+    }
+
+    return false;
   }
 
   void App_exit() {

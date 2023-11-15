@@ -67,7 +67,7 @@ public:
 
     addMethod("layer", &SpriteScriptObject::layer)
       .doc("allows you to access a given layer.")
-      .docArg("layerNumber", "The number of they layer, starting with zero from the bottom.")
+      .docArg("layerIndex", "The index of they layer, starting with zero from the bottom.")
       .docReturns("a Layer object or null if invalid.");
 
     addMethod("commit", &SpriteScriptObject::commit)

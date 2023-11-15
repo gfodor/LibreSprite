@@ -195,6 +195,7 @@ public:
 
   template<typename Derived = BaseClass>
   Derived* get() const {return dynamic_cast<Derived*>(m_ptr);}
+  void set(BaseClass* ptr) { onDetach(m_ptr); m_ptr = ptr; }
 
 private:
   BaseClass *m_ptr = nullptr;

@@ -21,9 +21,9 @@
 
 namespace app {
 
-class GotoCommand : public Command {
+class GotoLayerCommandBase : public Command {
 public:
-  GotoCommand(const char* short_name, const char* friendly_name, CommandFlags flags)
+  GotoLayerCommandBase(const char* short_name, const char* friendly_name, CommandFlags flags)
     : Command(short_name, friendly_name, flags) {
   }
 
@@ -36,7 +36,7 @@ protected:
   }
 };
 
-class GotoPreviousLayerCommand : public GotoCommand {
+class GotoPreviousLayerCommand : public GotoLayerCommandBase {
 public:
   GotoPreviousLayerCommand();
   Command* clone() const override { return new GotoPreviousLayerCommand(*this); }
@@ -47,7 +47,7 @@ protected:
 };
 
 GotoPreviousLayerCommand::GotoPreviousLayerCommand()
- : GotoCommand("GotoPreviousLayer",
+ : GotoLayerCommandBase("GotoPreviousLayer",
                "Go to Previous Layer",
                CmdUIOnlyFlag)
 {
@@ -75,7 +75,7 @@ void GotoPreviousLayerCommand::onExecute(Context* context)
   updateStatusBar(site);
 }
 
-class GotoNextLayerCommand : public GotoCommand {
+class GotoNextLayerCommand : public GotoLayerCommandBase {
 public:
   GotoNextLayerCommand();
   Command* clone() const override { return new GotoNextLayerCommand(*this); }
@@ -86,7 +86,7 @@ protected:
 };
 
 GotoNextLayerCommand::GotoNextLayerCommand()
-  : GotoCommand("GotoNextLayer",
+  : GotoLayerCommandBase("GotoNextLayer",
                 "Go to Next Layer",
                 CmdUIOnlyFlag)
 {
@@ -114,6 +114,50 @@ void GotoNextLayerCommand::onExecute(Context* context)
   updateStatusBar(site);
 }
 
+class GotoLayerCommand : public GotoLayerCommandBase {
+public:
+  GotoLayerCommand();
+  Command* clone() const override { return new GotoLayerCommand(*this); }
+
+protected:
+  bool onEnabled(Context* context) override;
+  void onExecute(Context* context) override;
+  void onLoadParams(const Params& params) override;
+  int m_layer;
+};
+
+GotoLayerCommand::GotoLayerCommand()
+  : GotoLayerCommandBase("GotoLayer",
+                "Go to Layer", CmdUIOnlyFlag), m_layer(0)
+{
+}
+
+bool GotoLayerCommand::onEnabled(Context* context)
+{
+  return (current_editor != nullptr &&
+          current_editor->document());
+}
+
+void GotoLayerCommand::onExecute(Context* context)
+{
+  Site site = current_editor->getSite();
+
+  if (m_layer < site.sprite()->countLayers() && m_layer >= 0)
+    site.layerIndex(LayerIndex(m_layer));
+
+  current_editor->setLayer(site.layer());
+  current_editor->flashCurrentLayer();
+
+  updateStatusBar(site);
+}
+
+void GotoLayerCommand::onLoadParams(const Params& params)
+{
+  std::string layer = params.get("layer");
+  if (!layer.empty()) m_layer = strtol(layer.c_str(), NULL, 10);
+  else m_layer = 0;
+}
+
 Command* CommandFactory::createGotoPreviousLayerCommand()
 {
   return new GotoPreviousLayerCommand;
@@ -122,6 +166,11 @@ Command* CommandFactory::createGotoPreviousLayerCommand()
 Command* CommandFactory::createGotoNextLayerCommand()
 {
   return new GotoNextLayerCommand;
+}
+
+Command* CommandFactory::createGotoLayerCommand()
+{
+  return new GotoLayerCommand;
 }
 
 } // namespace app

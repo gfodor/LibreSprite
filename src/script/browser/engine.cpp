@@ -166,7 +166,7 @@ val returnValue(const Value& value) {
     return {};
 }
 
-void pushValArgOntoFunc(val arg, Function& func) {
+bool pushValArgOntoFunc(val arg, Function& func) {
   val typeofArg = arg.typeof();
   std::string typeofArgString = typeofArg.as<std::string>();
 
@@ -179,15 +179,22 @@ void pushValArgOntoFunc(val arg, Function& func) {
   } else {
     std::string handleId = arg["_"].as<std::string>();
     BrowserScriptObject *obj = BrowserScriptObject::getByHandle(handleId);
-    func.arguments.push_back(Value(obj->getScriptObject()));
+
+    if (obj != nullptr) {
+      func.arguments.push_back(Value(obj->getScriptObject()));
+    } else {
+      return false;
+    }
   }
+
+  return true;
 }
 
 val callFunc0(std::string handle, std::string name) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
   func();
@@ -199,10 +206,11 @@ val callFunc1(std::string handle, std::string name, val arg1) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
-  pushValArgOntoFunc(arg1, func);
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+
   func();
 
   return returnValue(func.result);
@@ -212,11 +220,11 @@ val callFunc2(std::string handle, std::string name, val arg1, val arg2) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
-  pushValArgOntoFunc(arg1, func);
-  pushValArgOntoFunc(arg2, func);
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+  if (!pushValArgOntoFunc(arg2, func)) return val(false);
   func();
 
   return returnValue(func.result);
@@ -226,12 +234,12 @@ val callFunc3(std::string handle, std::string name, val arg1, val arg2, val arg3
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
-  pushValArgOntoFunc(arg1, func);
-  pushValArgOntoFunc(arg2, func);
-  pushValArgOntoFunc(arg3, func);
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+  if (!pushValArgOntoFunc(arg2, func)) return val(false);
+  if (!pushValArgOntoFunc(arg3, func)) return val(false);
   func();
 
   return returnValue(func.result);
@@ -241,13 +249,13 @@ val callFunc4(std::string handle, std::string name, val arg1, val arg2, val arg3
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
-  pushValArgOntoFunc(arg1, func);
-  pushValArgOntoFunc(arg2, func);
-  pushValArgOntoFunc(arg3, func);
-  pushValArgOntoFunc(arg4, func);
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+  if (!pushValArgOntoFunc(arg2, func)) return val(false);
+  if (!pushValArgOntoFunc(arg3, func)) return val(false);
+  if (!pushValArgOntoFunc(arg4, func)) return val(false);
   func();
 
   return returnValue(func.result);
@@ -257,14 +265,14 @@ val callFunc5(std::string handle, std::string name, val arg1, val arg2, val arg3
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
-  if (it == obj->functions.end()) return val(0);
+  if (it == obj->functions.end()) return val(false);
 
   auto& func = it->second;
-  pushValArgOntoFunc(arg1, func);
-  pushValArgOntoFunc(arg2, func);
-  pushValArgOntoFunc(arg3, func);
-  pushValArgOntoFunc(arg4, func);
-  pushValArgOntoFunc(arg5, func);
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+  if (!pushValArgOntoFunc(arg2, func)) return val(false);
+  if (!pushValArgOntoFunc(arg3, func)) return val(false);
+  if (!pushValArgOntoFunc(arg4, func)) return val(false);
+  if (!pushValArgOntoFunc(arg5, func)) return val(false);
   func();
 
   return returnValue(func.result);
@@ -274,7 +282,7 @@ val callGet0(std::string handle, std::string name) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
 
-  if (it == obj->properties.end()) return val(0);
+  if (it == obj->properties.end()) return val(false);
 
   auto& func = it->second.getter;
   func();
@@ -286,10 +294,10 @@ val callSet1(std::string handle, std::string name, val value) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
 
-  if (it == obj->properties.end()) return val(0);
+  if (it == obj->properties.end()) return val(false);
 
   auto& func = it->second.setter;
-  pushValArgOntoFunc(value, func);
+  if (!pushValArgOntoFunc(value, func)) return val(false);
   func();
   return returnValue(func.result);
 }
