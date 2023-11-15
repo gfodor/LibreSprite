@@ -182,7 +182,7 @@ void pushValArgOntoFunc(val arg, Function& func) {
   }
 }
 
-val callFunc0(std::string name, std::string handle) {
+val callFunc0(std::string handle, std::string name) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -194,7 +194,7 @@ val callFunc0(std::string name, std::string handle) {
   return returnValue(func.result);
 }
 
-val callFunc1(std::string name, std::string handle, val arg1) {
+val callFunc1(std::string handle, std::string name, val arg1) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -207,7 +207,7 @@ val callFunc1(std::string name, std::string handle, val arg1) {
   return returnValue(func.result);
 }
 
-val callFunc2(std::string name, std::string handle, val arg1, val arg2) {
+val callFunc2(std::string handle, std::string name, val arg1, val arg2) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -221,7 +221,7 @@ val callFunc2(std::string name, std::string handle, val arg1, val arg2) {
   return returnValue(func.result);
 }
 
-val callFunc3(std::string name, std::string handle, val arg1, val arg2, val arg3) {
+val callFunc3(std::string handle, std::string name, val arg1, val arg2, val arg3) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -236,7 +236,7 @@ val callFunc3(std::string name, std::string handle, val arg1, val arg2, val arg3
   return returnValue(func.result);
 }
 
-val callFunc4(std::string name, std::string handle, val arg1, val arg2, val arg3, val arg4) {
+val callFunc4(std::string handle, std::string name, val arg1, val arg2, val arg3, val arg4) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -252,7 +252,7 @@ val callFunc4(std::string name, std::string handle, val arg1, val arg2, val arg3
   return returnValue(func.result);
 }
 
-val callFunc5(std::string name, std::string handle, val arg1, val arg2, val arg3, val arg4, val arg5) {
+val callFunc5(std::string handle, std::string name, val arg1, val arg2, val arg3, val arg4, val arg5) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->functions.find(name);
 
@@ -269,7 +269,7 @@ val callFunc5(std::string name, std::string handle, val arg1, val arg2, val arg3
   return returnValue(func.result);
 }
 
-val callGet0(std::string name, std::string handle) {
+val callGet0(std::string handle, std::string name) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
 
@@ -281,7 +281,7 @@ val callGet0(std::string name, std::string handle) {
   return returnValue(func.result);
 }
 
-val callSet1(std::string name, std::string handle, val value) {
+val callSet1(std::string handle, std::string name, val value) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
 
