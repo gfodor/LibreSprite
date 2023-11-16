@@ -17,6 +17,7 @@
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/skin/skin_theme.h"
+#include "app/ui_context.h"
 #include "base/bind.h"
 #include "she/surface.h"
 #include "ui/paint_event.h"
@@ -41,19 +42,23 @@ EditorView::EditorView(EditorView::Type type)
   : View()
   , m_type(type)
 {
-  SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
-  int l = theme->parts.editorSelected()->bitmapW()->width();
-  int t = theme->parts.editorSelected()->bitmapN()->height();
-  int r = theme->parts.editorSelected()->bitmapE()->width();
-  int b = theme->parts.editorSelected()->bitmapS()->height();
-
-  setBorder(gfx::Border(l, t, r, b));
   setBgColor(gfx::rgba(0, 0, 0));
-  setupScrollbars();
+    setBorder(gfx::Border(0, 0, 0, 0));
 
-  m_scrollSettingsConn =
-    Preferences::instance().editor.showScrollbars.AfterChange.connect(
-      base::Bind(&EditorView::setupScrollbars, this));
+  if (UIContext::instance()->hasUIChrome()) {
+    SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
+    int l = theme->parts.editorSelected()->bitmapW()->width();
+    int t = theme->parts.editorSelected()->bitmapN()->height();
+    int r = theme->parts.editorSelected()->bitmapE()->width();
+    int b = theme->parts.editorSelected()->bitmapS()->height();
+
+    setBorder(gfx::Border(l, t, r, b));
+    setupScrollbars();
+
+    m_scrollSettingsConn =
+      Preferences::instance().editor.showScrollbars.AfterChange.connect(
+        base::Bind(&EditorView::setupScrollbars, this));
+  }
 }
 
 void EditorView::onPaint(PaintEvent& ev)
