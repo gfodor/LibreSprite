@@ -18,15 +18,20 @@
 #include "app/script/api/sprite_script.h"
 #include "app/script/api/layer_script.h"
 #include "app/script/api/cel_script.h"
+#include "app/tools/tool_box.h"
 #include "app/ui_context.h"
 #include "app/ui/document_view.h"
 #include "doc/site.h"
+#include "app/app.h"
+#include "app/tools/active_tool.h"
+#include "app/tools/tool.h"
 
 #include "script/engine.h"
 #include "script/engine_delegate.h"
 #include "script/script_object.h"
 
 #include <sstream>
+
 
 class DudScriptObject : public script::InternalScriptObject {
 public:
@@ -105,9 +110,24 @@ public:
             UIContext::instance()->setActiveDocument(document);
           }
 
-          return 0;
+          return true;
         })
       .doc("read-only. Returns the currently active Document.");
+
+    addProperty("activeTool", 
+        []{ return App::instance()->activeToolManager()->activeTool()->getId(); },
+        [] (const script::Value& value) {
+          auto tool = App::instance()->toolBox()->getToolById((std::string)value);
+
+          if (tool) {
+            App::instance()->activeToolManager()->setSelectedTool(tool);
+            return true;
+          }
+
+          return false;
+        }
+        )
+      .doc("read/write. Returns the currently active tool.");
 
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
       .doc("read-only. Returns an object with functions for color conversion.");
