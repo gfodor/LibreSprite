@@ -10,7 +10,11 @@
 #include "app/ui/tabs.h"
 #include "ui/window.h"
 
+#ifndef NO_UI
 #include "main_window.xml.h"
+#else
+#include "main_window_no_ui.xml.h"
+#endif
 
 namespace ui {
   class Splitter;
@@ -36,7 +40,11 @@ namespace app {
     class DataRecovery;
   }
 
+#ifndef NO_UI
   class MainWindow : public app::gen::MainWindow
+#else
+  class MainWindow : public app::gen::MainWindowNoUi
+#endif
                    , public TabsDelegate {
   public:
     enum Mode {

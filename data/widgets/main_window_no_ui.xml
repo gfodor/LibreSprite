@@ -1,0 +1,7 @@
+<!-- LibreSprite -->
+<!-- Copyright (C) 2001-2015 by David Capello -->
+<gui>
+  <window id="main_window_no_ui" noborders="true" desktop="true">
+    <hbox noborders="true" id="workspace_placeholder" expansive="true" />
+  </window>
+</gui>

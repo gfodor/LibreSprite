@@ -126,6 +126,10 @@ else()
   endif()
 endif()
 
+if (NO_UI)
+  add_definitions(-DNO_UI)
+endif()
+
 # Fix to compile gtest with VC11 (2012)
 if(MSVC_VERSION EQUAL 1700)
   add_definitions(-D_VARIADIC_MAX=10)

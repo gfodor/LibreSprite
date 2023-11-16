@@ -189,7 +189,7 @@ PreviewEditorWindow::PreviewEditorWindow()
   setAutoRemap(false);
   setWantFocus(false);
 
-  m_isEnabled = get_config_bool("MiniEditor", "Enabled", true);
+  m_isEnabled = get_config_bool("MiniEditor", "Enabled", false);
 
   m_centerButton->Click.connect(base::Bind<void>(&PreviewEditorWindow::onCenterClicked, this));
   m_playButton->Click.connect(base::Bind<void>(&PreviewEditorWindow::onPlayClicked, this));

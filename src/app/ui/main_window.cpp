@@ -57,7 +57,14 @@ MainWindow::MainWindow()
   m_notifications = new Notifications();
   m_contextBar = new ContextBar();
   m_statusBar = new StatusBar();
-  m_colorBar = new ColorBar(colorBarPlaceholder()->align());
+
+  int align = HORIZONTAL;
+
+#ifndef NO_UI
+  align = colorBarPlaceholder()->align();
+#endif
+
+  m_colorBar = new ColorBar(align);
   m_toolBar = new ToolBar();
   m_tabsBar = new WorkspaceTabs(this);
   m_workspace = new Workspace();
@@ -82,6 +89,7 @@ MainWindow::MainWindow()
   // Setup the menus
   m_menuBar->setMenu(AppMenus::instance()->getRootMenu());
 
+#ifndef NO_UI
   // Add the widgets in the boxes
   menuBarPlaceholder()->addChild(m_menuBar);
   menuBarPlaceholder()->addChild(m_notifications);
@@ -90,12 +98,14 @@ MainWindow::MainWindow()
   toolBarPlaceholder()->addChild(m_toolBar);
   statusBarPlaceholder()->addChild(m_statusBar);
   tabsPlaceholder()->addChild(m_tabsBar);
-  workspacePlaceholder()->addChild(m_workspace);
   timelinePlaceholder()->addChild(m_timeline);
 
   // Default splitter positions
   colorBarSplitter()->setPosition(m_colorBar->sizeHint().w);
   timelineSplitter()->setPosition(75);
+#endif
+
+  workspacePlaceholder()->addChild(m_workspace);
 
   // Prepare the window
   remapWindow();
@@ -370,18 +380,21 @@ void MainWindow::configureWorkspaceLayout()
 
   m_menuBar->setVisible(normal);
   m_tabsBar->setVisible(normal);
-  colorBarPlaceholder()->setVisible(normal && isDoc);
   m_toolBar->setVisible(normal && isDoc);
   m_statusBar->setVisible(normal);
   m_contextBar->setVisible(
     isDoc &&
     (m_mode == NormalMode ||
      m_mode == ContextBarAndTimelineMode));
+
+#ifndef NO_UI
+  colorBarPlaceholder()->setVisible(normal && isDoc);
   timelinePlaceholder()->setVisible(
     isDoc &&
     (m_mode == NormalMode ||
      m_mode == ContextBarAndTimelineMode) &&
     Preferences::instance().general.visibleTimeline());
+#endif
 
   if (m_contextBar->isVisible()) {
     m_contextBar->updateForActiveTool();
