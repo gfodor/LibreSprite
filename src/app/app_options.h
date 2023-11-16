@@ -31,6 +31,7 @@ public:
 
   bool startUI() const { return m_startUI; }
   bool startShell() const { return m_startShell; }
+  bool startChrome() const { return m_startChrome; }
   VerboseLevel verboseLevel() const { return m_verboseLevel; }
 
   const std::string& paletteFileName() const { return m_paletteFileName; }
@@ -76,11 +77,13 @@ private:
   base::ProgramOptions m_po;
   bool m_startUI;
   bool m_startShell;
+  bool m_startChrome;
   VerboseLevel m_verboseLevel;
   std::string m_paletteFileName;
 
   Option& m_palette;
   Option& m_shell;
+  Option& m_disableChrome;
   Option& m_batch;
   Option& m_saveAs;
   Option& m_scale;

@@ -27,6 +27,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
   , m_verboseLevel(kNoVerbose)
   , m_palette(m_po.add("palette").requiresValue("<filename>").description("Use a specific palette by default"))
   , m_shell(m_po.add("shell").description("Start an interactive console to execute scripts"))
+  , m_disableChrome(m_po.add("disable-chrome").description("Disable the chrome (window frame, toolbars, etc)"))
   , m_batch(m_po.add("batch").mnemonic('b').description("Do not start the UI"))
   , m_saveAs(m_po.add("save-as").requiresValue("<filename>").description("Save the last given document with other format"))
   , m_scale(m_po.add("scale").requiresValue("<factor>").description("Resize all previous opened documents"))
@@ -68,6 +69,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
 
     m_paletteFileName = m_po.value_of(m_palette);
     m_startShell = m_po.enabled(m_shell);
+    m_startChrome = !m_po.enabled(m_disableChrome);
 
     if (m_po.enabled(m_help)) {
       showHelp();

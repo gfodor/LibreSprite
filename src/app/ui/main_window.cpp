@@ -59,10 +59,11 @@ MainWindow::MainWindow()
   m_statusBar = new StatusBar();
 
   int align = HORIZONTAL;
+  bool hasChrome = UIContext::instance()->hasUIChrome();
 
-#ifndef NO_UI
-  align = colorBarPlaceholder()->align();
-#endif
+  if (hasChrome) {
+    align = colorBarPlaceholder()->align();
+  }
 
   m_colorBar = new ColorBar(align);
   m_toolBar = new ToolBar();
@@ -89,23 +90,27 @@ MainWindow::MainWindow()
   // Setup the menus
   m_menuBar->setMenu(AppMenus::instance()->getRootMenu());
 
-#ifndef NO_UI
-  // Add the widgets in the boxes
-  menuBarPlaceholder()->addChild(m_menuBar);
-  menuBarPlaceholder()->addChild(m_notifications);
-  contextBarPlaceholder()->addChild(m_contextBar);
-  colorBarPlaceholder()->addChild(m_colorBar);
-  toolBarPlaceholder()->addChild(m_toolBar);
-  statusBarPlaceholder()->addChild(m_statusBar);
-  tabsPlaceholder()->addChild(m_tabsBar);
-  timelinePlaceholder()->addChild(m_timeline);
+  if (hasChrome) {
+    // Add the widgets in the boxes
+    menuBarPlaceholder()->addChild(m_menuBar);
+    menuBarPlaceholder()->addChild(m_notifications);
+    contextBarPlaceholder()->addChild(m_contextBar);
+    colorBarPlaceholder()->addChild(m_colorBar);
+    toolBarPlaceholder()->addChild(m_toolBar);
+    statusBarPlaceholder()->addChild(m_statusBar);
+    tabsPlaceholder()->addChild(m_tabsBar);
+    timelinePlaceholder()->addChild(m_timeline);
 
-  // Default splitter positions
-  colorBarSplitter()->setPosition(m_colorBar->sizeHint().w);
-  timelineSplitter()->setPosition(75);
-#endif
+    // Default splitter positions
+    colorBarSplitter()->setPosition(m_colorBar->sizeHint().w);
+    timelineSplitter()->setPosition(75);
 
-  workspacePlaceholder()->addChild(m_workspace);
+    workspacePlaceholder()->addChild(m_workspace);
+    workspaceNoUiPlaceholder()->parent()->removeChild(workspaceNoUiPlaceholder());
+  } else {
+    rootPlaceholder()->parent()->removeChild(rootPlaceholder());
+    workspaceNoUiPlaceholder()->addChild(m_workspace);
+  }
 
   // Prepare the window
   remapWindow();
@@ -387,14 +392,16 @@ void MainWindow::configureWorkspaceLayout()
     (m_mode == NormalMode ||
      m_mode == ContextBarAndTimelineMode));
 
-#ifndef NO_UI
-  colorBarPlaceholder()->setVisible(normal && isDoc);
-  timelinePlaceholder()->setVisible(
-    isDoc &&
-    (m_mode == NormalMode ||
-     m_mode == ContextBarAndTimelineMode) &&
-    Preferences::instance().general.visibleTimeline());
-#endif
+  bool hasChrome = UIContext::instance()->hasUIChrome();
+
+  if (hasChrome) {
+    colorBarPlaceholder()->setVisible(normal && isDoc);
+    timelinePlaceholder()->setVisible(
+      isDoc &&
+      (m_mode == NormalMode ||
+       m_mode == ContextBarAndTimelineMode) &&
+      Preferences::instance().general.visibleTimeline());
+  }
 
   if (m_contextBar->isVisible()) {
     m_contextBar->updateForActiveTool();

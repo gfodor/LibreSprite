@@ -51,6 +51,7 @@ namespace app {
     Context();
 
     virtual bool isUIAvailable() const     { return false; }
+    virtual bool hasUIChrome() const       { return false; }
     virtual bool isRecordingMacro() const  { return false; }
     virtual bool isExecutingMacro() const  { return false; }
     virtual bool isExecutingScript() const { return false; }

@@ -57,6 +57,10 @@ namespace app {
     // Returns true if Aseprite is running with GUI available.
     bool isGui() const { return m_isGui; }
 
+    // Returns true if Aseprite is running with GUI available and the chrome (menus, toolsbar, etc.) is drawn in the UI.
+    // Otherwise just the current document is drawn.
+    bool hasChrome() const { return m_hasChrome; }
+
     // Returns true if the application is running in portable mode.
     bool isPortable();
 
@@ -102,6 +106,7 @@ namespace app {
     std::unique_ptr<Modules> m_modules;
     std::unique_ptr<LegacyModules> m_legacy;
     bool m_isGui;
+    bool m_hasChrome;
     bool m_isShell;
     std::unique_ptr<MainWindow> m_mainWindow;
     FileList m_files;

@@ -131,6 +131,7 @@ App::App()
   , m_modules(nullptr)
   , m_legacy(nullptr)
   , m_isGui(false)
+  , m_hasChrome(false)
   , m_isShell(false)
   , m_exporter(nullptr)
 {
@@ -141,6 +142,7 @@ App::App()
 void App::initialize(const AppOptions& options)
 {
   m_isGui = options.startUI();
+  m_hasChrome = m_isGui && options.startChrome();
   m_isShell = options.startShell();
   if (m_isGui)
     m_uiSystem.reset(new ui::UISystem);

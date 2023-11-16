@@ -60,6 +60,11 @@ bool UIContext::isUIAvailable() const
   return App::instance()->isGui();
 }
 
+bool UIContext::hasUIChrome() const
+{
+  return App::instance()->hasChrome();
+}
+
 DocumentView* UIContext::activeView() const
 {
   if (!isUIAvailable())

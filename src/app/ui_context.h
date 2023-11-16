@@ -24,6 +24,7 @@ namespace app {
     virtual ~UIContext();
 
     bool isUIAvailable() const override;
+    bool hasUIChrome() const override;
 
     DocumentView* activeView() const;
     void setActiveView(DocumentView* documentView);

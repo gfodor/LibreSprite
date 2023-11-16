@@ -107,9 +107,9 @@ static bool create_main_display(bool gpuAccel,
   std::string windowLayout;
   load_gui_config(w, h, maximized, windowLayout);
 
-  // Scale is equal to 0 when it's the first time the program is
-  // executed.
-  int scale = Preferences::instance().general.screenScale();
+  bool hasChrome = UIContext::instance()->hasUIChrome();
+  // Scale is equal to 0 when it's the first time the program is executed.
+  int scale = hasChrome ? Preferences::instance().general.screenScale() : 1;
 
   she::instance()->setGpuAcceleration(gpuAccel);
 
