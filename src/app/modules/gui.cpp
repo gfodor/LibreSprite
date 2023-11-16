@@ -250,6 +250,10 @@ static void save_gui_config()
 
 void update_screen_for_document(const Document* document)
 {
+  Context* context = UIContext::instance();
+  if (!context || !context->isUIAvailable())
+    return;
+
   // Without document.
   if (!document) {
     // Well, change to the default palette.

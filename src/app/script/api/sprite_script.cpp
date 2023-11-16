@@ -1,36 +1,10 @@
 #include "sprite_script.h"
 #include "app/commands/commands.h"
 #include "app/script/api/layer_script.h"
+#include "app/modules/gui.h"
 #include <iostream>
 
 using namespace app;
-
-static int get_max_layer_num(Layer* layer)
-{
-  int max = 0;
-
-  if (std::strncmp(layer->name().c_str(), "Layer ", 6) == 0)
-    max = std::strtol(layer->name().c_str()+6, NULL, 10);
-
-  if (layer->isFolder()) {
-    LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
-    LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
-
-    for (; it != end; ++it) {
-      int tmp = get_max_layer_num(*it);
-      max = MAX(tmp, max);
-    }
-  }
-
-  return max;
-}
-
-static std::string get_unique_layer_name(Sprite* sprite)
-{
-  char buf[1024];
-  std::sprintf(buf, "Layer %d", get_max_layer_num(sprite->folder())+1);
-  return buf;
-}
 
 SpriteScriptObject::SpriteScriptObject() {
     if (m_document) {
@@ -80,6 +54,13 @@ SpriteScriptObject::SpriteScriptObject() {
     addMethod("removeLayer", &SpriteScriptObject::removeLayer)
       .doc("removes a layer.")
       .docArg("layer", "The layer object");
+
+    addMethod("newFrame", &SpriteScriptObject::newFrame)
+      .doc("creates a new frame.");
+
+    addMethod("removeFrameAtIndex", &SpriteScriptObject::removeFrameAtIndex)
+      .doc("removes a frame.")
+      .docArg("frameIndex", "The frame index");
 
     addMethod("commit", &SpriteScriptObject::commit)
       .doc("commits the current transaction.");
@@ -141,26 +122,50 @@ script::ScriptObject* SpriteScriptObject::layer(int i) {
 
 script::ScriptObject* SpriteScriptObject::newLayer() {
     app::DocumentApi api(doc(), transaction());
-    Layer* layer = api.newLayer(m_sprite, get_unique_layer_name(m_sprite));
+    auto layer = api.newLayer(m_sprite, "");
+    commit();
 
-    auto it = m_layers.emplace(layer, "LayerScriptObject");
-    it.first->second->setWrapped(layer);
-    return it.first->second.get();
+    update_screen_for_document(doc());
+
+    auto it = m_layers.find(layer);
+    if (it == m_layers.end()) {
+      it = m_layers.emplace(layer, "LayerScriptObject").first;
+      it->second->setWrapped(layer);
+    }
+    return it->second.get();
 }
 
-void SpriteScriptObject::removeLayer(script::ScriptObject* layer) {
-    if (!layer)
-      return;
-
-    Layer* layerPtr = (Layer *)static_cast<LayerScriptObject*>(layer)->getWrapped();
-
+void SpriteScriptObject::removeLayer(script::ScriptObject* layerObj) {
     app::DocumentApi api(doc(), transaction());
-    api.removeLayer(layerPtr);
+    auto layer = (Layer *)static_cast<LayerScriptObject*>(layerObj)->getWrapped();
+    api.removeLayer(layer);
+
+    update_screen_for_document(doc());
+
+    commit();
+}
+
+void SpriteScriptObject::newFrame() {
+    app::DocumentApi api(doc(), transaction());
+    api.addFrame(m_sprite, m_sprite->lastFrame() + 1);
+    commit();
+
+    update_screen_for_document(doc());
+}
+
+void SpriteScriptObject::removeFrameAtIndex(int frameIndex) {
+    app::DocumentApi api(doc(), transaction());
+    api.removeFrame(m_sprite, app::frame_t(frameIndex));
+    commit();
+
+    update_screen_for_document(doc());
 }
 
 void SpriteScriptObject::resize(int w, int h) {
     app::DocumentApi api(doc(), transaction());
     api.setSpriteSize(m_sprite, w, h);
+
+    update_screen_for_document(doc());
 }
 
 void SpriteScriptObject::crop(script::Value x, script::Value y, script::Value w, script::Value h) {
@@ -180,6 +185,8 @@ void SpriteScriptObject::crop(script::Value x, script::Value y, script::Value w,
     if (!bounds.isEmpty()) {
       app::DocumentApi{doc(), transaction()}.cropSprite(m_sprite, bounds);
     }
+
+    update_screen_for_document(doc());
 }
 
 void SpriteScriptObject::save() {
@@ -209,6 +216,8 @@ void SpriteScriptObject::loadPalette(const std::string& fileName) {
       // TODO Merge this with the code in LoadPaletteCommand
       doc()->getApi(transaction()).setPalette(m_sprite, 0, palette.get());
     }
+
+    update_screen_for_document(doc());
 }
 
 app::Document* SpriteScriptObject::doc() {

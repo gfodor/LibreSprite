@@ -1,6 +1,7 @@
 #include "app/script/api/layer_script.h"
 #include "doc/layer_index.h"
 #include "doc/sprite.h"
+#include "app/modules/gui.h"
 
 using namespace script;
 using namespace doc;
@@ -10,6 +11,7 @@ LayerScriptObject::LayerScriptObject() {
                 [this]{return m_layer->name();},
                 [this](const std::string& name){
                   m_layer->setName(name);
+                  update_screen_for_document((app::Document *)m_layer->sprite()->document());
                   return name;
                 })
       .doc("read+write. The name of the layer.");
@@ -27,6 +29,7 @@ LayerScriptObject::LayerScriptObject() {
                 [this]{return m_layer->isVisible();},
                 [this](bool i){
                   m_layer->setVisible(i);
+                  update_screen_for_document((app::Document *)m_layer->sprite()->document());
                   return i;
                 })
       .doc("read+write. Gets/sets whether the layer is visible or not.");
@@ -35,6 +38,7 @@ LayerScriptObject::LayerScriptObject() {
                 [this]{return m_layer->isEditable();},
                 [this](bool i){
                   m_layer->setEditable(i);
+                  update_screen_for_document((app::Document *)m_layer->sprite()->document());
                   return i;
                 })
       .doc("read+write. Gets/sets whether the layer is editable (unlocked) or not (locked).");

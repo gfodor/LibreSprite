@@ -34,6 +34,9 @@ public:
     ScriptObject* newLayer();
     void removeLayer(ScriptObject* layer);
 
+    void newFrame();
+    void removeFrameAtIndex(int frameIndex);
+
 private:
     app::Document* doc();
     app::Transaction& transaction();
