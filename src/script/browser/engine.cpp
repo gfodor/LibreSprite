@@ -24,6 +24,26 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
+EM_JS(void, bind_local_function, (const char *handleId, const char *fnName, const char *callFunc), {
+    handleId = UTF8ToString(handleId);
+    fnName = UTF8ToString(fnName);
+    callFunc = UTF8ToString(callFunc);
+
+    libresprite.__[fnName] = (...args) => { return libresprite._[callFunc](handleId, fnName, ...args); };
+});
+
+EM_JS(void, bind_local_property, (const char *handleId, const char *fnName, const char *callGetterFunc, const char* callSetterFunc), {
+    handleId = UTF8ToString(handleId);
+    fnName = UTF8ToString(fnName);
+    callGetterFunc = UTF8ToString(callGetterFunc);
+    callSetterFunc = UTF8ToString(callSetterFunc);
+
+    Object.defineProperty(libresprite.__, fnName, {
+      get: () => { return libresprite._[callGetterFunc](handleId, fnName); },
+      set: (...args) => { return libresprite._[callSetterFunc](handleId, fnName, ...args); }
+    });
+});
+
 using namespace script;
 using namespace emscripten;
 
@@ -104,8 +124,7 @@ public:
       DocumentedFunction& fn = entry.second;
       std::string callFunc = "callFunc" + std::to_string(fn.getArity());
 
-      std::string script = "libresprite.__." + fnName + " = (...arguments) => { arguments.unshift(\"" + handleId + "\", \""+ fnName + "\"); return libresprite._." + callFunc + "(...arguments); };";
-      emscripten_run_script(script.c_str());
+      bind_local_function(handleId.c_str(), fnName.c_str(), callFunc.c_str());
     }
 
     for (auto& entry : properties) {
@@ -115,12 +134,10 @@ public:
       std::string callGetterFunc = "callGet0";
       std::string callSetterFunc = "callSet1";
 
-      std::string script = "Object.defineProperty(libresprite.__, \"" + fnName + "\", { get: (...arguments) => { arguments.unshift(\"" + handleId + "\", \"" + fnName + "\"); return libresprite._." + callGetterFunc + "(...arguments); }, set: (...arguments) => { arguments.unshift(\"" + handleId + "\",\""+ fnName + "\"); return libresprite._." + callSetterFunc + "(...arguments); } });";
-
-      emscripten_run_script(script.c_str());
+      bind_local_property(handleId.c_str(), fnName.c_str(), callGetterFunc.c_str(), callSetterFunc.c_str());
     }
 
-    emscripten_run_script("delete libresprite.__;");
+    librespriteObj.delete_("__");
 
     return obj;
   }

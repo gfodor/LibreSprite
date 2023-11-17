@@ -129,6 +129,17 @@ public:
         )
       .doc("read/write. Returns the currently active tool.");
 
+    // addMethod("sendMouseMessage", [] (
+    //       const script::Value& type,
+    //       const script::Value& pointerType,
+    //       const script::Value& buttons,
+    //       const script::Value& modifiers,
+    //       const script::Value& x,
+    //       const script::Value& y) {
+    //     return true;
+    //   })
+    //   .doc("Sends a message to the application to update the UI.");
+
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
       .doc("read-only. Returns an object with functions for color conversion.");
 
