@@ -14,6 +14,7 @@ public:
         addProperty("SPACE", []{ return KeyModifiers::kKeySpaceModifier; });
         addProperty("WIN", []{ return KeyModifiers::kKeyWinModifier; });
         addProperty("UNINITIALIZED", []{ return KeyModifiers::kKeyUninitializedModifier; });
+        makeGlobal("KeyModifiers");
     }
 };
 

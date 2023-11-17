@@ -14,4 +14,4 @@ public:
     }
 };
 
-static script::ScriptObject::Regular<MouseButtonsScriptObject> reg("MessageTypeScriptObject", {"global"});
+static script::ScriptObject::Regular<MouseButtonsScriptObject> reg("MouseButtonsScriptObject", {"global"});

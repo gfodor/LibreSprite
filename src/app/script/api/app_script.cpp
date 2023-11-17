@@ -21,6 +21,10 @@
 #include "app/tools/tool_box.h"
 #include "ui/message.h"
 #include "ui/manager.h"
+#include "she/event.h"
+#include "she/display.h"
+#include "she/system.h"
+#include "she/event_queue.h"
 #include "app/ui_context.h"
 #include "app/ui/document_view.h"
 #include "doc/site.h"
@@ -45,6 +49,7 @@ public:
 static script::InternalScriptObject::Regular<DudScriptObject> dud("DudScriptObject");
 
 using namespace ui;
+using namespace she;
 
 namespace app {
 
@@ -140,14 +145,27 @@ public:
           const script::Value& modifiers,
           const script::Value& x,
           const script::Value& y) {
-        Message* msg = new MouseMessage(
-            (MessageType)((int)type),
-            (PointerType)((int)pointerType),
-            (MouseButtons)((int)buttons),
-            (KeyModifiers)((int)modifiers),
-            gfx::Point((int)x, (int)y));
 
-        Manager::getDefault()->enqueueMessage(msg);
+        MessageType msgType = (MessageType)(int)type;
+
+        Event event;
+
+        if (msgType == MessageType::kMouseMoveMessage) {
+          event.setType(Event::Type::MouseMove);
+        } else if (msgType == MessageType::kMouseDownMessage) {
+          event.setType(Event::Type::MouseDown);
+        } else if (msgType == MessageType::kMouseUpMessage) {
+          event.setType(Event::Type::MouseUp);
+        } else {
+          return false;
+        }
+
+        int displayScale = she::instance()->defaultDisplay()->scale();
+
+        event.setModifiers((KeyModifiers)(int)modifiers);
+        event.setPosition({ (int)x / displayScale, (int)y / displayScale });
+
+        she::instance()->eventQueue()->queueEvent(event);
 
         return true;
       })

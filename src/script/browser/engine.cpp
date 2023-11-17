@@ -107,6 +107,7 @@ public:
       helperObj.set("callFunc3", val::module_property("callFunc3"));
       helperObj.set("callFunc4", val::module_property("callFunc4"));
       helperObj.set("callFunc5", val::module_property("callFunc5"));
+      helperObj.set("callFunc6", val::module_property("callFunc6"));
       helperObj.set("callGet0", val::module_property("callGet0"));
       helperObj.set("callSet1", val::module_property("callSet1"));
     }
@@ -295,6 +296,24 @@ val callFunc5(std::string handle, std::string name, val arg1, val arg2, val arg3
   return returnValue(func.result);
 }
 
+val callFunc6(std::string handle, std::string name, val arg1, val arg2, val arg3, val arg4, val arg5, val arg6) {
+  auto obj = BrowserScriptObject::getByHandle(handle);
+  auto it = obj->functions.find(name);
+
+  if (it == obj->functions.end()) return val(false);
+
+  auto& func = it->second;
+  if (!pushValArgOntoFunc(arg1, func)) return val(false);
+  if (!pushValArgOntoFunc(arg2, func)) return val(false);
+  if (!pushValArgOntoFunc(arg3, func)) return val(false);
+  if (!pushValArgOntoFunc(arg4, func)) return val(false);
+  if (!pushValArgOntoFunc(arg5, func)) return val(false);
+  if (!pushValArgOntoFunc(arg6, func)) return val(false);
+  func();
+
+  return returnValue(func.result);
+}
+
 val callGet0(std::string handle, std::string name) {
   auto obj = BrowserScriptObject::getByHandle(handle);
   auto it = obj->properties.find(name);
@@ -326,6 +345,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   function("callFunc3", &callFunc3);
   function("callFunc4", &callFunc4);
   function("callFunc5", &callFunc5);
+  function("callFunc6", &callFunc6);
   function("callGet0", &callGet0);
   function("callSet1", &callSet1);
 }
