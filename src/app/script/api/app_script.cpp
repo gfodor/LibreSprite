@@ -19,6 +19,8 @@
 #include "app/script/api/layer_script.h"
 #include "app/script/api/cel_script.h"
 #include "app/tools/tool_box.h"
+#include "ui/message.h"
+#include "ui/manager.h"
 #include "app/ui_context.h"
 #include "app/ui/document_view.h"
 #include "doc/site.h"
@@ -41,6 +43,8 @@ public:
   std::string globalName;
 };
 static script::InternalScriptObject::Regular<DudScriptObject> dud("DudScriptObject");
+
+using namespace ui;
 
 namespace app {
 
@@ -129,16 +133,25 @@ public:
         )
       .doc("read/write. Returns the currently active tool.");
 
-    // addMethod("sendMouseMessage", [] (
-    //       const script::Value& type,
-    //       const script::Value& pointerType,
-    //       const script::Value& buttons,
-    //       const script::Value& modifiers,
-    //       const script::Value& x,
-    //       const script::Value& y) {
-    //     return true;
-    //   })
-    //   .doc("Sends a message to the application to update the UI.");
+    addFunction("sendMouseMessage", [] (
+          const script::Value& type,
+          const script::Value& pointerType,
+          const script::Value& buttons,
+          const script::Value& modifiers,
+          const script::Value& x,
+          const script::Value& y) {
+        Message* msg = new MouseMessage(
+            (MessageType)((int)type),
+            (PointerType)((int)pointerType),
+            (MouseButtons)((int)buttons),
+            (KeyModifiers)((int)modifiers),
+            gfx::Point((int)x, (int)y));
+
+        Manager::getDefault()->enqueueMessage(msg);
+
+        return true;
+      })
+      .doc("Sends a message to the application to update the UI.");
 
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
       .doc("read-only. Returns an object with functions for color conversion.");

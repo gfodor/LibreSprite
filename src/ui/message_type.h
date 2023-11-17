@@ -8,43 +8,44 @@
 
 namespace ui {
 
-  // Message types.
-  enum MessageType {
-    // General messages.
-    kOpenMessage,     // Windows is open.
-    kCloseMessage,    // Windows is closed.
-    kCloseDisplayMessage, // The user wants to close the entire application.
-    kResizeDisplayMessage,
-    kPaintMessage,    // Widget needs be repainted.
-    kTimerMessage,    // A timer timeout.
-    kDropFilesMessage, // Drop files in the manager.
-    kWinMoveMessage,  // Window movement.
+    // Message types.
+    enum MessageType {
+      // General messages.
+      kOpenMessage = 1,           // Windows is open.
+      kCloseMessage = 2,          // Windows is closed.
+      kCloseDisplayMessage = 3,   // The user wants to close the entire application.
+      kResizeDisplayMessage = 4,  // Resize display message.
+      kPaintMessage = 5,          // Widget needs to be repainted.
+      kTimerMessage = 6,          // A timer timeout.
+      kDropFilesMessage = 7,      // Drop files in the manager.
+      kWinMoveMessage = 8,        // Window movement.
 
-    // Keyboard related messages.
-    kKeyDownMessage,         // When a any key is pressed.
-    kKeyUpMessage,           // When a any key is released.
-    kFocusEnterMessage,      // Widget gets the focus.
-    kFocusLeaveMessage,      // Widget losts the focus.
+      // Keyboard related messages.
+      kKeyDownMessage = 9,        // When any key is pressed.
+      kKeyUpMessage = 10,         // When any key is released.
+      kFocusEnterMessage = 11,    // Widget gets the focus.
+      kFocusLeaveMessage = 12,    // Widget loses the focus.
 
-    // Mouse related messages.
-    kMouseDownMessage,      // User makes click inside a widget.
-    kMouseUpMessage,        // User releases mouse button in a widget.
-    kDoubleClickMessage,    // User makes double click in some widget.
-    kMouseEnterMessage,     // A widget gets mouse pointer.
-    kMouseLeaveMessage,     // A widget losts mouse pointer.
-    kMouseMoveMessage,      // User moves the mouse on some widget.
-    kSetCursorMessage,      // A widget needs to setup the mouse cursor.
-    kMouseWheelMessage,     // User moves the wheel.
+      // Mouse related messages.
+      kMouseDownMessage = 13,     // User makes a click inside a widget.
+      kMouseUpMessage = 14,       // User releases the mouse button in a widget.
+      kDoubleClickMessage = 15,   // User makes a double click in some widget.
+      kMouseEnterMessage = 16,    // A widget gets the mouse pointer.
+      kMouseLeaveMessage = 17,    // A widget loses the mouse pointer.
+      kMouseMoveMessage = 18,     // User moves the mouse on some widget.
+      kSetCursorMessage = 19,     // A widget needs to set up the mouse cursor.
+      kMouseWheelMessage = 20,    // User moves the wheel.
 
-    // Touch related messages.
-    kTouchMagnifyMessage,
+      // Touch related messages.
+      kTouchMagnifyMessage = 21,
 
-    // TODO Drag'n'drop messages...
-    // k...DndMessage
+      // TODO Drag'n'drop messages...
+      // k...DndMessage
 
-    // User widgets.
-    kFirstRegisteredMessage,
-    kLastRegisteredMessage = 0x7fffffff
+      // User widgets.
+      kFirstRegisteredMessage = 22,
+      kLastRegisteredMessage = 0x7fffffff
   };
+
 
 } // namespace ui

@@ -347,6 +347,10 @@ add_library(app-lib
   script/api/cel_script.cpp
   script/api/cel_script.h
   script/api/colormode_script.cpp
+  script/api/pointertype_script.cpp
+  script/api/messagetype_script.cpp
+  script/api/mousebuttons_script.cpp
+  script/api/keymodifiers_script.cpp
   script/api/console_script.cpp
   script/api/document_script.cpp
   script/api/document_script.h
