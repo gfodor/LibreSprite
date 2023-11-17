@@ -548,6 +548,10 @@ extern int app_main(int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
     SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+#ifdef __EMSCRIPTEN__
+    SDL_SetHintWithPriority(SDL_HINT_EMSCRIPTEN_ASYNCIFY, "0", SDL_HINT_OVERRIDE);
+#endif
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) != 0) {
         std::cerr << "Critical: Could not initialize SDL2. Aborting." << std::endl;
         // Get the error from SDL_GetError() and print it

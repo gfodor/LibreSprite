@@ -312,6 +312,8 @@ endif()
 
 if(EMSCRIPTEN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -s DISABLE_EXCEPTION_CATCHING=0")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 
 # -- Unix --
@@ -421,7 +423,6 @@ add_subdirectory(third_party)
 # Main ASE targets
 
 add_subdirectory(src)
-
 if(EMSCRIPTEN)
-  target_link_options(libresprite PRIVATE -sDEMANGLE_SUPPORT=1 -sINITIAL_MEMORY=33554432 -sTOTAL_STACK=16777216 -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY --bind --preload-file bin/data/@/ --use-preload-plugins -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web)
+  target_link_options(libresprite PRIVATE -sDEMANGLE_SUPPORT=1 -sINITIAL_MEMORY=33554432 -sTOTAL_STACK=16777216 -sALLOW_MEMORY_GROWTH=1 --bind --preload-file bin/data/@/ --use-preload-plugins -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web "-sASYNCIFY_WHITELIST=['she::FileDialogWasm::show(she::Display*)','SDL_UpdateWindowSurface']" -sASYNCIFY)
 endif()
