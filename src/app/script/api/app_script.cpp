@@ -13,6 +13,7 @@
 #include "app/document.h"
 #include "app/document_api.h"
 #include "app/commands/commands.h"
+#include "app/commands/command.h"
 #include "app/commands/params.h"
 #include "app/script/api/document_script.h"
 #include "app/script/api/sprite_script.h"
@@ -170,6 +171,16 @@ public:
         return true;
       })
       .doc("Sends a message to the application to update the UI.");
+
+    addFunction("setTiledMode", [] (const script::Value& value) {
+        Command* cmd = CommandFactory::createTiledModeCommand();
+        Params params = {
+          { "axis", ((std::string)value).c_str() }
+        };
+        UIContext::instance()->executeCommand(cmd, params);
+        return true;
+      })
+      .doc("Sets the tiled mode. (none, both, x, y)");
 
     addProperty("pixelColor", [this]{return m_pixelColor.get();})
       .doc("read-only. Returns an object with functions for color conversion.");

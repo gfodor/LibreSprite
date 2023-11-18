@@ -58,6 +58,8 @@ EditorView::EditorView(EditorView::Type type)
     m_scrollSettingsConn =
       Preferences::instance().editor.showScrollbars.AfterChange.connect(
         base::Bind(&EditorView::setupScrollbars, this));
+  } else {
+    hideScrollBars();
   }
 }
 

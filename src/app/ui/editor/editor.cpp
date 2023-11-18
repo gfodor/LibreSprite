@@ -1671,8 +1671,9 @@ ImageBufferPtr Editor::getRenderImageBuffer()
 // static
 gfx::Point Editor::calcExtraPadding(const Zoom& zoom)
 {
-  if (!UIContext::instance()->hasUIChrome())
-    return gfx::Point(0, 0);
+  if (!UIContext::instance()->hasUIChrome()) {
+    return gfx::Point(m_sprite->width(), m_sprite->height());
+  }
 
   View* view = View::getView(this);
   if (view) {

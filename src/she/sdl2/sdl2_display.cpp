@@ -50,8 +50,8 @@ namespace she {
 
     unique_display = this;
 
-    width = 800;
-    height = 600;
+    width = 1440;
+    height = 1440;
 
     m_window = SDL_CreateWindow("",
                                 SDL_WINDOWPOS_UNDEFINED,
