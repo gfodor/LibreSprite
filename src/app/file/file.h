@@ -59,7 +59,7 @@ namespace app {
   // Structure to load & save files.
   class FileOp {
   public:
-    static FileOp* createLoadDocumentOperation(Context* context, const char* filename, int flags);
+    static FileOp* createLoadDocumentOperation(Context* context, const char* filename, int flags, const char *bytes = nullptr);
     static FileOp* createSaveDocumentOperation(const Context* context, const Document* document, const char* filename, const char* fn_format);
 
     ~FileOp();
@@ -68,6 +68,7 @@ namespace app {
     bool isOneFrame() const { return m_oneframe; }
 
     const std::string& filename() const { return m_filename; }
+    const std::string& bytes() const { return m_bytes; }
     Context* context() const { return m_context; }
     Document* document() const { return m_document; }
     Document* releaseDocument() {
@@ -124,6 +125,7 @@ namespace app {
     //      releaseDocument() member function)
     Document* m_document;       // Loaded document, or document to be saved.
     std::string m_filename;     // File-name to load/save.
+    std::string m_bytes;        // Bytes to load/save.
 
     // Shared fields between threads.
     mutable base::mutex m_mutex; // Mutex to access to the next two fields.

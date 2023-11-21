@@ -45,6 +45,7 @@ protected:
 private:
   std::string m_filename;
   std::string m_folder;
+  std::string m_bytes;
 };
 
 class OpenFileJob : public Job, public IFileOpProgress
@@ -99,6 +100,7 @@ void OpenFileCommand::onLoadParams(const Params& params)
 {
   m_filename = params.get("filename");
   m_folder = params.get("folder"); // Initial folder
+  m_bytes = params.get("bytes");
 }
 
 void OpenFileCommand::onExecute(Context* context)
@@ -121,7 +123,7 @@ void OpenFileCommand::onExecute(Context* context)
   if (!m_filename.empty()) {
     std::unique_ptr<FileOp> fop(
       FileOp::createLoadDocumentOperation(
-        context, m_filename.c_str(), FILE_LOAD_SEQUENCE_ASK));
+        context, m_filename.c_str(), FILE_LOAD_SEQUENCE_ASK, m_bytes.empty() ? nullptr : m_bytes.c_str()));
     bool unrecent = false;
 
     if (fop) {

@@ -46,6 +46,11 @@ FileHandle open_file(const string& filename, const string& mode)
   return FileHandle(open_file_raw(filename, mode), fclose);
 }
 
+FileHandle open_mem_file(const char* data, size_t size, const string& mode)
+{
+  return FileHandle(fmemopen((void*)data, size, "rb"), fclose);
+}
+
 FileHandle open_file_with_exception(const string& filename, const string& mode)
 {
   FileHandle f(open_file_raw(filename, mode), fclose);

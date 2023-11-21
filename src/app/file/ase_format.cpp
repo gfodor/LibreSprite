@@ -176,8 +176,16 @@ FileFormat* CreateAseFormat()
 
 bool AseFormat::onLoad(FileOp* fop)
 {
-  FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
-  FILE* f = handle.get();
+  FILE *f;
+
+  if (fop->bytes().empty()) {
+    FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
+    f = handle.get();
+  } else {
+    FileHandle handle(open_mem_file(fop->bytes().data(), fop->bytes().size(), "rb"));
+    f = handle.get();
+  }
+
   bool ignore_old_color_chunks = false;
 
   ASE_Header header;

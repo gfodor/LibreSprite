@@ -197,6 +197,9 @@ public:
     addMethod("closeDocument", &AppScriptObject::closeDocument)
       .doc("closes the specified document");
 
+    addMethod("loadDocumentBytes", &AppScriptObject::loadDocumentBytes)
+      .doc("opens the specified document, passed as a byte array");
+
     std::cout << "AppScriptObject() constructor make" << std::endl;
     makeGlobal("app");
 
@@ -344,8 +347,18 @@ public:
     params.set("bg", "0");
     params.set("format", "0");
 
-    std::cout << "New document" << std::endl;
     UIContext::instance()->executeCommand(newCommand, params);
+    m_documents.emplace_back("DocumentScriptObject");
+    return this->get("activeDocument");
+  }
+
+  script::Value loadDocumentBytes(const std::string& fileName, const std::string& bytes) {
+    Command* openCommand = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+    Params params;
+    params.set("filename", fileName.c_str());
+    params.set("bytes", bytes.c_str());
+
+    UIContext::instance()->executeCommand(openCommand, params);
     m_documents.emplace_back("DocumentScriptObject");
     return this->get("activeDocument");
   }
