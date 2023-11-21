@@ -121,7 +121,7 @@ int save_document(Context* context, doc::Document* document)
 }
 
 // static
-FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filename, int flags, const char* bytes)
+FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filename, int flags, std::string bytes)
 {
   std::unique_ptr<FileOp> fop(
     new FileOp(FileOpLoad, context));
@@ -134,7 +134,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filena
   LOG("Loading file \"%s\" (%s)\n", filename, extension.c_str());
 
   // Does file exist?
-  if (bytes == nullptr && !base::is_file(filename)) {
+  if (bytes.empty() && !base::is_file(filename)) {
     fop->setError("File not found: \"%s\"\n", filename);
     goto done;
   }
@@ -150,7 +150,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filena
   }
 
   /* use the "sequence" interface */
-  if (bytes == nullptr && fop->m_format->support(FILE_SUPPORT_SEQUENCES)) {
+  if (bytes.empty() && fop->m_format->support(FILE_SUPPORT_SEQUENCES)) {
     /* prepare to load a sequence */
     fop->prepareForSequence();
 
@@ -208,7 +208,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filena
   else {
     fop->m_filename = filename;
 
-    if (bytes != nullptr)
+    if (!bytes.empty())
       fop->m_bytes = bytes;
   }
 

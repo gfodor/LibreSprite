@@ -195,13 +195,20 @@ bool pushValArgOntoFunc(val arg, Function& func) {
   } else if (typeofArgString == "boolean") {
     func.arguments.push_back(arg.as<bool>());
   } else {
-    std::string handleId = arg["_"].as<std::string>();
-    BrowserScriptObject *obj = BrowserScriptObject::getByHandle(handleId);
+    val handleIdVal = arg["_"];
 
-    if (obj != nullptr) {
-      func.arguments.push_back(Value(obj->getScriptObject()));
+    if (handleIdVal.typeof().as<std::string>() == "string") {
+      std::string handleId = handleIdVal.as<std::string>();
+      BrowserScriptObject *obj = BrowserScriptObject::getByHandle(handleId);
+
+      if (obj != nullptr) {
+        func.arguments.push_back(Value(obj->getScriptObject()));
+      } else {
+        return false;
+      }
     } else {
-      return false;
+      std::string st = arg.as<std::string>();
+      func.arguments.push_back(st);
     }
   }
 

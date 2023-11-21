@@ -51,6 +51,10 @@ namespace app {
       return m_params[name] = value;
     }
 
+    std::string& set(const char* name, const std::string& value) {
+      return m_params[name] = value;
+    }
+
     const std::string& get(const char* name) const {
       return m_params[name];
     }

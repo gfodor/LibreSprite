@@ -356,11 +356,11 @@ public:
     Command* openCommand = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
     Params params;
     params.set("filename", fileName.c_str());
-    params.set("bytes", bytes.c_str());
+    params.set("bytes", bytes);
 
     UIContext::instance()->executeCommand(openCommand, params);
-    m_documents.emplace_back("DocumentScriptObject");
-    return this->get("activeDocument");
+    //m_documents.emplace_back("DocumentScriptObject");
+    return false;
   }
 
   script::Value closeDocument(const script::Value& documentObject) {

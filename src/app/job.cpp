@@ -34,7 +34,7 @@ Job::Job(const char* jobName)
 
   m_mutex = new base::mutex();
 
-  if (App::instance()->isGui()) {
+  if (App::instance()->isGui() && App::instance()->hasChrome()) {
     m_alert_window = ui::Alert::create("%s<<Working...||&Cancel", jobName);
     m_alert_window->addProgress();
 

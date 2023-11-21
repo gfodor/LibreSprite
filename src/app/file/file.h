@@ -59,7 +59,7 @@ namespace app {
   // Structure to load & save files.
   class FileOp {
   public:
-    static FileOp* createLoadDocumentOperation(Context* context, const char* filename, int flags, const char *bytes = nullptr);
+    static FileOp* createLoadDocumentOperation(Context* context, const char* filename, int flags, std::string bytes = std::string());
     static FileOp* createSaveDocumentOperation(const Context* context, const Document* document, const char* filename, const char* fn_format);
 
     ~FileOp();

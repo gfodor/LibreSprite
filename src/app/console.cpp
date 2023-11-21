@@ -38,10 +38,11 @@ Console::Console(Context* ctx)
   : m_withUI(false)
 {
   if (ctx)
-    m_withUI = (ctx->isUIAvailable());
+    m_withUI = (ctx->isUIAvailable() && ctx->hasUIChrome());
   else
     m_withUI =
       (App::instance()->isGui() &&
+       App::instance()->hasChrome() &&
        Manager::getDefault() &&
        Manager::getDefault()->getDisplay());
 
