@@ -359,8 +359,10 @@ public:
     params.set("bytes", bytes);
 
     UIContext::instance()->executeCommand(openCommand, params);
-    //m_documents.emplace_back("DocumentScriptObject");
-    return true;
+
+    auto doc = app::UIContext::instance()->activeDocument();
+    m_documents.emplace_back("DocumentScriptObject");
+    return this->get("activeDocument");
   }
 
   script::Value closeDocument(const script::Value& documentObject) {

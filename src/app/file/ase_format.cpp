@@ -89,7 +89,7 @@ struct ASE_Chunk {
   int start;
 };
 
-static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size = 0, uint16_t magic = 0, uint16_t frames = 0);
+static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size = 0);
 static void ase_file_prepare_header(FILE* f, ASE_Header* header, const Sprite* sprite);
 static void ase_file_write_header(FILE* f, ASE_Header* header);
 static void ase_file_write_header_filesize(FILE* f, ASE_Header* header);
@@ -176,39 +176,17 @@ FileFormat* CreateAseFormat()
 
 bool AseFormat::onLoad(FileOp* fop)
 {
-  FILE *f;
-
-  uint32_t header_size = 0;
-  uint16_t header_magic = 0;
-  uint16_t header_frames = 0;
-
-  if (fop->bytes().empty()) {
-    FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
-    f = handle.get();
-  } else {
-    const char* data = fop->bytes().data();
-    size_t size = fop->bytes().size();
-
-    FileHandle handle(open_mem_file(data, size, "r"));
-    f = handle.get();
-
-    // Header size and magic should be read off of bytes because of emscripten bug that drops first 5 bytes :P
-    header_size = *((uint32_t*)data);
-    header_magic = *((uint16_t*)(data + 4));
-    header_frames = *((uint16_t*)(data + 6));
-  }
-
-#ifdef __EMSCRIPTEN__
-  // HACK no idea why this is needed, but otherwise bytes don't get read properly
-  rewind(f);
-  fgetc(f);
-  rewind(f);
-#endif
-
   bool ignore_old_color_chunks = false;
 
+  FileHandle handle(
+      fop->bytes().empty() ?
+        open_file_with_exception(fop->filename(), "rb") :
+        open_mem_file(fop->bytes().data(), fop->bytes().size(), "r"));
+
+  FILE *f = handle.get();
+
   ASE_Header header;
-  if (!ase_file_read_header(f, &header, header_size, header_magic, header_frames)) {
+  if (!ase_file_read_header(f, &header)) {
     fop->setError("Error reading header\n");
     return false;
   }
@@ -350,13 +328,9 @@ bool AseFormat::onLoad(FileOp* fop)
   fop->createDocument(sprite.get());
   sprite.release();
 
-#ifdef __EMSCRIPTEN__
-  // HACK ferror goes to 1 as soon as fseek is run on a fmemopen file
-  return true;
-#endif
-
   if (ferror(f)) {
     fop->setError("Error reading file.\n");
+
     return false;
   }
   else {
@@ -475,25 +449,18 @@ bool AseFormat::onSave(FileOp* fop)
   }
 }
 
-static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size, uint16_t magic, uint16_t frames)
+static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size)
 {
   header->pos = ftell(f);
 
-  if (size == 0) {
-    header->size  = fgetl(f);
-    header->magic = fgetw(f);
-    header->frames     = fgetw(f);
-  } else {
-    header->size = size;
-    header->magic = magic;
-    header->frames = frames;
-    fseek(f, 8, SEEK_CUR);
-  }
+  header->size  = fgetl(f);
+  header->magic = fgetw(f);
 
   if (header->magic != ASE_FILE_MAGIC) {
     return false;
   }
 
+  header->frames     = fgetw(f);
   header->width      = fgetw(f);
   header->height     = fgetw(f);
   header->depth      = fgetw(f);
