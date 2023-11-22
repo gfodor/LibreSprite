@@ -200,9 +200,9 @@ bool AseFormat::onLoad(FileOp* fop)
 
 #ifdef __EMSCRIPTEN__
   // HACK no idea why this is needed, but otherwise bytes don't get read properly
-  fseek(f, 0, SEEK_SET);
+  rewind(f);
   fgetc(f);
-  fseek(f, 0, SEEK_SET);
+  rewind(f);
 #endif
 
   bool ignore_old_color_chunks = false;
@@ -349,6 +349,11 @@ bool AseFormat::onLoad(FileOp* fop)
 
   fop->createDocument(sprite.get());
   sprite.release();
+
+#ifdef __EMSCRIPTEN__
+  // HACK ferror goes to 1 as soon as fseek is run on a fmemopen file
+  return true;
+#endif
 
   if (ferror(f)) {
     fop->setError("Error reading file.\n");

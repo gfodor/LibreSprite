@@ -360,7 +360,7 @@ public:
 
     UIContext::instance()->executeCommand(openCommand, params);
     //m_documents.emplace_back("DocumentScriptObject");
-    return false;
+    return true;
   }
 
   script::Value closeDocument(const script::Value& documentObject) {
