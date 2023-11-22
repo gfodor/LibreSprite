@@ -89,7 +89,7 @@ struct ASE_Chunk {
   int start;
 };
 
-static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size = 0, uint16_t magic = 0);
+static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size = 0, uint16_t magic = 0, uint16_t frames = 0);
 static void ase_file_prepare_header(FILE* f, ASE_Header* header, const Sprite* sprite);
 static void ase_file_write_header(FILE* f, ASE_Header* header);
 static void ase_file_write_header_filesize(FILE* f, ASE_Header* header);
@@ -180,6 +180,7 @@ bool AseFormat::onLoad(FileOp* fop)
 
   uint32_t header_size = 0;
   uint16_t header_magic = 0;
+  uint16_t header_frames = 0;
 
   if (fop->bytes().empty()) {
     FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
@@ -194,6 +195,7 @@ bool AseFormat::onLoad(FileOp* fop)
     // Header size and magic should be read off of bytes because of emscripten bug that drops first 5 bytes :P
     header_size = *((uint32_t*)data);
     header_magic = *((uint16_t*)(data + 4));
+    header_frames = *((uint16_t*)(data + 6));
   }
 
 #ifdef __EMSCRIPTEN__
@@ -206,7 +208,7 @@ bool AseFormat::onLoad(FileOp* fop)
   bool ignore_old_color_chunks = false;
 
   ASE_Header header;
-  if (!ase_file_read_header(f, &header, header_size, header_magic)) {
+  if (!ase_file_read_header(f, &header, header_size, header_magic, header_frames)) {
     fop->setError("Error reading header\n");
     return false;
   }
@@ -468,25 +470,25 @@ bool AseFormat::onSave(FileOp* fop)
   }
 }
 
-static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size, uint16_t magic)
+static bool ase_file_read_header(FILE* f, ASE_Header* header, uint32_t size, uint16_t magic, uint16_t frames)
 {
   header->pos = ftell(f);
 
   if (size == 0) {
     header->size  = fgetl(f);
-
     header->magic = fgetw(f);
+    header->frames     = fgetw(f);
   } else {
     header->size = size;
     header->magic = magic;
-    fseek(f, 6, SEEK_CUR);
+    header->frames = frames;
+    fseek(f, 8, SEEK_CUR);
   }
 
   if (header->magic != ASE_FILE_MAGIC) {
     return false;
   }
 
-  header->frames     = fgetw(f);
   header->width      = fgetw(f);
   header->height     = fgetw(f);
   header->depth      = fgetw(f);

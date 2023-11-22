@@ -165,7 +165,7 @@ bool Document::isModified() const
 
 bool Document::isAssociatedToFile() const
 {
-  return m_associated_to_file;
+  return !m_in_memory && m_associated_to_file;
 }
 
 void Document::markAsSaved()

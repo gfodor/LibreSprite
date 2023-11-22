@@ -610,6 +610,9 @@ void FileOp::operate(IFileOpProgress* progress)
         setError("Error loading sprite from file \"%s\"\n",
                  m_filename.c_str());
     }
+
+    if (!m_bytes.empty() && m_document != NULL)
+      m_document->setInMemory(true);
   }
   // Save //////////////////////////////////////////////////////////////////////
   else if (m_type == FileOpSave &&

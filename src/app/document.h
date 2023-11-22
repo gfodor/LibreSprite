@@ -172,6 +172,8 @@ namespace app {
 
     void unlock();
 
+    void setInMemory(bool in_memory) { m_in_memory = in_memory; }
+
   protected:
     virtual void onContextChanged() override;
 
@@ -206,6 +208,9 @@ namespace app {
 
     // Current transformation.
     Transformation m_transformation;
+
+    // Is just in memory
+    bool m_in_memory = false;
 
     DISABLE_COPYING(Document);
   };
