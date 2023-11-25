@@ -459,6 +459,78 @@ color_t rgba_blender_hsl_luminosity(color_t backdrop, color_t src, int opacity)
   return rgba_blender_normal(backdrop, src, opacity);
 }
 
+color_t trgba_blender_hsl_hue(color_t backdrop, color_t src, int opacity)
+{
+  double r = trgba_getr(backdrop)/255.0;
+  double g = trgba_getg(backdrop)/255.0;
+  double b = trgba_getb(backdrop)/255.0;
+  double s = sat(r, g, b);
+  double l = lum(r, g, b);
+
+  r = trgba_getr(src)/255.0;
+  g = trgba_getg(src)/255.0;
+  b = trgba_getb(src)/255.0;
+
+  set_sat(r, g, b, s);
+  set_lum(r, g, b, l);
+
+  src = trgba(int(255.0*r), int(255.0*g), int(255.0*b), 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_hsl_saturation(color_t backdrop, color_t src, int opacity)
+{
+  double r = trgba_getr(src)/255.0;
+  double g = trgba_getg(src)/255.0;
+  double b = trgba_getb(src)/255.0;
+  double s = sat(r, g, b);
+
+  r = trgba_getr(backdrop)/255.0;
+  g = trgba_getg(backdrop)/255.0;
+  b = trgba_getb(backdrop)/255.0;
+  double l = lum(r, g, b);
+
+  set_sat(r, g, b, s);
+  set_lum(r, g, b, l);
+
+  src = trgba(int(255.0*r), int(255.0*g), int(255.0*b), 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_hsl_color(color_t backdrop, color_t src, int opacity)
+{
+  double r = trgba_getr(backdrop)/255.0;
+  double g = trgba_getg(backdrop)/255.0;
+  double b = trgba_getb(backdrop)/255.0;
+  double l = lum(r, g, b);
+
+  r = trgba_getr(src)/255.0;
+  g = trgba_getg(src)/255.0;
+  b = trgba_getb(src)/255.0;
+
+  set_lum(r, g, b, l);
+
+  src = trgba(int(255.0*r), int(255.0*g), int(255.0*b), 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_hsl_luminosity(color_t backdrop, color_t src, int opacity)
+{
+  double r = trgba_getr(src)/255.0;
+  double g = trgba_getg(src)/255.0;
+  double b = trgba_getb(src)/255.0;
+  double l = lum(r, g, b);
+
+  r = trgba_getr(backdrop)/255.0;
+  g = trgba_getg(backdrop)/255.0;
+  b = trgba_getb(backdrop)/255.0;
+
+  set_lum(r, g, b, l);
+
+  src = trgba(int(255.0*r), int(255.0*g), int(255.0*b), 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
 //////////////////////////////////////////////////////////////////////
 // GRAY blenders
 
@@ -645,6 +717,257 @@ color_t graya_blender_exclusion(color_t backdrop, color_t src, int opacity)
 }
 
 //////////////////////////////////////////////////////////////////////
+// TRGB blenders
+
+color_t trgba_blender_src(color_t backdrop, color_t src, int opacity)
+{
+  return src;
+}
+
+color_t trgba_blender_merge(color_t backdrop, color_t src, int opacity)
+{
+  int Br, Bg, Bb, Ba, Bt;
+  int Sr, Sg, Sb, Sa, St;
+  int Rr, Rg, Rb, Ra;
+  int t;
+
+  Br = trgba_getr(backdrop);
+  Bg = trgba_getg(backdrop);
+  Bb = trgba_getb(backdrop);
+  Ba = trgba_geta(backdrop);
+  Bt = trgba_gett(backdrop);
+
+  Sr = trgba_getr(src);
+  Sg = trgba_getg(src);
+  Sb = trgba_getb(src);
+  Sa = trgba_geta(src);
+  St = trgba_gett(src);
+
+  if (Ba == 0) {
+    Rr = Sr;
+    Rg = Sg;
+    Rb = Sb;
+  }
+  else if (Sa == 0) {
+    Rr = Br;
+    Rg = Bg;
+    Rb = Bb;
+  }
+  else {
+    Rr = Br + MUL_UN8((Sr - Br), opacity, t);
+    Rg = Bg + MUL_UN8((Sg - Bg), opacity, t);
+    Rb = Bb + MUL_UN8((Sb - Bb), opacity, t);
+  }
+  Ra = Ba + MUL_UN8((Sa - Ba), opacity, t);
+  if (Ra == 0)
+    Rr = Rg = Rb = 0;
+
+  return trgba(Rr, Rg, Rb, Ra, MAX(Bt, St));
+}
+
+color_t trgba_blender_neg_bw(color_t backdrop, color_t src, int opacity)
+{
+  if (!(backdrop & trgba_a_mask))
+    return trgba(0, 0, 0, 255, trgba_gett(src));
+  else if (trgba_luma(backdrop) < 128)
+    return trgba(255, 255, 255, 255, trgba_gett(src));
+  else
+    return trgba(0, 0, 0, 255, trgba_gett(src));
+}
+
+color_t trgba_blender_red_tint(color_t backdrop, color_t src, int opacity)
+{
+  int v = trgba_luma(src);
+  src = trgba((255+v)/2, v/2, v/2, trgba_geta(src), trgba_gett(src));
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_blue_tint(color_t backdrop, color_t src, int opacity)
+{
+  int v = trgba_luma(src);
+  src = trgba(v/2, v/2, (255+v)/2, trgba_geta(src), trgba_gett(src));
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_normal(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+
+  if ((backdrop & trgba_a_mask) == 0) {
+    int a = trgba_geta(src);
+    a = MUL_UN8(a, opacity, t);
+    a <<= trgba_a_shift;
+    return (src & trgba_rgb_mask) | a | (src & trgba_t_mask);
+  }
+  else if ((src & trgba_a_mask) == 0) {
+    return backdrop;
+  }
+
+  int Br, Bg, Bb, Ba, Bt;
+  int Sr, Sg, Sb, Sa, St;
+  int Rr, Rg, Rb, Ra;
+
+  Br = trgba_getr(backdrop);
+  Bg = trgba_getg(backdrop);
+  Bb = trgba_getb(backdrop);
+  Ba = trgba_geta(backdrop);
+  Bt = trgba_gett(backdrop);
+
+  Sr = trgba_getr(src);
+  Sg = trgba_getg(src);
+  Sb = trgba_getb(src);
+  Sa = trgba_geta(src);
+  Sa = MUL_UN8(Sa, opacity, t);
+  St = trgba_gett(src);
+
+  Ra = Ba + Sa - MUL_UN8(Ba, Sa, t);
+  Rr = Br + (Sr-Br) * Sa / Ra;
+  Rg = Bg + (Sg-Bg) * Sa / Ra;
+  Rb = Bb + (Sb-Bb) * Sa / Ra;
+
+  return trgba(Rr, Rg, Rb, Ra, MAX(Bt, St));
+}
+
+color_t trgba_blender_normal(color_t backdrop, color_t src)
+{
+  int t;
+
+  if ((backdrop & trgba_a_mask) == 0) {
+    return src;
+  }
+  else if ((src & trgba_a_mask) == 0) {
+    return backdrop;
+  }
+
+  int Br, Bg, Bb, Ba, Bt;
+  int Sr, Sg, Sb, Sa, St;
+  int Rr, Rg, Rb, Ra;
+
+  Br = trgba_getr(backdrop);
+  Bg = trgba_getg(backdrop);
+  Bb = trgba_getb(backdrop);
+  Ba = trgba_geta(backdrop);
+  Bt = trgba_gett(backdrop);
+
+  Sr = trgba_getr(src);
+  Sg = trgba_getg(src);
+  Sb = trgba_getb(src);
+  Sa = trgba_geta(src);
+  St = trgba_gett(src);
+
+  Ra = Ba + Sa - MUL_UN8(Ba, Sa, t);
+  Rr = Br + (Sr-Br) * Sa / Ra;
+  Rg = Bg + (Sg-Bg) * Sa / Ra;
+  Rb = Bb + (Sb-Bb) * Sa / Ra;
+
+  return trgba(Rr, Rg, Rb, Ra, MAX(Bt, St));
+}
+
+color_t trgba_blender_multiply(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+  int r = blend_multiply(trgba_getr(backdrop), trgba_getr(src), t);
+  int g = blend_multiply(trgba_getg(backdrop), trgba_getg(src), t);
+  int b = blend_multiply(trgba_getb(backdrop), trgba_getb(src), t);
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_screen(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+  int r = blend_screen(trgba_getr(backdrop), trgba_getr(src), t);
+  int g = blend_screen(trgba_getg(backdrop), trgba_getg(src), t);
+  int b = blend_screen(trgba_getb(backdrop), trgba_getb(src), t);
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_overlay(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+  int r = blend_overlay(trgba_getr(backdrop), trgba_getr(src), t);
+  int g = blend_overlay(trgba_getg(backdrop), trgba_getg(src), t);
+  int b = blend_overlay(trgba_getb(backdrop), trgba_getb(src), t);
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_darken(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_darken(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_darken(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_darken(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_lighten(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_lighten(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_lighten(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_lighten(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_color_dodge(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_color_dodge(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_color_dodge(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_color_dodge(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_color_burn(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_color_burn(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_color_burn(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_color_burn(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_hard_light(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+  int r = blend_hard_light(trgba_getr(backdrop), trgba_getr(src), t);
+  int g = blend_hard_light(trgba_getg(backdrop), trgba_getg(src), t);
+  int b = blend_hard_light(trgba_getb(backdrop), trgba_getb(src), t);
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_soft_light(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_soft_light(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_soft_light(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_soft_light(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_difference(color_t backdrop, color_t src, int opacity)
+{
+  int r = blend_difference(trgba_getr(backdrop), trgba_getr(src));
+  int g = blend_difference(trgba_getg(backdrop), trgba_getg(src));
+  int b = blend_difference(trgba_getb(backdrop), trgba_getb(src));
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+color_t trgba_blender_exclusion(color_t backdrop, color_t src, int opacity)
+{
+  int t;
+  int r = blend_exclusion(trgba_getr(backdrop), trgba_getr(src), t);
+  int g = blend_exclusion(trgba_getg(backdrop), trgba_getg(src), t);
+  int b = blend_exclusion(trgba_getb(backdrop), trgba_getb(src), t);
+  src = trgba(r, g, b, 0, 0) | (src & trgba_a_mask) | (src & trgba_t_mask);
+  return trgba_blender_normal(backdrop, src, opacity);
+}
+
+//////////////////////////////////////////////////////////////////////
 // indexed
 
 color_t indexed_blender_src(color_t dst, color_t src, int opacity)
@@ -713,6 +1036,36 @@ BlendFunc get_graya_blender(BlendMode blendmode)
   }
   ASSERT(false);
   return graya_blender_src;
+}
+
+BlendFunc get_trgba_blender(BlendMode blendmode)
+{
+  switch (blendmode) {
+    case BlendMode::SRC:            return trgba_blender_src;
+    case BlendMode::MERGE:          return trgba_blender_merge;
+    case BlendMode::NEG_BW:         return trgba_blender_neg_bw;
+    case BlendMode::RED_TINT:       return trgba_blender_red_tint;
+    case BlendMode::BLUE_TINT:      return trgba_blender_blue_tint;
+
+    case BlendMode::NORMAL:         return trgba_blender_normal;
+    case BlendMode::MULTIPLY:       return trgba_blender_multiply;
+    case BlendMode::SCREEN:         return trgba_blender_screen;
+    case BlendMode::OVERLAY:        return trgba_blender_overlay;
+    case BlendMode::DARKEN:         return trgba_blender_darken;
+    case BlendMode::LIGHTEN:        return trgba_blender_lighten;
+    case BlendMode::COLOR_DODGE:    return trgba_blender_color_dodge;
+    case BlendMode::COLOR_BURN:     return trgba_blender_color_burn;
+    case BlendMode::HARD_LIGHT:     return trgba_blender_hard_light;
+    case BlendMode::SOFT_LIGHT:     return trgba_blender_soft_light;
+    case BlendMode::DIFFERENCE:     return trgba_blender_difference;
+    case BlendMode::EXCLUSION:      return trgba_blender_exclusion;
+    case BlendMode::HSL_HUE:        return trgba_blender_hsl_hue;
+    case BlendMode::HSL_SATURATION: return trgba_blender_hsl_saturation;
+    case BlendMode::HSL_COLOR:      return trgba_blender_hsl_color;
+    case BlendMode::HSL_LUMINOSITY: return trgba_blender_hsl_luminosity;
+  }
+  ASSERT(false);
+  return trgba_blender_src;
 }
 
 BlendFunc get_indexed_blender(BlendMode blendmode)

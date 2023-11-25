@@ -24,11 +24,11 @@ public:
     addProperty("format", [this]{return (int) m_image->pixelFormat();})
       .doc("read-only. The PixelFormat of the image.");
 
-    addFunction("getPixel", [this](int x, int y){return m_image->getPixel(x, y);})
-      .doc("reads a color from the given coordinate of the image.")
-      .docArg("x", "integer")
-      .docArg("y", "integer")
-      .docReturns("a color value");
+    // addFunction("getPixel", [this](int x, int y){return m_image->getPixel(x, y);})
+    //   .doc("reads a color from the given coordinate of the image.")
+    //   .docArg("x", "integer")
+    //   .docArg("y", "integer")
+    //   .docReturns("a color value");
 
     addMethod("putPixel", &ImageScriptObject::putPixel)
       .doc("writes the color onto the image at the the given coordinate.")

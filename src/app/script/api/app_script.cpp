@@ -360,7 +360,6 @@ public:
 
     UIContext::instance()->executeCommand(openCommand, params);
 
-    auto doc = app::UIContext::instance()->activeDocument();
     m_documents.emplace_back("DocumentScriptObject");
     return this->get("activeDocument");
   }

@@ -13,7 +13,8 @@ namespace doc {
     IMAGE_GRAYSCALE = 1,
     IMAGE_INDEXED = 2,
     IMAGE_BITMAP = 3,
-    IMAGE_NONE = 4,
+    IMAGE_TRGB = 4,
+    IMAGE_NONE = 5,
   };
 
 } // namespace doc

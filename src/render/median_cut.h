@@ -271,7 +271,7 @@ namespace render {
   // quantization for frame buffer display,", Computer Graphics,
   // 16(3), pp. 297-307 (1982)
   template<class Histogram>
-  void median_cut(const Histogram& histogram, std::size_t maxBoxes, std::vector<uint32_t>& result) {
+  void median_cut(const Histogram& histogram, std::size_t maxBoxes, std::vector<uint64_t>& result) {
     // We need a priority queue to split bigger boxes first (see Box::operator<).
     std::priority_queue<Box<Histogram> > boxes;
 

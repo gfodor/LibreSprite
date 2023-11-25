@@ -23,8 +23,14 @@ namespace doc {
   color_t graya_blender_merge(color_t backdrop, color_t src, int opacity);
   color_t graya_blender_neg_bw(color_t backdrop, color_t src, int opacity);
 
+  color_t trgba_blender_normal(color_t backdrop, color_t src, int opacity);
+  color_t trgba_blender_normal(color_t backdrop, color_t src);
+  color_t trgba_blender_merge(color_t backdrop, color_t src, int opacity);
+  color_t trgba_blender_neg_bw(color_t backdrop, color_t src, int opacity);
+
   BlendFunc get_rgba_blender(BlendMode blendmode);
   BlendFunc get_graya_blender(BlendMode blendmode);
+  BlendFunc get_trgba_blender(BlendMode blendmode);
   BlendFunc get_indexed_blender(BlendMode blendmode);
 
 } // namespace doc

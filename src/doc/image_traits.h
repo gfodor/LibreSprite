@@ -11,6 +11,33 @@
 
 namespace doc {
 
+  struct TrgbTraits {
+    static const PixelFormat pixel_format = IMAGE_TRGB;
+
+    enum {
+      bits_per_pixel = 64,
+      bytes_per_pixel = 8,
+      pixels_per_byte = 0,
+      channels = 4,
+      has_alpha = true,
+    };
+
+    typedef uint64_t pixel_t;
+    typedef pixel_t* address_t;
+    typedef const pixel_t* const_address_t;
+
+    static const pixel_t min_value = 0x0000000000000000ull;
+    static const pixel_t max_value = 0xffffffffffffffffull;
+
+    static inline int getRowStrideBytes(int pixels_per_row) {
+      return bytes_per_pixel * pixels_per_row;
+    }
+
+    static inline BlendFunc get_blender(BlendMode blend_mode) {
+      return get_rgba_blender(blend_mode);
+    }
+  };
+
   struct RgbTraits {
     static const PixelFormat pixel_format = IMAGE_RGB;
 

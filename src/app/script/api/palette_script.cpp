@@ -20,7 +20,7 @@ public:
                 [this]{return m_pal->size();},
                 [this](int s){m_pal->resize(s); modify(); return s;});
 
-    addFunction("get", [this](int i){return m_pal->getEntry(i);});
+    // addFunction("get", [this](int i){return m_pal->getEntry(i);});
 
     addMethod("set", &PaletteScriptObject::set);
   }
