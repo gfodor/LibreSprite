@@ -97,6 +97,7 @@ namespace doc {
   {
     switch (pixelFormat) {
       case IMAGE_RGB:       return RgbTraits::getRowStrideBytes(pixels_per_row);
+      case IMAGE_TRGB:       return TrgbTraits::getRowStrideBytes(pixels_per_row);
       case IMAGE_GRAYSCALE: return GrayscaleTraits::getRowStrideBytes(pixels_per_row);
       case IMAGE_INDEXED:   return IndexedTraits::getRowStrideBytes(pixels_per_row);
       case IMAGE_BITMAP:    return BitmapTraits::getRowStrideBytes(pixels_per_row);

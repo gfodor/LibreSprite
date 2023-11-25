@@ -32,6 +32,15 @@ uint32_t convert_color_to_surface(color_t color, const Palette* palette, const s
 }
 
 template<>
+uint32_t convert_color_to_surface<TrgbTraits, she::kRgbaSurfaceFormat>(color_t c, const Palette* palette, const she::SurfaceFormatData* fd) {
+  return
+    ((trgba_getr(c) << fd->redShift  ) & fd->redMask  ) |
+    ((trgba_getg(c) << fd->greenShift) & fd->greenMask) |
+    ((trgba_getb(c) << fd->blueShift ) & fd->blueMask ) |
+    ((trgba_geta(c) << fd->alphaShift) & fd->alphaMask);
+}
+
+template<>
 uint32_t convert_color_to_surface<RgbTraits, she::kRgbaSurfaceFormat>(color_t c, const Palette* palette, const she::SurfaceFormatData* fd) {
   return
     ((rgba_getr(c) << fd->redShift  ) & fd->redMask  ) |
@@ -163,6 +172,10 @@ void convert_image_to_surface(const Image* image, const Palette* palette,
 
     case IMAGE_RGB:
       convert_image_to_surface_selector<RgbTraits>(image, surface, src_x, src_y, dst_x, dst_y, w, h, palette, &fd);
+      break;
+
+    case IMAGE_TRGB:
+      convert_image_to_surface_selector<TrgbTraits>(image, surface, src_x, src_y, dst_x, dst_y, w, h, palette, &fd);
       break;
 
     case IMAGE_GRAYSCALE:

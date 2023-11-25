@@ -101,6 +101,7 @@ Image* read_image(std::istream& is, bool setId)
   uint32_t maskColor = read32(is);      // Mask color
 
   if ((pixelFormat != IMAGE_RGB &&
+       pixelFormat != IMAGE_TRGB &&
        pixelFormat != IMAGE_GRAYSCALE &&
        pixelFormat != IMAGE_INDEXED &&
        pixelFormat != IMAGE_BITMAP) ||

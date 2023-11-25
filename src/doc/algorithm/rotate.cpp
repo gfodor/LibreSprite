@@ -127,6 +127,13 @@ void scale_image(Image* dst, const Image* src,
         src_x, src_y, src_w, src_h, rgba_blender);
       break;
 
+    case IMAGE_TRGB:
+      image_scale_tpl<TrgbTraits>(
+        dst, src,
+        dst_x, dst_y, dst_w, dst_h,
+        src_x, src_y, src_w, src_h, rgba_blender);
+      break;
+
     case IMAGE_GRAYSCALE:
       image_scale_tpl<GrayscaleTraits>(
         dst, src,
@@ -261,6 +268,24 @@ public:
     int c = get_pixel_fast<RgbTraits>(spr, spr_x, spr_y);
     if ((rgba_geta(m_mask_color) == 0) || ((c & rgba_rgb_mask) != (m_mask_color & rgba_rgb_mask)))
       *m_it = rgba_blender_normal(*m_it, c);
+  }
+
+private:
+  color_t m_mask_color;
+};
+
+class TrgbDelegate : public GenericDelegate<TrgbTraits> {
+public:
+  TrgbDelegate(color_t mask_color) {
+    m_mask_color = mask_color;
+  }
+
+  void putPixel(const Image* spr, int spr_x, int spr_y) {
+    ASSERT(m_it != m_end);
+
+    int c = get_pixel_fast<TrgbTraits>(spr, spr_x, spr_y);
+    if ((trgba_geta(m_mask_color) == 0) || ((c & trgba_rgb_mask) != (m_mask_color & trgba_rgb_mask)))
+      *m_it = trgba_blender_normal(*m_it, c);
   }
 
 private:
@@ -753,6 +778,12 @@ static void ase_parallelogram_map_standard(
     case IMAGE_RGB: {
       RgbDelegate delegate(sprite->maskColor());
       ase_parallelogram_map<RgbTraits, RgbDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
+      break;
+    }
+
+    case IMAGE_TRGB: {
+      TrgbDelegate delegate(sprite->maskColor());
+      ase_parallelogram_map<TrgbTraits, TrgbDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
       break;
     }
 

@@ -157,6 +157,7 @@ static void image_scale2x(Image* dst, const Image* src, int src_w, int src_h)
 {
   switch (src->pixelFormat()) {
     case IMAGE_RGB:       image_scale2x_tpl<RgbTraits>(dst, src, src_w, src_h); break;
+    case IMAGE_TRGB:      image_scale2x_tpl<TrgbTraits>(dst, src, src_w, src_h); break;
     case IMAGE_GRAYSCALE: image_scale2x_tpl<GrayscaleTraits>(dst, src, src_w, src_h); break;
     case IMAGE_INDEXED:   image_scale2x_tpl<IndexedTraits>(dst, src, src_w, src_h); break;
     case IMAGE_BITMAP:    image_scale2x_tpl<BitmapTraits>(dst, src, src_w, src_h); break;

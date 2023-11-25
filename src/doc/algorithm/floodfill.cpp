@@ -112,6 +112,12 @@ inline bool color_equal<RgbTraits>(color_t c1, color_t c2, int tolerance)
 }
 
 template<>
+inline bool color_equal<TrgbTraits>(color_t c1, color_t c2, int tolerance)
+{
+  return color_equal_32(c1, c2, tolerance);
+}
+
+template<>
 inline bool color_equal<GrayscaleTraits>(color_t c1, color_t c2, int tolerance)
 {
   return color_equal_16(c1, c2, tolerance);
@@ -151,6 +157,7 @@ static int flooder(const Image* image,
   switch (image->pixelFormat()) {
 
     case IMAGE_RGB:
+    case IMAGE_TRGB:
       {
         uint32_t* address = reinterpret_cast<uint32_t*>(image->getPixelAddress(0, y));
 
@@ -358,6 +365,9 @@ void floodfill(const Image* image,
   // Non-contiguous case, we replace colors in the whole image.
   if (!contiguous) {
     switch (image->pixelFormat()) {
+      case IMAGE_TRGB:
+        replace_color<TrgbTraits>(image, bounds, src_color, tolerance, data, proc);
+        break;
       case IMAGE_RGB:
         replace_color<RgbTraits>(image, bounds, src_color, tolerance, data, proc);
         break;
