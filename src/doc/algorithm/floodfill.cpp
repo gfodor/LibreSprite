@@ -51,7 +51,7 @@ static int flood_count;          /* number of flooded segments */
 static inline bool color_equal_32(color_t c1, color_t c2, int tolerance)
 {
   if (tolerance == 0)
-    return (c1 == c2) || (rgba_geta(c1) == 0 && rgba_geta(c2) == 0);
+    return ((c1 & 0xffffffff) == (c2 & 0xffffffff)) || (rgba_geta(c1) == 0 && rgba_geta(c2) == 0);
   else {
     int r1 = rgba_getr(c1);
     int g1 = rgba_getg(c1);
@@ -155,9 +155,29 @@ static int flooder(const Image* image,
   int c;
 
   switch (image->pixelFormat()) {
+    case IMAGE_TRGB:
+      {
+        uint64_t* address = reinterpret_cast<uint64_t*>(image->getPixelAddress(0, y));
+
+        // Check start pixel
+        if (!color_equal_32((int)*(address+x), src_color, tolerance) || MASKED(x, y))
+          return x+1;
+
+        // Work left from starting point
+        for (left=x-1; left>=bounds.x; left--) {
+          if (!color_equal_32((int)*(address+left), src_color, tolerance) || MASKED(left, y))
+            break;
+        }
+
+        // Work right from starting point
+        for (right=x+1; right<bounds.x2(); right++) {
+          if (!color_equal_32((int)*(address+right), src_color, tolerance) || MASKED(right, y))
+            break;
+        }
+      }
+      break;
 
     case IMAGE_RGB:
-    case IMAGE_TRGB:
       {
         uint32_t* address = reinterpret_cast<uint32_t*>(image->getPixelAddress(0, y));
 

@@ -91,8 +91,10 @@ Image* convert_pixel_format(
     new_image = Image::create(pixelFormat, image->width(), image->height());
   new_image->setMaskColor(new_mask_color);
 
+  uint32_t trgba_now = 0; // TODO trgba
+
   // RGB -> Indexed with ordered dithering
-  if (image->pixelFormat() == IMAGE_RGB &&
+  if ((image->pixelFormat() == IMAGE_RGB || image->pixelFormat() == IMAGE_TRGB) &&
       pixelFormat == IMAGE_INDEXED &&
       ditheringMethod == DitheringMethod::ORDERED) {
     BayerMatrix<8> matrix;
@@ -116,6 +118,22 @@ Image* convert_pixel_format(
         case IMAGE_RGB:
           new_image->copy(image, gfx::Clip(image->bounds()));
           break;
+
+        // RGB -> TRGB
+        case IMAGE_TRGB: {
+          LockImageBits<TrgbTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<TrgbTraits>::iterator dst_it = dstBits.begin();
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            c = *src_it;
+
+            *dst_it = trgba(rgba_getr(c),
+                            rgba_getg(c),
+                            rgba_getb(c),
+                            rgba_geta(c), trgba_now);
+          }
+          break;
+        }
 
         // RGB -> Grayscale
         case IMAGE_GRAYSCALE: {
@@ -168,6 +186,84 @@ Image* convert_pixel_format(
       break;
     }
 
+    case IMAGE_TRGB: {
+      const LockImageBits<RgbTraits> srcBits(image);
+      LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
+
+      switch (new_image->pixelFormat()) {
+
+        // TRGB -> TRGB
+        case IMAGE_TRGB:
+          new_image->copy(image, gfx::Clip(image->bounds()));
+          break;
+
+        // TRGB -> RGB
+        case IMAGE_RGB: {
+          LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<RgbTraits>::iterator dst_it = dstBits.begin();
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            c = *src_it;
+
+            *dst_it = rgba(trgba_getr(c),
+                            trgba_getg(c),
+                            trgba_getb(c),
+                            trgba_geta(c));
+          }
+          break;
+        }
+
+        // TRGB -> Grayscale
+        case IMAGE_GRAYSCALE: {
+          LockImageBits<GrayscaleTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<GrayscaleTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+          LockImageBits<GrayscaleTraits>::iterator dst_end = dstBits.end();
+#endif
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            ASSERT(dst_it != dst_end);
+            c = *src_it;
+
+            g = 255 * Hsv(Rgb(trgba_getr(c),
+                              trgba_getg(c),
+                              trgba_getb(c))).valueInt() / 100;
+
+            *dst_it = graya(g, trgba_geta(c));
+          }
+          ASSERT(dst_it == dst_end);
+          break;
+        }
+
+        // TRGB -> Indexed
+        case IMAGE_INDEXED: {
+          LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+          LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
+#endif
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            ASSERT(dst_it != dst_end);
+            c = *src_it;
+
+            r = trgba_getr(c);
+            g = trgba_getg(c);
+            b = trgba_getb(c);
+            a = trgba_geta(c);
+
+            if (a == 0)
+              *dst_it = new_mask_color;
+            else
+              *dst_it = rgbmap->mapColor(r, g, b, a);
+          }
+          ASSERT(dst_it == dst_end);
+          break;
+        }
+      }
+      break;
+    }
+
     case IMAGE_GRAYSCALE: {
       const LockImageBits<GrayscaleTraits> srcBits(image);
       LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
@@ -189,6 +285,26 @@ Image* convert_pixel_format(
             g = graya_getv(c);
 
             *dst_it = rgba(g, g, g, graya_geta(c));
+          }
+          ASSERT(dst_it == dst_end);
+          break;
+        }
+
+        // Grayscale -> TRGB
+        case IMAGE_TRGB: {
+          LockImageBits<TrgbTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<TrgbTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+          LockImageBits<TrgbTraits>::iterator dst_end = dstBits.end();
+#endif
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            ASSERT(dst_it != dst_end);
+            c = *src_it;
+
+            g = graya_getv(c);
+
+            *dst_it = trgba(g, g, g, graya_geta(c), trgba_now);
           }
           ASSERT(dst_it == dst_end);
           break;
@@ -247,6 +363,27 @@ Image* convert_pixel_format(
               *dst_it = rgba(0, 0, 0, 0);
             else
               *dst_it = palette->getEntry(c);
+          }
+          ASSERT(dst_it == dst_end);
+          break;
+        }
+
+        // Indexed -> TRGB
+        case IMAGE_TRGB: {
+          LockImageBits<TrgbTraits> dstBits(new_image, Image::WriteLock);
+          LockImageBits<TrgbTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+          LockImageBits<TrgbTraits>::iterator dst_end = dstBits.end();
+#endif
+
+          for (; src_it != src_end; ++src_it, ++dst_it) {
+            ASSERT(dst_it != dst_end);
+            c = *src_it;
+
+            if (!is_background && c == image->maskColor())
+              *dst_it = trgba(0, 0, 0, 0, 0);
+            else
+              *dst_it = palette->getEntry(c) | ((uint64_t)trgba_now << 32);
           }
           ASSERT(dst_it == dst_end);
           break;

@@ -225,6 +225,42 @@ void Mask::byColor(const Image *src, int color, int fuzziness)
       break;
     }
 
+    case IMAGE_TRGB: {
+      const LockImageBits<TrgbTraits> srcBits(src);
+      LockImageBits<BitmapTraits> dstBits(dst, Image::WriteLock);
+      LockImageBits<TrgbTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
+      LockImageBits<BitmapTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+      LockImageBits<BitmapTraits>::iterator dst_end = dstBits.end();
+#endif
+      int src_r, src_g, src_b, src_a;
+      int dst_r, dst_g, dst_b, dst_a;
+      color_t c;
+
+      dst_r = trgba_getr(color);
+      dst_g = trgba_getg(color);
+      dst_b = trgba_getb(color);
+      dst_a = trgba_geta(color);
+
+      for (; src_it != src_end; ++src_it, ++dst_it) {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+
+        src_r = trgba_getr(c);
+        src_g = trgba_getg(c);
+        src_b = trgba_getb(c);
+        src_a = trgba_geta(c);
+
+        if (!((src_r >= dst_r-fuzziness) && (src_r <= dst_r+fuzziness) &&
+              (src_g >= dst_g-fuzziness) && (src_g <= dst_g+fuzziness) &&
+              (src_b >= dst_b-fuzziness) && (src_b <= dst_b+fuzziness) &&
+              (src_a >= dst_a-fuzziness) && (src_a <= dst_a+fuzziness)))
+          *dst_it = 0;
+      }
+      ASSERT(dst_it == dst_end);
+      break;
+    }
+
     case IMAGE_GRAYSCALE: {
       const LockImageBits<GrayscaleTraits> srcBits(src);
       LockImageBits<BitmapTraits> dstBits(dst, Image::WriteLock);

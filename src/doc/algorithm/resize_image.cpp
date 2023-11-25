@@ -49,6 +49,7 @@ void resize_image(const Image* src, Image* dst, ResizeMethod method, const Palet
 
       switch (src->pixelFormat()) {
         case IMAGE_RGB: resize_image_nearest<RgbTraits>(src, dst); break;
+        case IMAGE_TRGB: resize_image_nearest<TrgbTraits>(src, dst); break;
         case IMAGE_GRAYSCALE: resize_image_nearest<GrayscaleTraits>(src, dst); break;
         case IMAGE_INDEXED: resize_image_nearest<IndexedTraits>(src, dst); break;
         case IMAGE_BITMAP: resize_image_nearest<BitmapTraits>(src, dst); break;
@@ -113,6 +114,20 @@ void resize_image(const Image* src, Image* dst, ResizeMethod method, const Palet
               int a = int((rgba_geta(color[0])*u2 + rgba_geta(color[1])*u1)*v2 +
                           (rgba_geta(color[2])*u2 + rgba_geta(color[3])*u1)*v1);
               dst_color = rgba(r, g, b, a);
+              break;
+            }
+            case IMAGE_TRGB: {
+              int r = int((rgba_getr(color[0])*u2 + rgba_getr(color[1])*u1)*v2 +
+                          (rgba_getr(color[2])*u2 + rgba_getr(color[3])*u1)*v1);
+              int g = int((rgba_getg(color[0])*u2 + rgba_getg(color[1])*u1)*v2 +
+                          (rgba_getg(color[2])*u2 + rgba_getg(color[3])*u1)*v1);
+              int b = int((rgba_getb(color[0])*u2 + rgba_getb(color[1])*u1)*v2 +
+                          (rgba_getb(color[2])*u2 + rgba_getb(color[3])*u1)*v1);
+              int a = int((rgba_geta(color[0])*u2 + rgba_geta(color[1])*u1)*v2 +
+                          (rgba_geta(color[2])*u2 + rgba_geta(color[3])*u1)*v1);
+              int t = MAX(MAX(rgba_getr(color[0]), rgba_getr(color[1])),
+                          MAX(rgba_getr(color[2]), rgba_getr(color[3])));
+              dst_color = trgba(r, g, b, a, t);
               break;
             }
             case IMAGE_GRAYSCALE: {

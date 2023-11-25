@@ -325,6 +325,7 @@ int count_diff_between_images(const Image* i1, const Image* i2)
 
   switch (i1->pixelFormat()) {
     case IMAGE_RGB:       return count_diff_between_images_templ<RgbTraits>(i1, i2);
+    case IMAGE_TRGB:      return count_diff_between_images_templ<TrgbTraits>(i1, i2);
     case IMAGE_GRAYSCALE: return count_diff_between_images_templ<GrayscaleTraits>(i1, i2);
     case IMAGE_INDEXED:   return count_diff_between_images_templ<IndexedTraits>(i1, i2);
     case IMAGE_BITMAP:    return count_diff_between_images_templ<BitmapTraits>(i1, i2);

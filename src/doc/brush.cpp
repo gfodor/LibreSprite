@@ -128,18 +128,18 @@ static void replace_image_colors(
   if (hasAlpha) {
     for (auto& pixel : bits) {
       if (useMain)
-        pixel = (pixel & alpha_mask) | mainColor;
+        pixel = (pixel & alpha_mask) | mainColor | (pixel & ImageTraits::mask_metadata);
       else if (useBg)
-        pixel = (pixel & alpha_mask) | bgColor;
+        pixel = (pixel & alpha_mask) | bgColor | (pixel & ImageTraits::mask_metadata);
     }
   }
   else {
     for (auto& pixel : bits) {
       if (useMain && ((pixel != srcBgColor) || (srcMainColor == srcBgColor))) {
-        pixel = (pixel & alpha_mask) | mainColor;
+        pixel = (pixel & alpha_mask) | mainColor | (pixel & ImageTraits::mask_metadata);
       }
       else if (useBg && (pixel == srcBgColor)) {
-        pixel = (pixel & alpha_mask) | bgColor;
+        pixel = (pixel & alpha_mask) | bgColor | (pixel & ImageTraits::mask_metadata);
       }
     }
   }
@@ -214,6 +214,13 @@ void Brush::setImageColor(ImageColor imageColor, color_t color)
 
     case IMAGE_RGB:
       replace_image_colors<RgbTraits, rgba_rgb_mask, rgba_a_mask>(
+        m_image.get(),
+        (m_mainColor ? true: false), (m_mainColor ? *m_mainColor: 0),
+        (m_bgColor ? true: false), (m_bgColor ? *m_bgColor: 0));
+      break;
+
+    case IMAGE_TRGB:
+      replace_image_colors<TrgbTraits, trgba_rgb_mask, trgba_a_mask>(
         m_image.get(),
         (m_mainColor ? true: false), (m_mainColor ? *m_mainColor: 0),
         (m_bgColor ? true: false), (m_bgColor ? *m_bgColor: 0));

@@ -53,6 +53,7 @@ Image* Image::create(PixelFormat format, int width, int height,
 {
   switch (format) {
     case IMAGE_RGB:       return new ImageImpl<RgbTraits>(width, height, buffer);
+    case IMAGE_TRGB:      return new ImageImpl<TrgbTraits>(width, height, buffer);
     case IMAGE_GRAYSCALE: return new ImageImpl<GrayscaleTraits>(width, height, buffer);
     case IMAGE_INDEXED:   return new ImageImpl<IndexedTraits>(width, height, buffer);
     case IMAGE_BITMAP:    return new ImageImpl<BitmapTraits>(width, height, buffer);

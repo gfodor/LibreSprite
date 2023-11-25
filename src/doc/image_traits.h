@@ -28,6 +28,8 @@ namespace doc {
 
     static const pixel_t min_value = 0x0000000000000000ull;
     static const pixel_t max_value = 0xffffffffffffffffull;
+    static const pixel_t mask_metadata = 0xffffffff00000000ull;
+    static const pixel_t mask_color = 0x00000000ffffffffull;
 
     static inline int getRowStrideBytes(int pixels_per_row) {
       return bytes_per_pixel * pixels_per_row;
@@ -55,6 +57,8 @@ namespace doc {
 
     static const pixel_t min_value = 0x00000000l;
     static const pixel_t max_value = 0xffffffffl;
+    static const pixel_t mask_metadata = 0x0;
+    static const pixel_t mask_color = 0xffffffffl;
 
     static inline int getRowStrideBytes(int pixels_per_row) {
       return bytes_per_pixel * pixels_per_row;
@@ -82,6 +86,8 @@ namespace doc {
 
     static const pixel_t min_value = 0x0000;
     static const pixel_t max_value = 0xffff;
+    static const pixel_t mask_metadata = 0x0;
+    static const pixel_t mask_color = 0xffff;
 
     static inline int getRowStrideBytes(int pixels_per_row) {
       return bytes_per_pixel * pixels_per_row;
@@ -109,6 +115,8 @@ namespace doc {
 
     static const pixel_t min_value = 0x00;
     static const pixel_t max_value = 0xff;
+    static const pixel_t mask_metadata = 0x0;
+    static const pixel_t mask_color = 0xff;
 
     static inline int getRowStrideBytes(int pixels_per_row) {
       return bytes_per_pixel * pixels_per_row;
@@ -136,6 +144,8 @@ namespace doc {
 
     static const pixel_t min_value = 0;
     static const pixel_t max_value = 1;
+    static const pixel_t mask_metadata = 0x0;
+    static const pixel_t mask_color = 0x1;
 
     static inline int getRowStrideBytes(int pixels_per_row) {
       return ((pixels_per_row+7) / 8);

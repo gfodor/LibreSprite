@@ -150,6 +150,7 @@ bool Sprite::needAlpha() const
 {
   switch (m_format) {
     case IMAGE_RGB:
+    case IMAGE_TRGB:
     case IMAGE_GRAYSCALE: {
       Layer* bg = backgroundLayer();
       return (!bg || !bg->isVisible());
@@ -162,6 +163,7 @@ bool Sprite::supportAlpha() const
 {
   switch (m_format) {
     case IMAGE_RGB:
+    case IMAGE_TRGB:
     case IMAGE_GRAYSCALE:
       return true;
   }
@@ -514,6 +516,7 @@ void Sprite::pickCels(int x, int y, frame_t frame, int opacityThreshold, CelList
 
     switch (image->pixelFormat()) {
       case IMAGE_RGB:
+      case IMAGE_TRGB:
         isOpaque = (rgba_geta(color) >= opacityThreshold);
         break;
       case IMAGE_INDEXED:
