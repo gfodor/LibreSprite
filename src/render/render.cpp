@@ -407,14 +407,25 @@ CompositeImageFunc get_image_composition(PixelFormat dstFormat,
     case IMAGE_RGB:
       switch (dstFormat) {
         case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, RgbTraits>(zoom);
+        case IMAGE_TRGB:      return get_image_composition_impl<TrgbTraits, RgbTraits>(zoom);
         case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, RgbTraits>(zoom);
         case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, RgbTraits>(zoom);
+      }
+      break;
+
+    case IMAGE_TRGB:
+      switch (dstFormat) {
+        case IMAGE_TRGB:      return get_image_composition_impl<TrgbTraits, TrgbTraits>(zoom);
+        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, TrgbTraits>(zoom);
+        case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, TrgbTraits>(zoom);
+        case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, TrgbTraits>(zoom);
       }
       break;
 
     case IMAGE_GRAYSCALE:
       switch (dstFormat) {
         case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, GrayscaleTraits>(zoom);
+        case IMAGE_TRGB:      return get_image_composition_impl<TrgbTraits, GrayscaleTraits>(zoom);
         case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, GrayscaleTraits>(zoom);
         case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, GrayscaleTraits>(zoom);
       }
@@ -423,6 +434,7 @@ CompositeImageFunc get_image_composition(PixelFormat dstFormat,
     case IMAGE_INDEXED:
       switch (dstFormat) {
         case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, IndexedTraits>(zoom);
+        case IMAGE_TRGB:      return get_image_composition_impl<TrgbTraits, IndexedTraits>(zoom);
         case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, IndexedTraits>(zoom);
         case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, IndexedTraits>(zoom);
       }
@@ -597,6 +609,7 @@ void Render::renderSprite(
   if (m_sprite->pixelFormat() == IMAGE_INDEXED) {
     switch (dstImage->pixelFormat()) {
       case IMAGE_RGB:
+      case IMAGE_TRGB:
       case IMAGE_GRAYSCALE:
         if (bgLayer && bgLayer->isVisible())
           bg_color = m_sprite->palette(frame)->getEntry(m_sprite->transparentColor());
