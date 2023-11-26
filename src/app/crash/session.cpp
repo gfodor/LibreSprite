@@ -40,6 +40,7 @@ Session::Backup::Backup(const std::string& dir)
   std::vector<char> buf(1024);
   sprintf(&buf[0], "%s Sprite %dx%d, %d %s: %s",
     info.format == IMAGE_RGB ? "RGB":
+    info.format == IMAGE_TRGB ? "TRGB":
     info.format == IMAGE_GRAYSCALE ? "Grayscale":
     info.format == IMAGE_INDEXED ? "Indexed":
     info.format == IMAGE_BITMAP ? "Bitmap": "Unknown",

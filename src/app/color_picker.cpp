@@ -74,6 +74,9 @@ void ColorPicker::pickColor(const doc::Site& site,
         case IMAGE_RGB:
           m_alpha = doc::rgba_geta(imageColor);
           break;
+        case IMAGE_TRGB:
+          m_alpha = doc::trgba_geta(imageColor);
+          break;
         case IMAGE_GRAYSCALE:
           m_alpha = doc::graya_geta(imageColor);
           break;

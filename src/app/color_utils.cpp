@@ -93,6 +93,9 @@ doc::color_t color_utils::color_for_image(const app::Color& color, PixelFormat f
     case IMAGE_RGB:
       c = doc::rgba(color.getRed(), color.getGreen(), color.getBlue(), 255);
       break;
+    case IMAGE_TRGB:
+      c = doc::trgba(color.getRed(), color.getGreen(), color.getBlue(), 255, 0); // TODO trgba
+      break;
     case IMAGE_GRAYSCALE:
       c = doc::graya(color.getGray(), 255);
       break;
@@ -120,6 +123,9 @@ doc::color_t color_utils::color_for_target_mask(const app::Color& color, const C
     switch (colorTarget.pixelFormat()) {
       case IMAGE_RGB:
         c = doc::rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        break;
+      case IMAGE_TRGB:
+        c = doc::trgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), 0);
         break;
       case IMAGE_GRAYSCALE:
         c = doc::graya(color.getGray(), color.getAlpha());
@@ -156,6 +162,7 @@ doc::color_t color_utils::color_for_target(const app::Color& color, const ColorT
   if (colorTarget.isBackground()) {
     switch (colorTarget.pixelFormat()) {
       case IMAGE_RGB: c |= doc::rgba_a_mask; break;
+      case IMAGE_TRGB: c |= doc::trgba_a_mask; break;
       case IMAGE_GRAYSCALE: c |= doc::graya_a_mask; break;
     }
   }

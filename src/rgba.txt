@@ -1,0 +1,153 @@
+fix up references to ::max_value
+fix up references to ::min_value
+grep for RgbTraits
+grep for rgb_getr
+grep for getPixelAddress and get_pixel_fast
+grep for LockImageBits
+grep for "TODO trgba"
+grep for color_for_image for missing timestamp
+
+--
+
+X doc/resize_image_tests.cpp:  Image* src = create_image_from_data(IMAGE_RGB, test_image_base_3x3, 3, 3);
+X doc/resize_image_tests.cpp:  Image* dst_expected = create_image_from_data(IMAGE_RGB, test_image_scaled_9x9_nearest, 9, 9);
+X doc/resize_image_tests.cpp:  Image* dst = Image::create(IMAGE_RGB, 9, 9);
+X doc/resize_image_tests.cpp:  Image* dst2 = Image::create(IMAGE_RGB, 3, 3);
+X doc/resize_image_tests.cpp:  Image* src = create_image_from_data(IMAGE_RGB, test_image_base_3x3, 3, 3);
+X doc/resize_image_tests.cpp:  Image* dst_expected = create_image_from_data(IMAGE_RGB, test_image_scaled_9x9_bilinear, 9, 9);
+X doc/resize_image_tests.cpp:  Image* dst = Image::create(IMAGE_RGB, 9, 9);
+X doc/image.h:      case IMAGE_RGB:       return RgbTraits::getRowStrideBytes(pixels_per_row);
+X doc/image_io.cpp:  if ((pixelFormat != IMAGE_RGB &&
+X doc/conversion_she.cpp:    case IMAGE_RGB:
+X doc/pixel_format.h:    IMAGE_RGB = 0,
+X doc/image_traits.h:    static const PixelFormat pixel_format = IMAGE_RGB;
+X doc/image_tests.cpp:  std::unique_ptr<Image> a(Image::create(IMAGE_RGB, 32, 32));
+X doc/image_tests.cpp:  std::unique_ptr<Image> b(Image::create(IMAGE_RGB, 32, 32));
+X doc/algorithm/rotsprite.cpp:    case IMAGE_RGB:       image_scale2x_tpl<RgbTraits>(dst, src, src_w, src_h); break;
+X doc/algorithm/floodfill.cpp:    case IMAGE_RGB:
+X doc/algorithm/floodfill.cpp:      case IMAGE_RGB:
+X doc/algorithm/rotate.cpp:    case IMAGE_RGB:
+X doc/algorithm/rotate.cpp:    case IMAGE_RGB: {
+X doc/sprite.cpp:    case IMAGE_RGB:
+X doc/sprite.cpp:    case IMAGE_RGB:
+X doc/sprite.cpp:      case IMAGE_RGB:
+X doc/mask.cpp:    case IMAGE_RGB: {
+X doc/image.cpp:    case IMAGE_RGB:       return new ImageImpl<RgbTraits>(width, height, buffer);
+X doc/brush.cpp:    case IMAGE_RGB:
+X doc/primitives.cpp:    case IMAGE_RGB:       return count_diff_between_images_templ<RgbTraits>(i1, i2);
+X doc/algorithm/shrink_bounds.cpp:    case IMAGE_RGB:       return shrink_bounds_templ<RgbTraits>(image, bounds, refpixel);
+X doc/algorithm/shrink_bounds.cpp:    case IMAGE_RGB:       return shrink_bounds_templ2<RgbTraits>(a, b, bounds);
+X doc/algorithm/resize_image.cpp:        case IMAGE_RGB: resize_image_nearest<RgbTraits>(src, dst); break;
+X doc/algorithm/resize_image.cpp:            case IMAGE_RGB: {
+X doc/algorithm/resize_image.cpp:    case IMAGE_RGB: {
+doc/sprite_tests.cpp:  Sprite* spr = new Sprite(IMAGE_RGB, 32, 32, 256);
+doc/sprite_tests.cpp:  ImageRef imgA(Image::create(IMAGE_RGB, 32, 32));
+doc/sprite_tests.cpp:  ImageRef imgC(Image::create(IMAGE_RGB, 32, 32));
+X render/quantization.cpp:  ImageRef flat_image(Image::create(IMAGE_RGB,
+X render/quantization.cpp:  if (image->pixelFormat() == IMAGE_RGB &&
+X render/quantization.cpp:    case IMAGE_RGB: {
+X render/quantization.cpp:        case IMAGE_RGB:
+X render/quantization.cpp:        case IMAGE_RGB: {
+X render/quantization.cpp:        case IMAGE_RGB: {
+X render/quantization.cpp:    case IMAGE_RGB:
+render/render_tests.cpp:  std::unique_ptr<Image> dst(Image::create(IMAGE_RGB, 2, 2));
+render/render_tests.cpp:  dst.reset(Image::create(IMAGE_RGB, 2, 2));
+render/render_tests.cpp:  std::unique_ptr<Image> dst(Image::create(IMAGE_RGB, 4, 4));
+render/render_tests.cpp:  std::unique_ptr<Image> dst(Image::create(IMAGE_RGB, 4, 4));
+X render/render.cpp:    case IMAGE_RGB:
+X render/render.cpp:        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, RgbTraits>(zoom);
+X render/render.cpp:        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, GrayscaleTraits>(zoom);
+X render/render.cpp:        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, IndexedTraits>(zoom);
+X render/render.cpp:      case IMAGE_RGB:
+X app/color_picker.cpp:        case IMAGE_RGB:
+X app/document_exporter.cpp:        pixelFormat = IMAGE_RGB;
+X app/document_exporter.cpp:        pixelFormat = IMAGE_RGB;
+X app/document_exporter.cpp:        pixelFormat = IMAGE_RGB;
+X app/document_exporter.cpp:  os << "  \"format\": \"" << (textureImage->pixelFormat() == IMAGE_RGB ? "RGBA8888": "I8") << "\",\n"
+X app/color.cpp:    case IMAGE_RGB:
+x app/crash/read_document.cpp:    if (format != IMAGE_RGB &&
+x app/crash/read_document.cpp:    info.format = IMAGE_RGB;
+X app/crash/session.cpp:    info.format == IMAGE_RGB ? "RGB":
+X app/crash/read_document.h:      format(doc::IMAGE_RGB),
+X app/color_utils.cpp:    case IMAGE_RGB:
+X app/color_utils.cpp:      case IMAGE_RGB:
+X app/color_utils.cpp:      case IMAGE_RGB: c |= doc::rgba_a_mask; break;
+X app/app_brushes.cpp:    image.reset(Image::create(IMAGE_RGB, w, h));
+X app/app_brushes.cpp:    case IMAGE_RGB: format = "rgba"; break;
+X app/app_brushes.cpp:    case IMAGE_RGB:{
+app/app.cpp:    return IMAGE_RGB;
+app/document_range_tests.cpp:          image.reset(Image::create(IMAGE_RGB, 4, 4));
+app/commands/cmd_sprite_properties.cpp:      case IMAGE_RGB:
+app/commands/cmd_change_pixel_format.cpp:  m_format = IMAGE_RGB;
+app/commands/cmd_change_pixel_format.cpp:  if (format == "rgb") m_format = IMAGE_RGB;
+app/commands/cmd_options.cpp:    , m_checked_bg_color1(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+app/commands/cmd_options.cpp:    , m_checked_bg_color2(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+app/commands/cmd_options.cpp:    , m_pixelGridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+app/commands/cmd_options.cpp:    , m_gridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+app/commands/cmd_options.cpp:    , m_cursorColor(new ColorButton(m_pref.editor.cursorColor(), IMAGE_RGB))
+app/commands/cmd_fullscreen_preview.cpp:    , m_doublebuf(Image::create(IMAGE_RGB, ui::display_w(), ui::display_h()))
+app/commands/cmd_fullscreen_preview.cpp:      m_render.reset(Image::create(IMAGE_RGB,
+app/commands/cmd_new_file.cpp:    if (format != IMAGE_RGB &&
+app/commands/cmd_new_file.cpp:        static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
+app/commands/cmd_new_file.cpp:        format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
+app/commands/cmd_new_file.cpp:          ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
+app/commands/filters/filter_target_buttons.cpp:      case IMAGE_RGB:
+app/commands/filters/filter_manager_impl.cpp:    case IMAGE_RGB:       m_filter->applyToRgba(this); break;
+app/script/api/colormode_script.cpp:    addProperty("RGB", []{return doc::IMAGE_RGB;});
+app/tools/ink_processing.h:        case IMAGE_RGB: m_color |= rgba_a_mask; break;
+app/tools/ink_processing.h:    case IMAGE_RGB: {
+app/tools/ink_processing.h:    case IMAGE_RGB: {
+app/tools/ink_processing.h:    case IMAGE_RGB: {
+app/tools/inks.h:              case IMAGE_RGB:
+app/thumbnail_generator.cpp:            IMAGE_RGB, sprite->width(), sprite->height()));
+app/file/pixly_format.cpp:    std::unique_ptr<Sprite> sprite(new Sprite(IMAGE_RGB, frameWidth, frameHeight, 0));
+app/file/pixly_format.cpp:    if (sheet->pixelFormat() != IMAGE_RGB) {
+app/file/pixly_format.cpp:      ImageRef image(Image::create(IMAGE_RGB, frameWidth, frameHeight));
+app/file/pixly_format.cpp:  Sprite* sheet_sprite = new Sprite(IMAGE_RGB, sheetWidth, sheetHeight, 256);
+app/file/pixly_format.cpp:  std::shared_ptr<Image> sheet_image(Image::create(IMAGE_RGB, sheetWidth, sheetHeight));
+app/file/pcx_format.cpp:                                    IMAGE_RGB,
+app/file/pcx_format.cpp:  if (image->pixelFormat() == IMAGE_RGB) {
+app/file/ase_format.cpp:  std::unique_ptr<Sprite> sprite(new Sprite(header.depth == 32 ? IMAGE_RGB:
+app/file/ase_format.cpp:  header->depth = (sprite->pixelFormat() == IMAGE_RGB ? 32:
+app/file/ase_format.cpp:          case IMAGE_RGB:
+app/file/ase_format.cpp:            case IMAGE_RGB:
+app/file/ase_format.cpp:          case IMAGE_RGB:
+app/file/ase_format.cpp:          case IMAGE_RGB:
+app/file/jpeg_format.cpp:    (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB:
+app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
+app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
+app/file/file.cpp:    case IMAGE_RGB:
+app/file/file.cpp:    if (sprite->pixelFormat() == IMAGE_RGB &&
+app/util/freetype_utils.cpp:      image.reset(doc::Image::create(doc::IMAGE_RGB, bounds.w, bounds.h));
+app/util/create_cel_copy.cpp:    ImageRef tmpImage(Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
+app/util/create_cel_copy.cpp:      IMAGE_RGB,
+app/util/clipboard_native.cpp:  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ?
+app/util/clipboard_native.cpp:    case doc::IMAGE_RGB: {
+app/util/clipboard_native.cpp:    doc::Image::create(doc::IMAGE_RGB,
+app/file/png_format.cpp:      pixelFormat = IMAGE_RGB;
+app/file/png_format.cpp:    case IMAGE_RGB:
+app/file/webp_format.cpp:  Image* image = fop->sequenceImage(IMAGE_RGB, config.input.width, config.input.height);
+app/file/ico_format.cpp:    pixelFormat = IMAGE_RGB;
+app/file/ico_format.cpp:          case IMAGE_RGB:
+app/file/ico_format.cpp:            case IMAGE_RGB:
+app/file/bmp_format.cpp:    pixelFormat = IMAGE_RGB;
+app/file/bmp_format.cpp:  if (pixelFormat == IMAGE_RGB)
+app/file/bmp_format.cpp:  int bpp = (image->pixelFormat() == IMAGE_RGB) ? 24 : 8;
+app/file/tga_format.cpp:      pixelFormat = IMAGE_RGB;
+app/file/tga_format.cpp:  int depth = (image->pixelFormat() == IMAGE_RGB) ? 32 : 8;
+app/file/tga_format.cpp:  fputc((image->pixelFormat() == IMAGE_RGB      ) ? 2 :
+app/file/tga_format.cpp:  fputc(image->pixelFormat() == IMAGE_RGB ? 8: 0, f);
+app/file/tga_format.cpp:    case IMAGE_RGB:
+app/file/gif_format.cpp:        case IMAGE_RGB:
+app/file/gif_format.cpp:        (oldImage, NULL, IMAGE_RGB, DitheringMethod::NONE,
+app/file/gif_format.cpp:      (m_currentImage.get(), NULL, IMAGE_RGB, DitheringMethod::NONE,
+app/file/gif_format.cpp:      (m_previousImage.get(), NULL, IMAGE_RGB, DitheringMethod::NONE,
+app/file/gif_format.cpp:    m_sprite->setPixelFormat(IMAGE_RGB);
+app/file/gif_format.cpp:      m_images[i].reset(Image::create(IMAGE_RGB,
+app/ui/context_bar.cpp:    , m_maskColor(app::Color::fromMask(), IMAGE_RGB)
+app/ui/editor/editor.cpp:    rendered.reset(Image::create(IMAGE_RGB, rc.w, rc.h, m_renderBuffer));
+app/ui/editor/tool_loop_impl.cpp:          m_sprite->pixelFormat() == IMAGE_RGB) ?
+app/ui/user_data_popup.cpp:  window.color()->setPixelFormat(IMAGE_RGB);
+app/ui/editor/brush_preview.cpp:       (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
+app/ui/color_bar.cpp:  , m_fgColor(app::Color::fromRgb(255, 255, 255), IMAGE_RGB)
+app/ui/color_bar.cpp:  , m_bgColor(app::Color::fromRgb(0, 0, 0), IMAGE_RGB)

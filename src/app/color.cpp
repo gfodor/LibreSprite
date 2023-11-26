@@ -92,6 +92,15 @@ Color Color::fromImage(PixelFormat pixelFormat, color_t c)
       }
       break;
 
+    case IMAGE_TRGB:
+      if (trgba_geta(c) > 0) {
+        color = Color::fromRgb(trgba_getr(c),
+                               trgba_getg(c),
+                               trgba_getb(c),
+                               trgba_geta(c));
+      }
+      break;
+
     case IMAGE_GRAYSCALE:
       if (graya_geta(c) > 0) {
         color = Color::fromGray(graya_getv(c),

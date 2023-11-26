@@ -659,14 +659,14 @@ Document* DocumentExporter::createEmptyTexture(const Samples& samples)
     // palettes, we've to use RGB format.
     if (pixelFormat == IMAGE_INDEXED) {
       if (it->sprite()->pixelFormat() != IMAGE_INDEXED) {
-        pixelFormat = IMAGE_RGB;
+        pixelFormat = IMAGE_TRGB;
       }
       else if (it->sprite()->getPalettes().size() > 1) {
-        pixelFormat = IMAGE_RGB;
+        pixelFormat = IMAGE_TRGB;
       }
       else if (palette != NULL
         && palette->countDiff(it->sprite()->palette(frame_t(0)), NULL, NULL) > 0) {
-        pixelFormat = IMAGE_RGB;
+        pixelFormat = IMAGE_TRGB;
       }
       else
         palette = it->sprite()->palette(frame_t(0));
@@ -797,7 +797,7 @@ void DocumentExporter::createDataFile(const Samples& samples, std::ostream& os, 
   if (!m_textureFilename.empty())
     os << "  \"image\": \"" << escape_for_json(m_textureFilename).c_str() << "\",\n";
 
-  os << "  \"format\": \"" << (textureImage->pixelFormat() == IMAGE_RGB ? "RGBA8888": "I8") << "\",\n"
+  os << "  \"format\": \"" << (textureImage->pixelFormat() == IMAGE_RGB || textureImage->pixelFormat() == IMAGE_TRGB ? "RGBA8888": "I8") << "\",\n"
      << "  \"size\": { "
      << "\"w\": " << textureImage->width() << ", "
      << "\"h\": " << textureImage->height() << " },\n"

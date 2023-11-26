@@ -72,6 +72,27 @@ ImageRef load_xml_image(const TiXmlElement* imageElem)
       pixel = doc::rgba(r, g, b, a);
     }
   }
+  else if (formatStr == "trgba") {
+    image.reset(Image::create(IMAGE_TRGB, w, h));
+    LockImageBits<TrgbTraits> pixels(image.get());
+    for (auto& pixel : pixels) {
+      if ((end - it) < 4)
+        break;
+
+      uint32_t t = 0;
+      t |= *it; ++it; t <<= 8;
+      t |= *it; ++it; t <<= 8;
+      t |= *it; ++it; t <<= 8;
+      t |= *it; ++it;
+
+      int r = *it; ++it;
+      int g = *it; ++it;
+      int b = *it; ++it;
+      int a = *it; ++it;
+
+      pixel = doc::trgba(r, g, b, a, t);
+    }
+  }
   else if (formatStr == "grayscale") {
     image.reset(Image::create(IMAGE_GRAYSCALE, w, h));
     LockImageBits<GrayscaleTraits> pixels(image.get());
@@ -109,6 +130,7 @@ void save_xml_image(TiXmlElement* imageElem, const Image* image)
   std::string format;
   switch (image->pixelFormat()) {
     case IMAGE_RGB: format = "rgba"; break;
+    case IMAGE_TRGB: format = "trgba"; break;
     case IMAGE_GRAYSCALE: format = "grayscale"; break;
     case IMAGE_INDEXED: format = "indexed"; break;
     case IMAGE_BITMAP: format = "indexed"; break; // TODO add "bitmap" format
@@ -127,6 +149,21 @@ void save_xml_image(TiXmlElement* imageElem, const Image* image)
         data.push_back(doc::rgba_getg(pixel));
         data.push_back(doc::rgba_getb(pixel));
         data.push_back(doc::rgba_geta(pixel));
+      }
+      break;
+    }
+    case IMAGE_TRGB:{
+      const LockImageBits<RgbTraits> pixels(image);
+      for (const auto& pixel : pixels) {
+        uint32_t t = doc::trgba_gett(pixel);
+        data.push_back((t >> 24) & 0xff);
+        data.push_back((t >> 16) & 0xff);
+        data.push_back((t >> 8) & 0xff);
+        data.push_back((t >> 0) & 0xff);
+        data.push_back(doc::trgba_getr(pixel));
+        data.push_back(doc::trgba_getg(pixel));
+        data.push_back(doc::trgba_getb(pixel));
+        data.push_back(doc::trgba_geta(pixel));
       }
       break;
     }

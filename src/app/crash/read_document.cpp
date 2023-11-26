@@ -201,6 +201,7 @@ private:
     frame_t nframes = read32(s);
 
     if (format != IMAGE_RGB &&
+        format != IMAGE_TRGB &&
         format != IMAGE_INDEXED &&
         format != IMAGE_GRAYSCALE) {
       if (!m_loadInfo)
