@@ -106,6 +106,7 @@ void NewFileCommand::onExecute(Context* context)
     PixelFormat format = pref.newFile.colorMode();
     // Invalid format in config file.
     if (format != IMAGE_RGB &&
+        format != IMAGE_TRGB &&
         format != IMAGE_INDEXED &&
         format != IMAGE_GRAYSCALE) {
       format = IMAGE_INDEXED;
@@ -227,8 +228,13 @@ void NewFileCommand::onExecute(Context* context)
 
         static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
         static_assert(IMAGE_INDEXED == 2, "Indexed pixel format should be 2");
+        static_assert(IMAGE_TRGB == 4, "TRGB format should be 4");
 
-        format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
+        if (format == IMAGE_BITMAP) {
+          format = IMAGE_RGB;
+        }
+
+        format = MID(IMAGE_RGB, format, IMAGE_TRGB);
         w = MID(1, w, 65535);
         h = MID(1, h, 65535);
         bg = MID(0, bg, 2);
@@ -249,7 +255,7 @@ void NewFileCommand::onExecute(Context* context)
           pref.newFile.backgroundColor(bg);
 
           // Create the new sprite
-          ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
+          ASSERT(format == IMAGE_RGB || format == IMAGE_TRGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
           ASSERT(w > 0 && h > 0);
 
           std::unique_ptr<Sprite> sprite(Sprite::createBasicSprite(format, w, h, ncolors));

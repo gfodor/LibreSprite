@@ -207,6 +207,73 @@ void ConvolutionMatrixFilter::applyToRgba(FilterManager* filterMgr)
   }
 }
 
+void ConvolutionMatrixFilter::applyToTrgba(FilterManager* filterMgr)
+{
+  if (!m_matrix)
+    return;
+
+  const Image* src = filterMgr->getSourceImage();
+  uint64_t* dst_address = (uint64_t*)filterMgr->getDestinationAddress();
+  Target target = filterMgr->getTarget();
+  uint64_t color;
+  GetPixelsDelegateRgba delegate;
+  int x = filterMgr->x();
+  int x2 = x+filterMgr->getWidth();
+  int y = filterMgr->y();
+
+  for (; x<x2; ++x) {
+    // Avoid the non-selected region
+    if (filterMgr->skipPixel()) {
+      ++dst_address;
+      continue;
+    }
+
+    delegate.reset(m_matrix.get());
+    get_neighboring_pixels<TrgbTraits>(src, x, y,
+                                      m_matrix->getWidth(),
+                                      m_matrix->getHeight(),
+                                      m_matrix->getCenterX(),
+                                      m_matrix->getCenterY(),
+                                      m_tiledMode, delegate);
+
+    color = get_pixel_fast<TrgbTraits>(src, x, y);
+    if (delegate.div == 0) {
+      *(dst_address++) = color;
+      continue;
+    }
+
+    if (target & TARGET_RED_CHANNEL) {
+      delegate.r = delegate.r / delegate.div + m_matrix->getBias();
+      delegate.r = MID(0, delegate.r, 255);
+    }
+    else
+      delegate.r = trgba_getr(color);
+
+    if (target & TARGET_GREEN_CHANNEL) {
+      delegate.g = delegate.g / delegate.div + m_matrix->getBias();
+      delegate.g = MID(0, delegate.g, 255);
+    }
+    else
+      delegate.g = trgba_getg(color);
+
+    if (target & TARGET_BLUE_CHANNEL) {
+      delegate.b = delegate.b / delegate.div + m_matrix->getBias();
+      delegate.b = MID(0, delegate.b, 255);
+    }
+    else
+      delegate.b = trgba_getb(color);
+
+    if (target & TARGET_ALPHA_CHANNEL) {
+      delegate.a = delegate.a / m_matrix->getDiv() + m_matrix->getBias();
+      delegate.a = MID(0, delegate.a, 255);
+    }
+    else
+      delegate.a = trgba_geta(color);
+
+    *(dst_address++) = trgba(delegate.r, delegate.g, delegate.b, delegate.a, trgba_gett(color));
+  }
+}
+
 void ConvolutionMatrixFilter::applyToGrayscale(FilterManager* filterMgr)
 {
   if (!m_matrix)

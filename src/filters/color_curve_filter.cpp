@@ -80,6 +80,37 @@ void ColorCurveFilter::applyToRgba(FilterManager* filterMgr)
   }
 }
 
+void ColorCurveFilter::applyToTrgba(FilterManager* filterMgr)
+{
+  const uint64_t* src_address = (uint64_t*)filterMgr->getSourceAddress();
+  uint64_t* dst_address = (uint64_t*)filterMgr->getDestinationAddress();
+  int w = filterMgr->getWidth();
+  Target target = filterMgr->getTarget();
+  int x, c, r, g, b, a;
+
+  for (x=0; x<w; x++) {
+    if (filterMgr->skipPixel()) {
+      ++src_address;
+      ++dst_address;
+      continue;
+    }
+
+    c = *(src_address++);
+
+    r = trgba_getr(c);
+    g = trgba_getg(c);
+    b = trgba_getb(c);
+    a = trgba_geta(c);
+
+    if (target & TARGET_RED_CHANNEL) r = m_cmap[r];
+    if (target & TARGET_GREEN_CHANNEL) g = m_cmap[g];
+    if (target & TARGET_BLUE_CHANNEL) b = m_cmap[b];
+    if (target & TARGET_ALPHA_CHANNEL) a = m_cmap[a];
+
+    *(dst_address++) = trgba(r, g, b, a, trgba_gett(c));
+  }
+}
+
 void ColorCurveFilter::applyToGrayscale(FilterManager* filterMgr)
 {
   const uint16_t* src_address = (uint16_t*)filterMgr->getSourceAddress();

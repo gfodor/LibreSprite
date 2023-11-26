@@ -163,6 +163,7 @@ bool FilterManagerImpl::applyStep()
 
   switch (m_site.sprite()->pixelFormat()) {
     case IMAGE_RGB:       m_filter->applyToRgba(this); break;
+    case IMAGE_TRGB:      m_filter->applyToTrgba(this); break;
     case IMAGE_GRAYSCALE: m_filter->applyToGrayscale(this); break;
     case IMAGE_INDEXED:   m_filter->applyToIndexed(this); break;
   }

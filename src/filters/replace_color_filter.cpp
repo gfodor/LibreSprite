@@ -100,6 +100,61 @@ void ReplaceColorFilter::applyToRgba(FilterManager* filterMgr)
   }
 }
 
+void ReplaceColorFilter::applyToTrgba(FilterManager* filterMgr)
+{
+  const uint64_t* src_address = (uint64_t*)filterMgr->getSourceAddress();
+  uint64_t* dst_address = (uint64_t*)filterMgr->getDestinationAddress();
+  int w = filterMgr->getWidth();
+  Target target = filterMgr->getTarget();
+  int from_r, from_g, from_b, from_a;
+  int src_r, src_g, src_b, src_a;
+  uint32_t src_t;
+  int to_r, to_g, to_b, to_a;
+  int x, c;
+
+  from_r = rgba_getr(m_from);
+  from_g = rgba_getg(m_from);
+  from_b = rgba_getb(m_from);
+  from_a = rgba_geta(m_from);
+  to_r = rgba_getr(m_to);
+  to_g = rgba_getg(m_to);
+  to_b = rgba_getb(m_to);
+  to_a = rgba_geta(m_to);
+
+  for (x=0; x<w; x++) {
+    if (filterMgr->skipPixel()) {
+      ++src_address;
+      ++dst_address;
+      continue;
+    }
+
+    c = *(src_address++);
+    src_r = trgba_getr(c);
+    src_g = trgba_getg(c);
+    src_b = trgba_getb(c);
+    src_a = trgba_geta(c);
+    src_t = trgba_gett(c);
+
+    if (!(target & TARGET_RED_CHANNEL  )) from_r = src_r;
+    if (!(target & TARGET_GREEN_CHANNEL)) from_g = src_g;
+    if (!(target & TARGET_BLUE_CHANNEL )) from_b = src_b;
+    if (!(target & TARGET_ALPHA_CHANNEL)) from_a = src_a;
+
+    if ((ABS(src_r-from_r) <= m_tolerance) &&
+        (ABS(src_g-from_g) <= m_tolerance) &&
+        (ABS(src_b-from_b) <= m_tolerance) &&
+        (ABS(src_a-from_a) <= m_tolerance)) {
+      *(dst_address++) = trgba(
+        (target & TARGET_RED_CHANNEL   ? to_r: src_r),
+        (target & TARGET_GREEN_CHANNEL ? to_g: src_g),
+        (target & TARGET_BLUE_CHANNEL  ? to_b: src_b),
+        (target & TARGET_ALPHA_CHANNEL ? to_a: src_a), src_t);
+    }
+    else
+      *(dst_address++) = c;
+  }
+}
+
 void ReplaceColorFilter::applyToGrayscale(FilterManager* filterMgr)
 {
   const uint16_t* src_address = (uint16_t*)filterMgr->getSourceAddress();

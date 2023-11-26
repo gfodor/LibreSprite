@@ -175,6 +175,63 @@ void MedianFilter::applyToRgba(FilterManager* filterMgr)
   }
 }
 
+void MedianFilter::applyToTrgba(FilterManager* filterMgr)
+{
+  const Image* src = filterMgr->getSourceImage();
+  uint64_t* dst_address = (uint64_t*)filterMgr->getDestinationAddress();
+  Target target = filterMgr->getTarget();
+  int color;
+  int r, g, b, a;
+  GetPixelsDelegateRgba delegate(m_channel);
+  int x = filterMgr->x();
+  int x2 = x+filterMgr->getWidth();
+  int y = filterMgr->y();
+
+  for (; x<x2; ++x) {
+    // Avoid the non-selected region
+    if (filterMgr->skipPixel()) {
+      ++dst_address;
+      continue;
+    }
+
+    delegate.reset();
+    get_neighboring_pixels<TrgbTraits>(src, x, y, m_width, m_height, m_width/2, m_height/2,
+                                      m_tiledMode, delegate);
+
+    color = get_pixel_fast<TrgbTraits>(src, x, y);
+
+    if (target & TARGET_RED_CHANNEL) {
+      std::sort(m_channel[0].begin(), m_channel[0].end());
+      r = m_channel[0][m_ncolors/2];
+    }
+    else
+      r = trgba_getr(color);
+
+    if (target & TARGET_GREEN_CHANNEL) {
+      std::sort(m_channel[1].begin(), m_channel[1].end());
+      g = m_channel[1][m_ncolors/2];
+    }
+    else
+      g = trgba_getg(color);
+
+    if (target & TARGET_BLUE_CHANNEL) {
+      std::sort(m_channel[2].begin(), m_channel[2].end());
+      b = m_channel[2][m_ncolors/2];
+    }
+    else
+      b = trgba_getb(color);
+
+    if (target & TARGET_ALPHA_CHANNEL) {
+      std::sort(m_channel[3].begin(), m_channel[3].end());
+      a = m_channel[3][m_ncolors/2];
+    }
+    else
+      a = trgba_geta(color);
+
+    *(dst_address++) = trgba(r, g, b, a, trgba_gett(color));
+  }
+}
+
 void MedianFilter::applyToGrayscale(FilterManager* filterMgr)
 {
   const Image* src = filterMgr->getSourceImage();

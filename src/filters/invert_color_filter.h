@@ -15,6 +15,7 @@ namespace filters {
   public:
     // Filter implementation
     const char* getName();
+    void applyToTrgba(FilterManager* filterMgr);
     void applyToRgba(FilterManager* filterMgr);
     void applyToGrayscale(FilterManager* filterMgr);
     void applyToIndexed(FilterManager* filterMgr);

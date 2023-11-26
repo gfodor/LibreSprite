@@ -26,6 +26,11 @@ namespace filters {
     // each pixel.
     virtual void applyToRgba(FilterManager* filterMgr) = 0;
 
+    // Applies the filter to one TRGBA row. You must use
+    // FilterManager::getSourceAddress() and advance 64 bits to modify
+    // each pixel.
+    virtual void applyToTrgba(FilterManager* filterMgr) = 0;
+
     // Applies the filter to one grayscale row. You must use
     // FilterManager::getSourceAddress() and advance 16 bits to modify
     // each pixel.

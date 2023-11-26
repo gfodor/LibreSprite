@@ -29,6 +29,7 @@ namespace filters {
     // Filter implementation
     const char* getName();
     void applyToRgba(FilterManager* filterMgr);
+    void applyToTrgba(FilterManager* filterMgr);
     void applyToGrayscale(FilterManager* filterMgr);
     void applyToIndexed(FilterManager* filterMgr);
 

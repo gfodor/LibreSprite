@@ -48,6 +48,7 @@ FilterTargetButtons::FilterTargetButtons(int imgtype, bool withChannels)
     switch (imgtype) {
 
       case IMAGE_RGB:
+      case IMAGE_TRGB:
       case IMAGE_INDEXED:
         m_red   = addItem("R");
         m_green = addItem("G");

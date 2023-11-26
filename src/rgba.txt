@@ -75,22 +75,22 @@ X app/color_utils.cpp:      case IMAGE_RGB: c |= doc::rgba_a_mask; break;
 X app/app_brushes.cpp:    image.reset(Image::create(IMAGE_RGB, w, h));
 X app/app_brushes.cpp:    case IMAGE_RGB: format = "rgba"; break;
 X app/app_brushes.cpp:    case IMAGE_RGB:{
-app/app.cpp:    return IMAGE_RGB;
+X app/app.cpp:    return IMAGE_RGB;
 app/document_range_tests.cpp:          image.reset(Image::create(IMAGE_RGB, 4, 4));
-app/commands/cmd_sprite_properties.cpp:      case IMAGE_RGB:
-app/commands/cmd_change_pixel_format.cpp:  m_format = IMAGE_RGB;
-app/commands/cmd_change_pixel_format.cpp:  if (format == "rgb") m_format = IMAGE_RGB;
-app/commands/cmd_options.cpp:    , m_checked_bg_color1(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
-app/commands/cmd_options.cpp:    , m_checked_bg_color2(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
-app/commands/cmd_options.cpp:    , m_pixelGridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
-app/commands/cmd_options.cpp:    , m_gridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
-app/commands/cmd_options.cpp:    , m_cursorColor(new ColorButton(m_pref.editor.cursorColor(), IMAGE_RGB))
-app/commands/cmd_fullscreen_preview.cpp:    , m_doublebuf(Image::create(IMAGE_RGB, ui::display_w(), ui::display_h()))
-app/commands/cmd_fullscreen_preview.cpp:      m_render.reset(Image::create(IMAGE_RGB,
-app/commands/cmd_new_file.cpp:    if (format != IMAGE_RGB &&
-app/commands/cmd_new_file.cpp:        static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
-app/commands/cmd_new_file.cpp:        format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
-app/commands/cmd_new_file.cpp:          ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
+X app/commands/cmd_sprite_properties.cpp:      case IMAGE_RGB:
+X app/commands/cmd_change_pixel_format.cpp:  m_format = IMAGE_RGB;
+X app/commands/cmd_change_pixel_format.cpp:  if (format == "rgb") m_format = IMAGE_RGB;
+X app/commands/cmd_options.cpp:    , m_checked_bg_color1(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+X app/commands/cmd_options.cpp:    , m_checked_bg_color2(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+X app/commands/cmd_options.cpp:    , m_pixelGridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+X app/commands/cmd_options.cpp:    , m_gridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+X app/commands/cmd_options.cpp:    , m_cursorColor(new ColorButton(m_pref.editor.cursorColor(), IMAGE_RGB))
+X app/commands/cmd_fullscreen_preview.cpp:    , m_doublebuf(Image::create(IMAGE_RGB, ui::display_w(), ui::display_h()))
+X app/commands/cmd_fullscreen_preview.cpp:      m_render.reset(Image::create(IMAGE_RGB,
+X app/commands/cmd_new_file.cpp:    if (format != IMAGE_RGB &&
+X app/commands/cmd_new_file.cpp:        static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
+X app/commands/cmd_new_file.cpp:        format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
+X app/commands/cmd_new_file.cpp:          ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
 app/commands/filters/filter_target_buttons.cpp:      case IMAGE_RGB:
 app/commands/filters/filter_manager_impl.cpp:    case IMAGE_RGB:       m_filter->applyToRgba(this); break;
 app/script/api/colormode_script.cpp:    addProperty("RGB", []{return doc::IMAGE_RGB;});

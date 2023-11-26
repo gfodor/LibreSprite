@@ -50,6 +50,7 @@ void ChangePixelFormatCommand::onLoadParams(const Params& params)
 {
   std::string format = params.get("format");
   if (format == "rgb") m_format = IMAGE_RGB;
+  else if (format == "trgb") m_format = IMAGE_TRGB;
   else if (format == "grayscale") m_format = IMAGE_GRAYSCALE;
   else if (format == "indexed") m_format = IMAGE_INDEXED;
 

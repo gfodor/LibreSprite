@@ -118,8 +118,8 @@ namespace doc {
     return (c >> trgba_a_shift) & 0xff;
   }
 
-  inline uint8_t trgba_gett(uint64_t c) {
-    return (c >> trgba_t_shift) & 0xff;
+  inline uint32_t trgba_gett(uint64_t c) {
+    return (c >> trgba_t_shift) & 0xffffffff;
   }
 
   inline uint64_t trgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint32_t t) {
