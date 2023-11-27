@@ -16,6 +16,8 @@
 #include "doc/mask.h"
 #include "gfx/region.h"
 
+const int MAX_PIXEL_FORMAT = 4;
+
 namespace app {
 namespace tools {
 
@@ -54,7 +56,7 @@ public:
         break;
     }
 
-    int depth = MID(0, loop->sprite()->pixelFormat(), 2);
+    int depth = MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT);
 
     if (loop->getBrush()->type() == doc::kImageBrushType)
       m_proc = ink_processing[INK_BRUSH][depth];
@@ -124,7 +126,7 @@ public:
   bool isShading() const override { return true; }
 
   void prepareInk(ToolLoop* loop) override {
-    m_proc = ink_processing[INK_SHADING][MID(0, loop->sprite()->pixelFormat(), 2)];
+    m_proc = ink_processing[INK_SHADING][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
   }
 
   void inkHline(int x1, int y, int x2, ToolLoop* loop) override {
@@ -211,16 +213,16 @@ public:
         color_t secondary = app_get_color_to_clear_layer(loop->getLayer());
 
         if (loop->getOpacity() == 255) {
-          m_proc = ink_processing[INK_COPY][MID(0, loop->sprite()->pixelFormat(), 2)];
+          m_proc = ink_processing[INK_COPY][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
         }
         else {
           // For opaque layers
           if (loop->getLayer()->isBackground()) {
-            m_proc = ink_processing[INK_TRANSPARENT][MID(0, loop->sprite()->pixelFormat(), 2)];
+            m_proc = ink_processing[INK_TRANSPARENT][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
           }
           // For transparent layers
           else {
-            m_proc = ink_processing[INK_MERGE][MID(0, loop->sprite()->pixelFormat(), 2)];
+            m_proc = ink_processing[INK_MERGE][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
 
             if (loop->sprite()->pixelFormat() == IMAGE_INDEXED) {
               primary = loop->sprite()->transparentColor();
@@ -235,14 +237,14 @@ public:
       }
 
       case ReplaceFgWithBg:
-        m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
+        m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
 
         loop->setPrimaryColor(loop->getFgColor());
         loop->setSecondaryColor(loop->getBgColor());
         break;
 
       case ReplaceBgWithFg:
-        m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
+        m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
 
         loop->setPrimaryColor(loop->getBgColor());
         loop->setSecondaryColor(loop->getFgColor());
@@ -267,7 +269,7 @@ public:
   bool needsSpecialSourceArea() const override { return true; }
 
   void prepareInk(ToolLoop* loop) override {
-    m_proc = ink_processing[INK_BLUR][MID(0, loop->sprite()->pixelFormat(), 2)];
+    m_proc = ink_processing[INK_BLUR][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
   }
 
   void inkHline(int x1, int y, int x2, ToolLoop* loop) override {
@@ -295,7 +297,7 @@ public:
   bool needsSpecialSourceArea() const override { return true; }
 
   void prepareInk(ToolLoop* loop) override {
-    m_proc = ink_processing[INK_JUMBLE][MID(0, loop->sprite()->pixelFormat(), 2)];
+    m_proc = ink_processing[INK_JUMBLE][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)];
   }
 
   void inkHline(int x1, int y, int x2, ToolLoop* loop) override {
@@ -344,7 +346,7 @@ public:
     }
     // TODO show the selection-preview with a XOR color or something like that
     else {
-      ink_processing[INK_XOR][MID(0, loop->sprite()->pixelFormat(), 2)]
+      ink_processing[INK_XOR][MID(0, loop->sprite()->pixelFormat(), MAX_PIXEL_FORMAT)]
         (x1, y, x2, loop);
     }
   }

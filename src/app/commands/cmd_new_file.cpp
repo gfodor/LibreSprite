@@ -221,7 +221,17 @@ void NewFileCommand::onExecute(Context* context)
         bool ok = false;
 
         // Get the options
-        PixelFormat format = (doc::PixelFormat)window->colorMode()->selectedItem();
+        int i_format = window->colorMode()->selectedItem();
+
+        PixelFormat format;
+
+        switch (i_format) {
+          case 0: format = IMAGE_TRGB; break;
+          case 1: format = IMAGE_RGB; break;
+          case 2: format = IMAGE_GRAYSCALE; break;
+          case 3: format = IMAGE_INDEXED; break;
+        }
+
         int w = window->width()->textInt();
         int h = window->height()->textInt();
         int bg = window->bgColor()->selectedItem();
@@ -229,10 +239,6 @@ void NewFileCommand::onExecute(Context* context)
         static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
         static_assert(IMAGE_INDEXED == 2, "Indexed pixel format should be 2");
         static_assert(IMAGE_TRGB == 4, "TRGB format should be 4");
-
-        if (format == IMAGE_BITMAP) {
-          format = IMAGE_RGB;
-        }
 
         format = MID(IMAGE_RGB, format, IMAGE_TRGB);
         w = MID(1, w, 65535);

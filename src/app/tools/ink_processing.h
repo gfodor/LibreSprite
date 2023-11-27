@@ -1135,12 +1135,14 @@ void ink_processing_algo(int x1, int y, int x2, void* data)
   ink(x1, y, x2, loop);
 }
 
-AlgoHLine ink_processing[][3] =
+AlgoHLine ink_processing[][5] =
 {
 #define DEFINE_INK(name)                         \
   { ink_processing_algo<name<RgbTraits> >,       \
     ink_processing_algo<name<GrayscaleTraits> >, \
-    ink_processing_algo<name<IndexedTraits> > }
+    ink_processing_algo<name<IndexedTraits> >, \
+    ink_processing_algo<name<BitmapTraits> >,      \
+    ink_processing_algo<name<TrgbTraits> > }
 
   DEFINE_INK(CopyInkProcessing),
   DEFINE_INK(LockAlphaInkProcessing),

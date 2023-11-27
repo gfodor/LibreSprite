@@ -13,7 +13,8 @@
       </grid>
 
       <separator text="Color Mode:" left="true" horizontal="true" />
-      <buttonset columns="3" id="color_mode">
+      <buttonset columns="4" id="color_mode">
+        <item text="&amp;TRGBA" icon="icon_rgb" tooltip="Each pixel has Timestamp, Red, Green, Blue, and Alpha components&#10;(64 bits per pixel)" tooltip_dir="bottom" />
         <item text="&amp;RGBA" icon="icon_rgb" tooltip="Each pixel has Red, Green, Blue, and Alpha components&#10;(32 bits per pixel)" tooltip_dir="bottom" />
         <item text="&amp;Grayscale" icon="icon_grayscale" tooltip="Each pixel has a Gray value and Alpha&#10;(16 bits per pixel)" tooltip_dir="bottom" />
         <item text="&amp;Indexed" icon="icon_indexed" tooltip="Each pixel is a reference to the palette&#10;(8 bits per pixel)" tooltip_dir="bottom" />
