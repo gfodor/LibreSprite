@@ -126,7 +126,7 @@ namespace doc {
     return ((r << trgba_r_shift) |
             (g << trgba_g_shift) |
             (b << trgba_b_shift) |
-            (a << trgba_a_shift) |
+            ((uint64_t)a << trgba_a_shift) |
             ((uint64_t)t << trgba_t_shift));
   }
 

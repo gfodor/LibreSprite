@@ -35,6 +35,12 @@ public:
   void operator()(int x1, int y, int x2, ToolLoop* loop) {
     int x;
 
+    // Normalize since our epoch, shift 4 so we can count up to 16 changes per second
+    // Note this timestamp method will overflow in 2031, need to fix before then by putting
+    // per-file epoch in the file format that gets updated based on the lowest timestamp across
+    // all the layers periodically.
+    uint32_t min_t = (time(NULL) - 0x65652b00) << 4;
+
     // Use mask
     if (loop->useMask()) {
       Point maskOrigin(loop->getMaskOrigin());
@@ -54,7 +60,7 @@ public:
 
         for (x=x1; x<=x2; ++x) {
           if (bitmap->getPixel(x-maskOrigin.x, y-maskOrigin.y))
-            static_cast<Derived*>(this)->processPixel(x, y);
+            static_cast<Derived*>(this)->processPixel(x, y, min_t);
 
           static_cast<Derived*>(this)->moveIterators();
         }
@@ -64,7 +70,7 @@ public:
 
     static_cast<Derived*>(this)->initIterators(loop, x1, y);
     for (x=x1; x<=x2; ++x) {
-      static_cast<Derived*>(this)->processPixel(x, y);
+      static_cast<Derived*>(this)->processPixel(x, y, min_t);
       static_cast<Derived*>(this)->moveIterators();
     }
   }
@@ -116,19 +122,45 @@ public:
     if (loop->getLayer()->isBackground()) {
       switch (loop->sprite()->pixelFormat()) {
         case IMAGE_RGB: m_color |= rgba_a_mask; break;
-        case IMAGE_TRGB: m_color |= rgba_a_mask; break;
+        case IMAGE_TRGB: m_color |= trgba_a_mask; break;
         case IMAGE_GRAYSCALE: m_color |= graya_a_mask; break;
       }
     }
   }
 
-  void processPixel(int x, int y) {
-    *SimpleInkProcessing<CopyInkProcessing<ImageTraits>, ImageTraits>::m_dstAddress = m_color;
+  void processPixel(int x, int y, uint32_t min_t) {
+    // Do nothing
   }
 
 private:
   color_t m_color;
 };
+
+template<>
+void CopyInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  *SimpleInkProcessing<CopyInkProcessing<RgbTraits>, RgbTraits>::m_dstAddress = m_color;
+}
+
+template<>
+void CopyInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  TrgbTraits::pixel_t cur = *SimpleInkProcessing<CopyInkProcessing<TrgbTraits>, TrgbTraits>::m_dstAddress;
+  uint32_t cur_t = trgba_gett(cur);
+  uint64_t new_t = MAX(cur_t + 1, min_t); // Always ensure that the new timestamp is greater than the old one
+  TrgbTraits::pixel_t fin = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
+
+  std::cout << std::hex << "cur: " << cur << " new: " << new_t << " fin: " << fin << std::endl;
+  *SimpleInkProcessing<CopyInkProcessing<TrgbTraits>, TrgbTraits>::m_dstAddress = fin;
+}
+
+template<>
+void CopyInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
+  *SimpleInkProcessing<CopyInkProcessing<GrayscaleTraits>, GrayscaleTraits>::m_dstAddress = m_color;
+}
+
+template<>
+void CopyInkProcessing<IndexedTraits>::processPixel(int x, int y, uint32_t min_t) {
+  *SimpleInkProcessing<CopyInkProcessing<IndexedTraits>, IndexedTraits>::m_dstAddress = m_color;
+}
 
 //////////////////////////////////////////////////////////////////////
 // LockAlpha Ink
@@ -142,7 +174,7 @@ public:
     , m_opacity(loop->getOpacity()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing
   }
 
@@ -152,7 +184,7 @@ private:
 };
 
 template<>
-void LockAlphaInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void LockAlphaInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   color_t result = rgba_blender_normal(*m_srcAddress, m_color, m_opacity);
   *m_dstAddress = rgba(
     rgba_getr(result),
@@ -162,7 +194,18 @@ void LockAlphaInkProcessing<RgbTraits>::processPixel(int x, int y) {
 }
 
 template<>
-void LockAlphaInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void LockAlphaInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  std::cout << "LockAlphaInkProcessing<TrgbTraits>::processPixel" << std::endl;
+  color_t result = trgba_blender_normal(*m_srcAddress, m_color, m_opacity);
+  *m_dstAddress = trgba(
+    rgba_getr(result),
+    rgba_getg(result),
+    rgba_getb(result),
+    rgba_geta(*m_srcAddress), 0);
+}
+
+template<>
+void LockAlphaInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   color_t result = graya_blender_normal(*m_srcAddress, m_color, m_opacity);
   *m_dstAddress = graya(
     graya_getv(result),
@@ -180,7 +223,7 @@ public:
     , m_maskIndex(loop->getLayer()->isBackground() ? -1: loop->sprite()->transparentColor()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t c = *m_srcAddress;
     if (c == m_maskIndex)
       c = m_palette->getEntry(c) & rgba_rgb_mask;  // Alpha = 0
@@ -215,7 +258,7 @@ public:
     m_opacity = loop->getOpacity();
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing
   }
 
@@ -225,12 +268,18 @@ private:
 };
 
 template<>
-void TransparentInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void TransparentInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = rgba_blender_normal(*m_srcAddress, m_color, m_opacity);
 }
 
 template<>
-void TransparentInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void TransparentInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  std::cout << "transperant " << std::endl;
+  *m_dstAddress = trgba_blender_normal(*m_srcAddress, m_color, m_opacity);
+}
+
+template<>
+void TransparentInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = graya_blender_normal(*m_srcAddress, m_color, m_opacity);
 }
 
@@ -245,7 +294,7 @@ public:
     m_maskIndex(loop->getLayer()->isBackground() ? -1: loop->sprite()->transparentColor()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t c = *m_srcAddress;
     if (c == m_maskIndex)
       c = m_palette->getEntry(c) & rgba_rgb_mask;  // Alpha = 0
@@ -279,7 +328,7 @@ public:
     m_opacity = loop->getOpacity();
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing
   }
 
@@ -289,12 +338,18 @@ private:
 };
 
 template<>
-void MergeInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void MergeInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = rgba_blender_merge(*m_srcAddress, m_color, m_opacity);
 }
 
 template<>
-void MergeInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void MergeInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  *m_dstAddress = trgba_blender_merge(*m_srcAddress, m_color, m_opacity);
+  std::cout << "merge" << std::endl;
+}
+
+template<>
+void MergeInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = graya_blender_merge(*m_srcAddress, m_color, m_opacity);
 }
 
@@ -311,7 +366,7 @@ public:
             (m_palette->getEntry(loop->getPrimaryColor()))) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t c = *m_srcAddress;
     if (c == m_maskIndex)
       c = m_palette->getEntry(c) & rgba_rgb_mask;  // Alpha = 0
@@ -342,7 +397,7 @@ class BlurInkProcessing : public DoubleInkProcessing<BlurInkProcessing<ImageTrai
 public:
   BlurInkProcessing(ToolLoop* loop) {
   }
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing (it's specialized for each case)
   }
 };
@@ -356,7 +411,7 @@ public:
     m_srcImage(loop->getSrcImage()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     m_area.reset();
     get_neighboring_pixels<RgbTraits>(m_srcImage, x, y, 3, 3, 1, 1, m_tiledMode, m_area);
 
@@ -409,7 +464,7 @@ public:
     m_srcImage(loop->getSrcImage()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     m_area.reset();
     get_neighboring_pixels<GrayscaleTraits>(m_srcImage, x, y, 3, 3, 1, 1, m_tiledMode, m_area);
 
@@ -462,7 +517,7 @@ public:
            loop->getLayer()->isBackground() ? -1: loop->sprite()->transparentColor()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     m_area.reset();
     get_neighboring_pixels<IndexedTraits>(m_srcImage, x, y, 3, 3, 1, 1, m_tiledMode, m_area);
 
@@ -534,7 +589,7 @@ public:
     m_opacity = loop->getOpacity();
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing (it's specialized for each case)
   }
 
@@ -545,7 +600,7 @@ private:
 };
 
 template<>
-void ReplaceInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void ReplaceInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   color_t src = (*m_srcAddress);
 
   // Colors (m_srcAddress and m_color1) match if:
@@ -559,7 +614,21 @@ void ReplaceInkProcessing<RgbTraits>::processPixel(int x, int y) {
 }
 
 template<>
-void ReplaceInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void ReplaceInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  color_t src = (*m_srcAddress);
+
+  // Colors (m_srcAddress and m_color1) match if:
+  // * They are both completelly transparent (alpha == 0)
+  // * Or they are not transparent and the RGB values are the same
+  if ((trgba_geta(src) == 0 && trgba_geta(m_color1) == 0) ||
+      (trgba_geta(src) > 0 && trgba_geta(m_color1) > 0 &&
+       ((src & trgba_rgb_mask) == (m_color1 & trgba_rgb_mask)))) {
+    *m_dstAddress = trgba_blender_merge(src, m_color2, m_opacity);
+  }
+}
+
+template<>
+void ReplaceInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   color_t src = (*m_srcAddress);
 
   if ((graya_geta(src) == 0 && graya_geta(m_color1) == 0) ||
@@ -582,7 +651,7 @@ public:
       m_color2 = m_palette->getEntry(m_color2);
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     if (*m_srcAddress == m_color1) {
       if (m_opacity == 255)
         *m_dstAddress = m_color2;
@@ -622,7 +691,7 @@ public:
     m_srcImageHeight(m_srcImage->height()) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing (it's specialized for each case)
   }
 
@@ -665,21 +734,21 @@ private:
 };
 
 template<>
-void JumbleInkProcessing<RgbTraits>::processPixel(int x, int y)
+void JumbleInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t)
 {
   pickColorFromArea(x, y);
   *m_dstAddress = rgba_blender_merge(*m_srcAddress, m_color, m_opacity);
 }
 
 template<>
-void JumbleInkProcessing<GrayscaleTraits>::processPixel(int x, int y)
+void JumbleInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t)
 {
   pickColorFromArea(x, y);
   *m_dstAddress = graya_blender_merge(*m_srcAddress, m_color, m_opacity);
 }
 
 template<>
-void JumbleInkProcessing<IndexedTraits>::processPixel(int x, int y)
+void JumbleInkProcessing<IndexedTraits>::processPixel(int x, int y, uint32_t min_t)
 {
   pickColorFromArea(x, y);
 
@@ -706,7 +775,7 @@ class ShadingInkProcessing : public DoubleInkProcessing<ShadingInkProcessing<Ima
 public:
   ShadingInkProcessing(ToolLoop* loop) {
   }
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing (it's specialized for each case)
   }
 };
@@ -721,7 +790,7 @@ public:
     m_left(loop->getMouseButton() == ToolLoop::Left) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t src = *m_srcAddress;
 
     // We cannot use the m_rgbmap->mapColor() function because RgbMaps
@@ -767,6 +836,66 @@ private:
 };
 
 template<>
+class ShadingInkProcessing<TrgbTraits> : public DoubleInkProcessing<ShadingInkProcessing<TrgbTraits>, TrgbTraits> {
+public:
+  ShadingInkProcessing(ToolLoop* loop) :
+    m_palette(get_current_palette()),
+    m_rgbmap(loop->getRgbMap()),
+    m_remap(loop->getShadingRemap()),
+    m_left(loop->getMouseButton() == ToolLoop::Left) {
+  }
+
+  void processPixel(int x, int y, uint32_t min_t) {
+    color_t src = *m_srcAddress;
+
+    // We cannot use the m_rgbmap->mapColor() function because RgbMaps
+    // are created with findBestfit(), and findBestfit() limits the
+    // returned indexes to [0,255] range (it's mainly used for RGBA ->
+    // Indexed image conversion).
+    int i = m_palette->findExactMatch(trgba_getr(src),
+                                      trgba_getg(src),
+                                      trgba_getb(src),
+                                      trgba_geta(src),
+                                      -1);
+
+    // If we didn't find the exact match.
+    if (i < 0) {
+      *m_dstAddress = src;
+      return;
+    }
+
+    if (m_remap) {
+      i = (*m_remap)[i];
+    }
+    else {
+      if (m_left) {
+        --i;
+        if (i < 0)
+          i = m_palette->size()-1;
+      }
+      else {
+        ++i;
+        if (i >= m_palette->size())
+          i = 0;
+      }
+    }
+
+    uint8_t r = trgba_getr(m_palette->getEntry(i));
+    uint8_t g = trgba_getg(m_palette->getEntry(i));
+    uint8_t b = trgba_getb(m_palette->getEntry(i));
+    uint8_t a = trgba_geta(m_palette->getEntry(i));
+
+    *m_dstAddress = trgba(r, g, b, a, 0);
+  }
+
+private:
+  const Palette* m_palette;
+  const RgbMap* m_rgbmap;
+  const Remap* m_remap;
+  bool m_left;
+};
+
+template<>
 class ShadingInkProcessing<GrayscaleTraits> : public DoubleInkProcessing<ShadingInkProcessing<GrayscaleTraits>, GrayscaleTraits> {
 public:
   ShadingInkProcessing(ToolLoop* loop) :
@@ -777,7 +906,7 @@ public:
   }
 
   // Works as the RGBA version
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t src = *m_srcAddress;
 
     int i = m_palette->findExactMatch(graya_getv(src),
@@ -831,7 +960,7 @@ public:
     m_left(loop->getMouseButton() == ToolLoop::Left) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t src = *m_srcAddress;
     int i = src;
 
@@ -870,7 +999,7 @@ public:
   XorInkProcessing(ToolLoop* loop) {
     m_color = loop->getPrimaryColor();
   }
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing
   }
 
@@ -879,12 +1008,17 @@ private:
 };
 
 template<>
-void XorInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void XorInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = rgba_blender_neg_bw(*m_srcAddress, m_color, 255);
 }
 
 template<>
-void XorInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void XorInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
+  *m_dstAddress = trgba_blender_neg_bw(*m_srcAddress, m_color, 255);
+}
+
+template<>
+void XorInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   *m_dstAddress = graya_blender_neg_bw(*m_srcAddress, m_color, 255);
 }
 
@@ -897,7 +1031,7 @@ public:
     m_color(m_palette->getEntry(loop->getPrimaryColor())) {
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     color_t c = rgba_blender_neg_bw(m_palette->getEntry(*m_srcAddress), m_color, 255);
     *m_dstAddress = m_rgbmap->mapColor(rgba_getr(c),
                                        rgba_getg(c),
@@ -931,7 +1065,7 @@ public:
     m_v = (m_brush->patternOrigin().y - loop->getCelOrigin().y) % m_height;
   }
 
-  void processPixel(int x, int y) {
+  void processPixel(int x, int y, uint32_t min_t) {
     // Do nothing
   }
 
@@ -953,7 +1087,7 @@ private:
 };
 
 template<>
-void BrushInkProcessing<TrgbTraits>::processPixel(int x, int y) {
+void BrushInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   alignPixelPoint(x, y);
 
   color_t c;
@@ -991,7 +1125,7 @@ void BrushInkProcessing<TrgbTraits>::processPixel(int x, int y) {
 }
 
 template<>
-void BrushInkProcessing<RgbTraits>::processPixel(int x, int y) {
+void BrushInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   alignPixelPoint(x, y);
 
   color_t c;
@@ -1029,7 +1163,7 @@ void BrushInkProcessing<RgbTraits>::processPixel(int x, int y) {
 }
 
 template<>
-void BrushInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
+void BrushInkProcessing<GrayscaleTraits>::processPixel(int x, int y, uint32_t min_t) {
   alignPixelPoint(x, y);
 
   color_t c;
@@ -1071,7 +1205,7 @@ void BrushInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
 }
 
 template<>
-void BrushInkProcessing<IndexedTraits>::processPixel(int x, int y) {
+void BrushInkProcessing<IndexedTraits>::processPixel(int x, int y, uint32_t min_t) {
   alignPixelPoint(x, y);
 
   color_t c;
