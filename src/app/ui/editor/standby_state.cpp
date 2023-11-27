@@ -463,21 +463,26 @@ bool StandbyState::onUpdateStatusBar(Editor* editor)
       (editor->document()->isMaskVisible() ?
        editor->document()->mask(): NULL);
 
-    uint32_t t = 1;
+    uint32_t t = 1000;
 
     auto cel = editor->layer()->cel(editor->frame());
     auto image = cel ? cel->image(): nullptr;
 
-    if (image != nullptr && image->pixelFormat() == IMAGE_TRGB && spritePos.x >= 0 && spritePos.y >= 0 && spritePos.x < image->width() && spritePos.y < image->height()) {
-      TrgbTraits::address_t addr = (typename TrgbTraits::address_t)image->getPixelAddress(spritePos.x, spritePos.y);
-      TrgbTraits::pixel_t c = *addr;
-      t = trgba_gett(c);
-      //t = (uint32_t)((*addr) >> 32);
+    if (image != nullptr && image->pixelFormat() == IMAGE_TRGB) {
+      gfx::Rect bounds = image->bounds();
+      int image_x = spritePos.x - cel->x();
+      int image_y = spritePos.y - cel->y();
+
+      if (image_x >= 0 && image_y >= 0 && image_x < bounds.w && image_y < bounds.h) {
+        TrgbTraits::address_t addr = (typename TrgbTraits::address_t)image->getPixelAddress(image_x, image_y);
+        TrgbTraits::pixel_t c = *addr;
+        t = trgba_gett(c);
+      }
     }
 
     char buf[1024];
     sprintf(
-      buf, ":pos: %d %d :%s: %d %d :time: %d",
+      buf, ":pos: %d %d :%s: %d %d :clock: %d",
       spritePos.x, spritePos.y,
       (mask ? "selsize": "size"),
       (mask ? mask->bounds().w: sprite->width()),
