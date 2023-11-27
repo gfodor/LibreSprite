@@ -192,7 +192,8 @@ bool AseFormat::onLoad(FileOp* fop)
   }
 
   // Create the new sprite
-  std::unique_ptr<Sprite> sprite(new Sprite(header.depth == 32 ? IMAGE_RGB:
+  std::unique_ptr<Sprite> sprite(new Sprite(header.depth == 64 ? IMAGE_TRGB:
+      header.depth == 32 ? IMAGE_RGB:
       header.depth == 16 ? IMAGE_GRAYSCALE: IMAGE_INDEXED,
       header.width, header.height, header.ncolors));
 
@@ -489,7 +490,8 @@ static void ase_file_prepare_header(FILE* f, ASE_Header* header, const Sprite* s
   header->frames = sprite->totalFrames();
   header->width = sprite->width();
   header->height = sprite->height();
-  header->depth = (sprite->pixelFormat() == IMAGE_RGB ? 32:
+  header->depth = (sprite->pixelFormat() == IMAGE_TRGB ? 64:
+                   sprite->pixelFormat() == IMAGE_RGB ? 32:
                    sprite->pixelFormat() == IMAGE_GRAYSCALE ? 16:
                    sprite->pixelFormat() == IMAGE_INDEXED ? 8: 0);
   header->flags = ASE_FILE_FLAG_LAYER_WITH_OPACITY;
@@ -939,6 +941,63 @@ public:
 };
 
 template<>
+class PixelIO<TrgbTraits> {
+  int r, g, b, a, t0, t1, t2, t3;
+public:
+  TrgbTraits::pixel_t read_pixel(FILE* f) {
+    t0 = fgetc(f);
+    t1 = fgetc(f);
+    t2 = fgetc(f);
+    t3 = fgetc(f);
+    r = fgetc(f);
+    g = fgetc(f);
+    b = fgetc(f);
+    a = fgetc(f);
+    return trgba(r, g, b, a, (t3 << 24) | (t2 << 16) | (t1 << 8) | t0);
+  }
+  void write_pixel(FILE* f, TrgbTraits::pixel_t c) {
+    uint32_t t = trgba_gett(c);
+    fputc(t & 0xff, f);
+    fputc((t >> 8) & 0xff, f);
+    fputc((t >> 16) & 0xff, f);
+    fputc((t >> 24) & 0xff, f);
+    fputc(rgba_getr(c), f);
+    fputc(rgba_getg(c), f);
+    fputc(rgba_getb(c), f);
+    fputc(rgba_geta(c), f);
+  }
+  void read_scanline(TrgbTraits::address_t address, int w, uint8_t* buffer)
+  {
+    for (int x=0; x<w; ++x) {
+      t0 = *(buffer++);
+      t1 = *(buffer++);
+      t2 = *(buffer++);
+      t3 = *(buffer++);
+      r = *(buffer++);
+      g = *(buffer++);
+      b = *(buffer++);
+      a = *(buffer++);
+      *(address++) = trgba(r, g, b, a, (t3 << 24) | (t2 << 16) | (t1 << 8) | t0);
+    }
+  }
+  void write_scanline(TrgbTraits::address_t address, int w, uint8_t* buffer)
+  {
+    for (int x=0; x<w; ++x) {
+      uint32_t t = trgba_gett(*address);
+      *(buffer++) = t & 0xff;
+      *(buffer++) = (t >> 8) & 0xff;
+      *(buffer++) = (t >> 16) & 0xff;
+      *(buffer++) = (t >> 24) & 0xff;
+      *(buffer++) = rgba_getr(*address);
+      *(buffer++) = rgba_getg(*address);
+      *(buffer++) = rgba_getb(*address);
+      *(buffer++) = rgba_geta(*address);
+      ++address;
+    }
+  }
+};
+
+template<>
 class PixelIO<GrayscaleTraits> {
   int k, a;
 public:
@@ -1196,6 +1255,10 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame,
             read_raw_image<RgbTraits>(f, image.get(), fop, header);
             break;
 
+          case IMAGE_TRGB:
+            read_raw_image<TrgbTraits>(f, image.get(), fop, header);
+            break;
+
           case IMAGE_GRAYSCALE:
             read_raw_image<GrayscaleTraits>(f, image.get(), fop, header);
             break;
@@ -1250,6 +1313,10 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame,
 
             case IMAGE_RGB:
               read_compressed_image<RgbTraits>(f, image.get(), chunk_end, fop, header);
+              break;
+
+            case IMAGE_TRGB:
+              read_compressed_image<TrgbTraits>(f, image.get(), chunk_end, fop, header);
               break;
 
             case IMAGE_GRAYSCALE:
@@ -1315,6 +1382,10 @@ static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header,
             write_raw_image<RgbTraits>(f, image);
             break;
 
+          case IMAGE_TRGB:
+            write_raw_image<TrgbTraits>(f, image);
+            break;
+
           case IMAGE_GRAYSCALE:
             write_raw_image<GrayscaleTraits>(f, image);
             break;
@@ -1350,6 +1421,10 @@ static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header,
 
           case IMAGE_RGB:
             write_compressed_image<RgbTraits>(f, image);
+            break;
+
+          case IMAGE_TRGB:
+            write_compressed_image<TrgbTraits>(f, image);
             break;
 
           case IMAGE_GRAYSCALE:
@@ -1570,5 +1645,4 @@ static void ase_ungroup_all(LayerFolder* folder)
     delete folder;
   }
 }
-
-} // namespace app
+};

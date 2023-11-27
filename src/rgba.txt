@@ -91,36 +91,36 @@ X app/commands/cmd_new_file.cpp:    if (format != IMAGE_RGB &&
 X app/commands/cmd_new_file.cpp:        static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
 X app/commands/cmd_new_file.cpp:        format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
 X app/commands/cmd_new_file.cpp:          ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
-app/commands/filters/filter_target_buttons.cpp:      case IMAGE_RGB:
-app/commands/filters/filter_manager_impl.cpp:    case IMAGE_RGB:       m_filter->applyToRgba(this); break;
-app/script/api/colormode_script.cpp:    addProperty("RGB", []{return doc::IMAGE_RGB;});
-app/tools/ink_processing.h:        case IMAGE_RGB: m_color |= rgba_a_mask; break;
-app/tools/ink_processing.h:    case IMAGE_RGB: {
-app/tools/ink_processing.h:    case IMAGE_RGB: {
-app/tools/ink_processing.h:    case IMAGE_RGB: {
-app/tools/inks.h:              case IMAGE_RGB:
-app/thumbnail_generator.cpp:            IMAGE_RGB, sprite->width(), sprite->height()));
-app/file/pixly_format.cpp:    std::unique_ptr<Sprite> sprite(new Sprite(IMAGE_RGB, frameWidth, frameHeight, 0));
-app/file/pixly_format.cpp:    if (sheet->pixelFormat() != IMAGE_RGB) {
-app/file/pixly_format.cpp:      ImageRef image(Image::create(IMAGE_RGB, frameWidth, frameHeight));
-app/file/pixly_format.cpp:  Sprite* sheet_sprite = new Sprite(IMAGE_RGB, sheetWidth, sheetHeight, 256);
-app/file/pixly_format.cpp:  std::shared_ptr<Image> sheet_image(Image::create(IMAGE_RGB, sheetWidth, sheetHeight));
-app/file/pcx_format.cpp:                                    IMAGE_RGB,
-app/file/pcx_format.cpp:  if (image->pixelFormat() == IMAGE_RGB) {
-app/file/ase_format.cpp:  std::unique_ptr<Sprite> sprite(new Sprite(header.depth == 32 ? IMAGE_RGB:
-app/file/ase_format.cpp:  header->depth = (sprite->pixelFormat() == IMAGE_RGB ? 32:
-app/file/ase_format.cpp:          case IMAGE_RGB:
-app/file/ase_format.cpp:            case IMAGE_RGB:
-app/file/ase_format.cpp:          case IMAGE_RGB:
-app/file/ase_format.cpp:          case IMAGE_RGB:
-app/file/jpeg_format.cpp:    (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB:
-app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
-app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
-app/file/file.cpp:    case IMAGE_RGB:
-app/file/file.cpp:    if (sprite->pixelFormat() == IMAGE_RGB &&
-app/util/freetype_utils.cpp:      image.reset(doc::Image::create(doc::IMAGE_RGB, bounds.w, bounds.h));
-app/util/create_cel_copy.cpp:    ImageRef tmpImage(Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
-app/util/create_cel_copy.cpp:      IMAGE_RGB,
+X app/commands/filters/filter_target_buttons.cpp:      case IMAGE_RGB:
+X app/commands/filters/filter_manager_impl.cpp:    case IMAGE_RGB:       m_filter->applyToRgba(this); break;
+X app/script/api/colormode_script.cpp:    addProperty("RGB", []{return doc::IMAGE_RGB;});
+X app/tools/ink_processing.h:        case IMAGE_RGB: m_color |= rgba_a_mask; break;
+X app/tools/ink_processing.h:    case IMAGE_RGB: {
+X app/tools/ink_processing.h:    case IMAGE_RGB: {
+X app/tools/ink_processing.h:    case IMAGE_RGB: {
+X app/tools/inks.h:              case IMAGE_RGB:
+X app/thumbnail_generator.cpp:            IMAGE_RGB, sprite->width(), sprite->height()));
+X app/file/pixly_format.cpp:    std::unique_ptr<Sprite> sprite(new Sprite(IMAGE_RGB, frameWidth, frameHeight, 0));
+X app/file/pixly_format.cpp:    if (sheet->pixelFormat() != IMAGE_RGB) {
+X app/file/pixly_format.cpp:      ImageRef image(Image::create(IMAGE_RGB, frameWidth, frameHeight));
+X app/file/pixly_format.cpp:  Sprite* sheet_sprite = new Sprite(IMAGE_RGB, sheetWidth, sheetHeight, 256);
+X app/file/pixly_format.cpp:  std::shared_ptr<Image> sheet_image(Image::create(IMAGE_RGB, sheetWidth, sheetHeight));
+X app/file/pcx_format.cpp:                                    IMAGE_RGB,
+X app/file/pcx_format.cpp:  if (image->pixelFormat() == IMAGE_RGB) {
+X app/file/ase_format.cpp:  std::unique_ptr<Sprite> sprite(new Sprite(header.depth == 32 ? IMAGE_RGB:
+X app/file/ase_format.cpp:  header->depth = (sprite->pixelFormat() == IMAGE_RGB ? 32:
+X app/file/ase_format.cpp:          case IMAGE_RGB:
+X app/file/ase_format.cpp:            case IMAGE_RGB:
+X app/file/ase_format.cpp:          case IMAGE_RGB:
+X app/file/ase_format.cpp:          case IMAGE_RGB:
+X app/file/jpeg_format.cpp:    (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB:
+X app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
+X app/file/jpeg_format.cpp:    if (image->pixelFormat() == IMAGE_RGB) {
+X app/file/file.cpp:    case IMAGE_RGB:
+X app/file/file.cpp:    if (sprite->pixelFormat() == IMAGE_RGB &&
+X app/util/freetype_utils.cpp:      image.reset(doc::Image::create(doc::IMAGE_RGB, bounds.w, bounds.h));
+X app/util/create_cel_copy.cpp:    ImageRef tmpImage(Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
+X app/util/create_cel_copy.cpp:      IMAGE_RGB,
 app/util/clipboard_native.cpp:  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ?
 app/util/clipboard_native.cpp:    case doc::IMAGE_RGB: {
 app/util/clipboard_native.cpp:    doc::Image::create(doc::IMAGE_RGB,

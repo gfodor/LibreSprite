@@ -116,6 +116,7 @@ public:
     if (loop->getLayer()->isBackground()) {
       switch (loop->sprite()->pixelFormat()) {
         case IMAGE_RGB: m_color |= rgba_a_mask; break;
+        case IMAGE_TRGB: m_color |= rgba_a_mask; break;
         case IMAGE_GRAYSCALE: m_color |= graya_a_mask; break;
       }
     }
@@ -952,6 +953,44 @@ private:
 };
 
 template<>
+void BrushInkProcessing<TrgbTraits>::processPixel(int x, int y) {
+  alignPixelPoint(x, y);
+
+  color_t c;
+  switch (m_brushImage->pixelFormat()) {
+    case IMAGE_RGB: {
+      c = get_pixel_fast<RgbTraits>(m_brushImage, x, y);
+      break;
+    }
+    case IMAGE_TRGB: {
+      c = get_pixel_fast<TrgbTraits>(m_brushImage, x, y);
+      break;
+    }
+    case IMAGE_INDEXED: {
+      c = get_pixel_fast<IndexedTraits>(m_brushImage, x, y);
+      c = m_palette->getEntry(c);
+      break;
+    }
+    case IMAGE_GRAYSCALE: {
+      c = get_pixel_fast<GrayscaleTraits>(m_brushImage, x, y);
+      // TODO review this line
+      c = graya(m_palette->getEntry(c), graya_geta(c));
+      break;
+    }
+    case IMAGE_BITMAP: {
+      c = get_pixel_fast<BitmapTraits>(m_brushImage, x, y);
+      c = c ? m_fgColor: m_bgColor;
+      break;
+    }
+    default:
+      ASSERT(false);
+      return;
+  }
+
+  *m_dstAddress = rgba_blender_normal(*m_srcAddress, c, m_opacity);
+}
+
+template<>
 void BrushInkProcessing<RgbTraits>::processPixel(int x, int y) {
   alignPixelPoint(x, y);
 
@@ -959,6 +998,10 @@ void BrushInkProcessing<RgbTraits>::processPixel(int x, int y) {
   switch (m_brushImage->pixelFormat()) {
     case IMAGE_RGB: {
       c = get_pixel_fast<RgbTraits>(m_brushImage, x, y);
+      break;
+    }
+    case IMAGE_TRGB: {
+      c = get_pixel_fast<TrgbTraits>(m_brushImage, x, y);
       break;
     }
     case IMAGE_INDEXED: {
@@ -997,6 +1040,12 @@ void BrushInkProcessing<GrayscaleTraits>::processPixel(int x, int y) {
                 rgba_geta(c));
       break;
     }
+    case IMAGE_TRGB: {
+      c = get_pixel_fast<TrgbTraits>(m_brushImage, x, y);
+      c = graya(int(trgba_getr(c)) + int(trgba_getg(c)) + int(trgba_getb(c)) / 3,
+                trgba_geta(c));
+      break;
+    }
     case IMAGE_INDEXED: {
       c = get_pixel_fast<IndexedTraits>(m_brushImage, x, y);
       c = m_palette->getEntry(c);
@@ -1030,6 +1079,11 @@ void BrushInkProcessing<IndexedTraits>::processPixel(int x, int y) {
     case IMAGE_RGB: {
       c = get_pixel_fast<RgbTraits>(m_brushImage, x, y);
       c = m_palette->findBestfit(rgba_getr(c), rgba_getg(c), rgba_getb(c), rgba_geta(c), 0);
+      break;
+    }
+    case IMAGE_TRGB: {
+      c = get_pixel_fast<TrgbTraits>(m_brushImage, x, y);
+      c = m_palette->findBestfit(trgba_getr(c), trgba_getg(c), trgba_getb(c), trgba_geta(c), 0);
       break;
     }
     case IMAGE_INDEXED: {

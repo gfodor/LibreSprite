@@ -13,6 +13,7 @@ class ColorModeScriptObject : public script::ScriptObject {
 public:
   ColorModeScriptObject() {
     addProperty("RGB", []{return doc::IMAGE_RGB;});
+    addProperty("TRGB", []{return doc::IMAGE_TRGB;});
     addProperty("GRAYSCALE", []{return doc::IMAGE_GRAYSCALE;});
     addProperty("INDEXED", []{return doc::IMAGE_INDEXED;});
     addProperty("BITMAP", []{return doc::IMAGE_BITMAP;});

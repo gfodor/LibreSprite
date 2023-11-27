@@ -105,7 +105,7 @@ bool set_native_clipboard_bitmap(const doc::Image* image,
   spec.width = image->width();
   spec.height = image->height();
   spec.bits_per_pixel = 32;
-  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ?
+  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB || image->pixelFormat() == doc::IMAGE_TRGB ?
                         image->getRowStrideSize(): 4*spec.width);
   spec.red_mask    = doc::rgba_r_mask;
   spec.green_mask  = doc::rgba_g_mask;
@@ -120,6 +120,23 @@ bool set_native_clipboard_bitmap(const doc::Image* image,
     case doc::IMAGE_RGB: {
       // We use the RGB image data directly
       clip::image img(image->getPixelAddress(0, 0), spec);
+      l.set_image(img);
+      break;
+    }
+    case doc::IMAGE_TRGB: {
+      clip::image img(spec);
+      const doc::LockImageBits<doc::TrgbTraits> bits(image);
+      auto it = bits.begin();
+      uint32_t* dst = (uint32_t*)img.data();
+      for (int y=0; y<image->height(); ++y) {
+        for (int x=0; x<image->width(); ++x, ++it) {
+          doc::color_t c = *it;
+          *(dst++) = doc::rgba(doc::trgba_getr(c),
+                               doc::trgba_getg(c),
+                               doc::trgba_getb(c),
+                               doc::trgba_geta(c));
+        }
+      }
       l.set_image(img);
       break;
     }

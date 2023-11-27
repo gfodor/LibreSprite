@@ -728,7 +728,7 @@ void FileOp::postLoad()
   Sprite* sprite = m_document->sprite();
   if (sprite) {
     // Creates a suitable palette for RGB images
-    if (sprite->pixelFormat() == IMAGE_RGB &&
+    if ((sprite->pixelFormat() == IMAGE_RGB || sprite->pixelFormat() == IMAGE_TRGB) &&
         sprite->getPalettes().size() <= 1 &&
         sprite->palette(frame_t(0))->isBlack()) {
       base::SharedPtr<Palette> palette(

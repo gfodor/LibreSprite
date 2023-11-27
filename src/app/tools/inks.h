@@ -70,6 +70,9 @@ public:
               case IMAGE_RGB:
                 opaque = (rgba_geta(color) == 255);
                 break;
+              case IMAGE_TRGB:
+                opaque = (trgba_geta(color) == 255);
+                break;
               case IMAGE_GRAYSCALE:
                 opaque = (graya_geta(color) == 255);
                 break;
