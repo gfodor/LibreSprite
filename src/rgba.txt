@@ -121,9 +121,9 @@ X app/file/file.cpp:    if (sprite->pixelFormat() == IMAGE_RGB &&
 X app/util/freetype_utils.cpp:      image.reset(doc::Image::create(doc::IMAGE_RGB, bounds.w, bounds.h));
 X app/util/create_cel_copy.cpp:    ImageRef tmpImage(Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
 X app/util/create_cel_copy.cpp:      IMAGE_RGB,
-app/util/clipboard_native.cpp:  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ?
-app/util/clipboard_native.cpp:    case doc::IMAGE_RGB: {
-app/util/clipboard_native.cpp:    doc::Image::create(doc::IMAGE_RGB,
+X app/util/clipboard_native.cpp:  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ?
+X app/util/clipboard_native.cpp:    case doc::IMAGE_RGB: {
+X app/util/clipboard_native.cpp:    doc::Image::create(doc::IMAGE_RGB,
 app/file/png_format.cpp:      pixelFormat = IMAGE_RGB;
 app/file/png_format.cpp:    case IMAGE_RGB:
 app/file/webp_format.cpp:  Image* image = fop->sequenceImage(IMAGE_RGB, config.input.width, config.input.height);
@@ -146,8 +146,8 @@ app/file/gif_format.cpp:    m_sprite->setPixelFormat(IMAGE_RGB);
 app/file/gif_format.cpp:      m_images[i].reset(Image::create(IMAGE_RGB,
 app/ui/context_bar.cpp:    , m_maskColor(app::Color::fromMask(), IMAGE_RGB)
 app/ui/editor/editor.cpp:    rendered.reset(Image::create(IMAGE_RGB, rc.w, rc.h, m_renderBuffer));
-app/ui/editor/tool_loop_impl.cpp:          m_sprite->pixelFormat() == IMAGE_RGB) ?
+X app/ui/editor/tool_loop_impl.cpp:          m_sprite->pixelFormat() == IMAGE_RGB) ?
 app/ui/user_data_popup.cpp:  window.color()->setPixelFormat(IMAGE_RGB);
-app/ui/editor/brush_preview.cpp:       (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
+X app/ui/editor/brush_preview.cpp:       (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
 app/ui/color_bar.cpp:  , m_fgColor(app::Color::fromRgb(255, 255, 255), IMAGE_RGB)
 app/ui/color_bar.cpp:  , m_bgColor(app::Color::fromRgb(0, 0, 0), IMAGE_RGB)

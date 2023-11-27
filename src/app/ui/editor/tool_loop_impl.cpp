@@ -197,7 +197,8 @@ public:
       Sprite::RgbMapFor forLayer =
         ((!m_layer ||
           m_layer->isBackground() ||
-          m_sprite->pixelFormat() == IMAGE_RGB) ?
+          m_sprite->pixelFormat() == IMAGE_RGB ||
+          m_sprite->pixelFormat() == IMAGE_TRGB) ?
          Sprite::RgbMapFor::OpaqueLayer:
          Sprite::RgbMapFor::TransparentLayer);
       m_rgbMap = m_sprite->rgbMap(m_frame, forLayer);

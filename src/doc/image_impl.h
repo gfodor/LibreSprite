@@ -270,6 +270,20 @@ namespace doc {
     }
   }
 
+  template<>
+  inline void ImageImpl<TrgbTraits>::blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) {
+    address_t addr;
+    int x, y;
+
+    for (y=y1; y<=y2; ++y) {
+      addr = (address_t)getPixelAddress(x1, y);
+      for (x=x1; x<=x2; ++x) {
+        *addr = trgba_blender_normal(*addr, color, opacity);
+        ++addr;
+      }
+    }
+  }
+
   void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area);
   template<>
   inline void ImageImpl<BitmapTraits>::copy(const Image* src, gfx::Clip area) {

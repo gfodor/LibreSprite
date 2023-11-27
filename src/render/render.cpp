@@ -49,6 +49,29 @@ public:
 };
 
 template<>
+class BlenderHelper<RgbTraits, TrgbTraits> {
+  BlendFunc m_blendFunc;
+  color_t m_mask_color;
+public:
+  BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
+  {
+    m_blendFunc = RgbTraits::get_blender(blendMode);
+    m_mask_color = src->maskColor();
+  }
+  inline RgbTraits::pixel_t
+  operator()(const RgbTraits::pixel_t& dst,
+             const TrgbTraits::pixel_t& src,
+             int opacity)
+  {
+    if (src != m_mask_color) {
+      return (*m_blendFunc)(dst, rgba(trgba_getr(src), trgba_getg(src), trgba_getb(src), trgba_geta(src)), opacity);
+    }
+    else
+      return dst;
+  }
+};
+
+template<>
 class BlenderHelper<RgbTraits, GrayscaleTraits> {
   BlendFunc m_blendFunc;
   color_t m_mask_color;
@@ -103,6 +126,96 @@ public:
     }
   }
 };
+
+template<>
+class BlenderHelper<TrgbTraits, RgbTraits> {
+  BlendFunc m_blendFunc;
+  color_t m_mask_color;
+public:
+  BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
+  {
+    m_blendFunc = TrgbTraits::get_blender(blendMode);
+    m_mask_color = src->maskColor();
+  }
+  inline TrgbTraits::pixel_t
+  operator()(const TrgbTraits::pixel_t& dst,
+             const RgbTraits::pixel_t& src,
+             int opacity)
+  {
+    if (src != m_mask_color) {
+      uint8_t r = rgba_getr(src);
+      uint8_t g = rgba_getg(src);
+      uint8_t b = rgba_getb(src);
+      uint8_t a = rgba_geta(src);
+      return (*m_blendFunc)(dst, trgba(r, g, b, a, 0), opacity);
+    }
+    else
+      return dst;
+  }
+};
+
+template<>
+class BlenderHelper<TrgbTraits, GrayscaleTraits> {
+  BlendFunc m_blendFunc;
+  color_t m_mask_color;
+public:
+  BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
+  {
+    m_blendFunc = TrgbTraits::get_blender(blendMode);
+    m_mask_color = src->maskColor();
+  }
+  inline TrgbTraits::pixel_t
+  operator()(const TrgbTraits::pixel_t& dst,
+             const GrayscaleTraits::pixel_t& src,
+             int opacity)
+  {
+    if (src != m_mask_color) {
+      int v = graya_getv(src);
+      return (*m_blendFunc)(dst, trgba(v, v, v, graya_geta(src), 0), opacity);
+    }
+    else
+      return dst;
+  }
+};
+
+template<>
+class BlenderHelper<TrgbTraits, IndexedTraits> {
+  const Palette* m_pal;
+  BlendMode m_blendMode;
+  BlendFunc m_blendFunc;
+  color_t m_mask_color;
+public:
+  BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
+  {
+    m_blendMode = blendMode;
+    m_blendFunc = TrgbTraits::get_blender(blendMode);
+    m_mask_color = src->maskColor();
+    m_pal = pal;
+  }
+  inline TrgbTraits::pixel_t
+  operator()(const TrgbTraits::pixel_t& dst,
+             const IndexedTraits::pixel_t& src,
+                         int opacity)
+  {
+    if (m_blendMode == BlendMode::SRC) {
+      return m_pal->getEntry(src);
+    }
+    else {
+      if (src != m_mask_color) {
+        RgbTraits::pixel_t rgb = m_pal->getEntry(src);
+        uint8_t r = rgba_getr(rgb);
+        uint8_t g = rgba_getg(rgb);
+        uint8_t b = rgba_getb(rgb);
+        uint8_t a = rgba_geta(rgb);
+
+        return (*m_blendFunc)(dst, trgba(r, g, b, a, 0), opacity);
+      }
+      else
+        return dst;
+    }
+  }
+};
+
 
 template<>
 class BlenderHelper<IndexedTraits, IndexedTraits> {

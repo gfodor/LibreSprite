@@ -99,7 +99,12 @@ Image* convert_pixel_format(
       ditheringMethod == DitheringMethod::ORDERED) {
     BayerMatrix<8> matrix;
     OrderedDither dither;
-    dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap, palette);
+
+    if (image->pixelFormat() == IMAGE_RGB)
+      dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap, palette);
+    else
+      dither.ditherTrgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap, palette);
+
     return new_image;
   }
 

@@ -36,7 +36,7 @@ namespace doc {
     }
 
     static inline BlendFunc get_blender(BlendMode blend_mode) {
-      return get_rgba_blender(blend_mode);
+      return get_trgba_blender(blend_mode);
     }
   };
 

@@ -166,6 +166,29 @@ namespace render {
       }
     }
 
+    template<typename Matrix>
+    void ditherTrgbImageToIndexed(const Matrix& matrix,
+                                 const doc::Image* srcImage,
+                                 doc::Image* dstImage,
+                                 int u, int v,
+                                 const doc::RgbMap* rgbmap,
+                                 const doc::Palette* palette) {
+      const doc::LockImageBits<doc::TrgbTraits> srcBits(srcImage);
+      doc::LockImageBits<doc::IndexedTraits> dstBits(dstImage);
+      auto srcIt = srcBits.begin();
+      auto dstIt = dstBits.begin();
+      int w = srcImage->width();
+      int h = srcImage->height();
+
+      for (int y=0; y<h; ++y) {
+        for (int x=0; x<w; ++x, ++srcIt, ++dstIt) {
+          ASSERT(srcIt != srcBits.end());
+          ASSERT(dstIt != dstBits.end());
+          *dstIt = ditherRgbPixelToIndex(matrix, *srcIt, x+u, y+v, rgbmap, palette);
+        }
+      }
+    }
+
   private:
     int m_transparentIndex;
   };

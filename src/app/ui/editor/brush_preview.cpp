@@ -131,6 +131,7 @@ void BrushPreview::show(const gfx::Point& screenPos)
       (layer && !layer->isBackground()) &&
       ((sprite->pixelFormat() == IMAGE_INDEXED && brush_color == mask_index) ||
        (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
+       (sprite->pixelFormat() == IMAGE_TRGB && trgba_geta(brush_color) == 0) ||
        (sprite->pixelFormat() == IMAGE_GRAYSCALE && graya_geta(brush_color) == 0))))) {
     m_type = BRUSH_BOUNDARIES;
   }
