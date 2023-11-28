@@ -131,7 +131,7 @@ namespace doc {
     return (time(NULL) - 0x65652b00) << 4;
   }
 
-  inline uint64_t trgba_with_adjusted_t(uint64_t cur, uint64_t val, uint64_t min_t) {
+  inline uint64_t trgba_with_adjusted_t(uint64_t cur, uint64_t val, uint64_t min_t = trgba_get_current_t()) {
     // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
     uint64_t cur_t = trgba_gett(cur) + ((val & trgba_rgba_mask) != (cur & trgba_rgba_mask));
     uint64_t new_t = cur_t > min_t ? cur_t : min_t;

@@ -95,12 +95,21 @@ namespace doc {
       ASSERT(x >= 0 && x < width());
       ASSERT(y >= 0 && y < height());
 
+      if (update_t) {
+        color = trgba_with_adjusted_t(*address(x, y), color);
+      }
+
       *address(x, y) = color;
     }
 
     void clear(color_t color, bool update_t) override {
       int w = width();
       int h = height();
+
+      if (update_t) {
+        // Slightly hacky, doesn't actually deal with pixels which may be ahead of clock
+        color = trgba_with_adjusted_t(0, color);
+      }
 
       // Fill the first line
       address_t first = address(0, 0);
@@ -115,6 +124,7 @@ namespace doc {
       const ImageImpl<Traits>* src = (const ImageImpl<Traits>*)_src;
       address_t src_address;
       address_t dst_address;
+      uint32_t min_t = trgba_get_current_t();
 
       if (!area.clip(width(), height(), src->width(), src->height()))
         return;
@@ -125,9 +135,14 @@ namespace doc {
         src_address = src->address(area.src.x, area.src.y);
         dst_address = address(area.dst.x, area.dst.y);
 
-        std::copy(src_address,
-                  src_address + area.size.w,
-                  dst_address);
+        if (update_t) {
+          for (int x=0; x<area.size.w; ++x, ++src_address, ++dst_address)
+            *dst_address = trgba_with_adjusted_t(*src_address, *dst_address, min_t);
+        } else {
+          std::copy(src_address,
+                    src_address + area.size.w,
+                    dst_address);
+        }
       }
     }
 
@@ -143,12 +158,19 @@ namespace doc {
     void fillRect(int x1, int y1, int x2, int y2, color_t color, bool update_t) override {
       // Fill the first line
       ImageImpl<Traits>::drawHLine(x1, y1, x2, color);
+      uint32_t min_t = trgba_get_current_t();
 
       // Copy all other lines
       address_t first = address(x1, y1);
       int w = x2 - x1 + 1;
-      for (int y=y1; y<=y2; ++y)
-        std::copy(first, first+w, address(x1, y));
+      for (int y=y1; y<=y2; ++y) {
+        if (update_t) {
+          for (int x=0; x<w; ++x)
+            *address(x1+x, y) = trgba_with_adjusted_t(*address(x1+x, y), color, min_t);
+        } else {
+          std::copy(first, first+w, address(x1, y));
+        }
+      }
     }
 
     void blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) override {
