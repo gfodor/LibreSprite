@@ -134,14 +134,15 @@ void FlipCommand::onExecute(Context* context)
 
           expand.validateDestCanvas(gfx::Region(flipBounds));
 
-          if (mask->bitmap() && !mask->isRectangular())
+          if (mask->bitmap() && !mask->isRectangular()) {
             doc::algorithm::flip_image_with_mask(
               expand.getDestCanvas(), mask, m_flipType,
-              document->bgColor(cel->layer()));
-          else
+              document->bgColor(cel->layer()), image->pixelFormat() == IMAGE_TRGB);
+          } else {
             doc::algorithm::flip_image(
               expand.getDestCanvas(),
-              flipBounds, m_flipType);
+              flipBounds, m_flipType, image->pixelFormat() == IMAGE_TRGB);
+          }
 
           expand.commit();
         }

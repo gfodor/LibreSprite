@@ -38,7 +38,7 @@ FlipMaskedCel::FlipMaskedCel(std::shared_ptr<Cel> cel, doc::algorithm::FlipType 
   int y = cel->y();
   mask->offsetOrigin(-x, -y);
   doc::algorithm::flip_image_with_mask(
-    copy.get(), mask, flipType, bgcolor);
+    copy.get(), mask, flipType, bgcolor, image->pixelFormat() == IMAGE_TRGB);
   mask->offsetOrigin(x, y);
 
   int x1, y1, x2, y2;
