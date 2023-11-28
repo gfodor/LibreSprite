@@ -137,7 +137,7 @@ namespace doc {
 
         if (update_t) {
           for (int x=0; x<area.size.w; ++x, ++src_address, ++dst_address)
-            *dst_address = trgba_with_adjusted_t(*src_address, *dst_address, min_t);
+            *dst_address = trgba_with_adjusted_t(*dst_address, *src_address, min_t); // Swap args here since we don't want to apply old value
         } else {
           std::copy(src_address,
                     src_address + area.size.w,

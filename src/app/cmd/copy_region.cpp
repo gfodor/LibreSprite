@@ -101,7 +101,7 @@ void CopyRegion::swap()
         for (int x=0; x<rc.w; ++x) {
           TrgbTraits::address_t attr = (TrgbTraits::address_t)image->getPixelAddress(rc.x+x, rc.y+y);
           tmp.read((char*)&pix, sizeof(pix));
-          *attr = trgba_with_adjusted_t(*attr, pix, min_t);
+          *attr = trgba_with_adjusted_t(pix, *attr, min_t); // Swap args here, since we don't want to apply old value.
         }
       }
     }
