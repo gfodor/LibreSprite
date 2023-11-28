@@ -100,10 +100,8 @@ void CopyRegion::swap()
       for (int y=0; y<rc.h; ++y) {
         for (int x=0; x<rc.w; ++x) {
           TrgbTraits::address_t attr = (TrgbTraits::address_t)image->getPixelAddress(rc.x+x, rc.y+y);
-          TrgbTraits::pixel_t cur = *attr;
           tmp.read((char*)&pix, sizeof(pix));
-          uint64_t new_t = MAX(trgba_gett(cur) + ((pix & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
-          *attr = (cur & ~trgba_t_mask) | (new_t << trgba_t_shift);
+          *attr = trgba_with_adjusted_t(*attr, pix, min_t);
         }
       }
     }
