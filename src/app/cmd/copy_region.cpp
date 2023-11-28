@@ -79,30 +79,25 @@ void CopyRegion::swap()
         (const char*)image->getPixelAddress(rc.x, rc.y+y),
         image->getRowStrideSize(rc.w));
 
+  bool isTrgba = (image->pixelFormat() == IMAGE_TRGB);
+
+  uint32_t min_t = trgba_get_current_t();
+
   // Restore m_stream into the image
   m_stream.seekg(0, std::ios_base::beg);
   for (const auto& rc : m_region) {
     for (int y=0; y<rc.h; ++y) {
-      m_stream.read(
-        (char*)image->getPixelAddress(rc.x, rc.y+y),
-        image->getRowStrideSize(rc.w));
-    }
-  }
-
-  if (image->pixelFormat() == IMAGE_TRGB) {
-    tmp.seekg(0, std::ios_base::beg);
-
-    // Properly update t
-    for (const auto& rc : m_region) {
-      TrgbTraits::pixel_t pix;
-      uint32_t min_t = trgba_get_current_t();
-
-      for (int y=0; y<rc.h; ++y) {
+      if (isTrgba) {
         for (int x=0; x<rc.w; ++x) {
-          TrgbTraits::address_t attr = (TrgbTraits::address_t)image->getPixelAddress(rc.x+x, rc.y+y);
-          tmp.read((char*)&pix, sizeof(pix));
-          *attr = trgba_with_adjusted_t(pix, *attr, min_t); // Swap args here, since we don't want to apply old value.
+          TrgbTraits::pixel_t pix;
+          TrgbTraits::address_t addr = (TrgbTraits::address_t)image->getPixelAddress(rc.x+x, rc.y+y);
+          m_stream.read((char*)&pix, sizeof(pix));
+          *addr = trgba_with_adjusted_t(*addr, pix, min_t);
         }
+      } else {
+        m_stream.read(
+          (char*)image->getPixelAddress(rc.x, rc.y+y),
+          image->getRowStrideSize(rc.w));
       }
     }
   }
