@@ -463,7 +463,7 @@ bool StandbyState::onUpdateStatusBar(Editor* editor)
       (editor->document()->isMaskVisible() ?
        editor->document()->mask(): NULL);
 
-    uint32_t t = 1000;
+    uint32_t t = 0;
 
     auto cel = editor->layer()->cel(editor->frame());
     auto image = cel ? cel->image(): nullptr;

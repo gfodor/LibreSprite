@@ -98,13 +98,15 @@ void ClearMask::clear()
 
   // Clear the masked zones
   int u, v;
+  bool update_t = (image->pixelFormat() == IMAGE_TRGB);
+
   for (v=0; v<mask->bounds().h; ++v) {
     for (u=0; u<mask->bounds().w; ++u, ++it) {
       ASSERT(it != maskBits.end());
       if (*it) {
         put_pixel(image,
           u + m_offsetX,
-          v + m_offsetY, m_bgcolor);
+          v + m_offsetY, m_bgcolor, update_t);
       }
     }
   }
