@@ -17,11 +17,12 @@
 
 #include <memory>
 #include <vector>
+#include <iostream>
 
 namespace doc {
 namespace algorithm {
 
-void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType)
+void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType, bool update_t)
 {
   switch (flipType) {
 
@@ -29,10 +30,10 @@ void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType)
       for (int y=bounds.y; y<bounds.y+bounds.h; ++y) {
         int u = bounds.x+bounds.w-1;
         for (int x=bounds.x; x<bounds.x+bounds.w/2; ++x, --u) {
-          uint32_t c1 = get_pixel(image, x, y);
-          uint32_t c2 = get_pixel(image, u, y);
-          put_pixel(image, x, y, c2);
-          put_pixel(image, u, y, c1);
+          color_t c1 = get_pixel(image, x, y);
+          color_t c2 = get_pixel(image, u, y);
+          put_pixel(image, x, y, c2, update_t);
+          put_pixel(image, u, y, c1, update_t);
         }
       }
       break;
@@ -41,10 +42,11 @@ void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType)
       int v = bounds.y+bounds.h-1;
       for (int y=bounds.y; y<bounds.y+bounds.h/2; ++y, --v) {
         for (int x=bounds.x; x<bounds.x+bounds.w; ++x) {
-          uint32_t c1 = get_pixel(image, x, y);
-          uint32_t c2 = get_pixel(image, x, v);
-          put_pixel(image, x, y, c2);
-          put_pixel(image, x, v, c1);
+          color_t c1 = get_pixel(image, x, y);
+          color_t c2 = get_pixel(image, x, v);
+
+          put_pixel(image, x, y, c2, update_t);
+          put_pixel(image, x, v, c1, update_t);
         }
       }
       break;
@@ -52,7 +54,7 @@ void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType)
   }
 }
 
-void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int bgcolor)
+void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int bgcolor, bool update_t)
 {
   gfx::Rect bounds = mask->bounds();
 
@@ -68,9 +70,9 @@ void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int
         int u = bounds.x+bounds.w-1;
         for (int x=bounds.x; x<bounds.x+bounds.w; ++x, --u) {
           if (mask->containsPoint(x, y)) {
-            put_pixel(image, u, y, get_pixel(originalRow.get(), x-bounds.x, 0));
+            put_pixel(image, u, y, get_pixel(originalRow.get(), x-bounds.x, 0), update_t);
             if (!mask->containsPoint(u, y))
-              put_pixel(image, x, y, bgcolor);
+              put_pixel(image, x, y, bgcolor, update_t);
           }
         }
       }
@@ -87,9 +89,9 @@ void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int
         int v = bounds.y+bounds.h-1;
         for (int y=bounds.y; y<bounds.y+bounds.h; ++y, --v) {
           if (mask->containsPoint(x, y)) {
-            put_pixel(image, x, v, get_pixel(originalCol.get(), 0, y-bounds.y));
+            put_pixel(image, x, v, get_pixel(originalCol.get(), 0, y-bounds.y), update_t);
             if (!mask->containsPoint(x, v))
-              put_pixel(image, x, y, bgcolor);
+              put_pixel(image, x, y, bgcolor, update_t);
           }
         }
       }

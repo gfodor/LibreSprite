@@ -16,12 +16,12 @@ namespace doc {
   namespace algorithm {
 
     // Flips the rectangular region specified in the "bounds" parameter.
-    void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType);
+    void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType, bool update_t = false);
 
     // Flips an irregular region specified by the "mask". The
     // "bgcolor" is used to clear areas that aren't covered by a
     // mirrored pixel.
-    void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int bgcolor);
+    void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int bgcolor, bool update_t = false);
 
   }
 }

@@ -39,7 +39,7 @@ void FlipImage::swap()
   Image* image = this->image();
 
   // Flip the portion of the bitmap.
-  doc::algorithm::flip_image(image, m_bounds, m_flipType);
+  doc::algorithm::flip_image(image, m_bounds, m_flipType, image->pixelFormat() == IMAGE_TRGB);
 
   image->incrementVersion();
 }
