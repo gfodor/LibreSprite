@@ -144,7 +144,8 @@ void CopyInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
 template<>
 void CopyInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   TrgbTraits::pixel_t cur = *SimpleInkProcessing<CopyInkProcessing<TrgbTraits>, TrgbTraits>::m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   *SimpleInkProcessing<CopyInkProcessing<TrgbTraits>, TrgbTraits>::m_dstAddress = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
 }
 
@@ -192,7 +193,8 @@ void LockAlphaInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_
 template<>
 void LockAlphaInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
 
   color_t result = trgba_blender_normal(*m_srcAddress, value, m_opacity);
@@ -274,7 +276,8 @@ void TransparentInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t mi
 template<>
 void TransparentInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
   *m_dstAddress = trgba_blender_normal(*m_srcAddress, value, m_opacity);
 }
@@ -346,7 +349,8 @@ void MergeInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
 template<>
 void MergeInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
   *m_dstAddress = trgba_blender_merge(*m_srcAddress, value, m_opacity);
 }
@@ -471,7 +475,6 @@ public:
     m_area.reset();
     get_neighboring_pixels<TrgbTraits>(m_srcImage, x, y, 3, 3, 1, 1, m_tiledMode, m_area);
     TrgbTraits::pixel_t cur = *m_dstAddress;
-    uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
 
     if (m_area.count > 0) {
       m_area.r /= m_area.count;
@@ -479,9 +482,15 @@ public:
       m_area.b /= m_area.count;
       m_area.a /= 9;
 
+      TrgbTraits::pixel_t new_pix = trgba(m_area.r, m_area.g, m_area.b, m_area.a, 0);
+
+      // Take the max timestamp between the current pixel and the new one, adding to the current one if the color changed.
+      uint64_t new_t = MAX(trgba_gett(cur) + ((new_pix & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
+      new_pix = (new_pix & ~trgba_t_mask) | (new_t << trgba_t_shift);
+
       *m_dstAddress =
         trgba_blender_normal(*m_srcAddress,
-                            trgba(m_area.r, m_area.g, m_area.b, m_area.a, new_t),
+                            new_pix,
                             m_opacity);
     }
     else {
@@ -682,7 +691,7 @@ void ReplaceInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t
       (trgba_geta(src) > 0 && trgba_geta(m_color1) > 0 &&
        ((src & trgba_rgb_mask) == (m_color1 & trgba_rgb_mask)))) {
     TrgbTraits::pixel_t cur = *m_dstAddress;
-    uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+    uint64_t new_t = MAX(trgba_gett(cur) + ((m_color2 & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
     TrgbTraits::pixel_t value = (m_color2 & ~trgba_t_mask) | (new_t << trgba_t_shift);
     *m_dstAddress = trgba_blender_merge(src, value, m_opacity);
   }
@@ -807,7 +816,7 @@ void JumbleInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t)
   pickColorFromArea(x, y);
 
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
   *m_dstAddress = trgba_blender_merge(*m_srcAddress, value, m_opacity);
 }
@@ -919,7 +928,6 @@ public:
 
   void processPixel(int x, int y, uint32_t min_t) {
     TrgbTraits::pixel_t cur = *m_dstAddress;
-    uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
 
     color_t src = *m_srcAddress;
 
@@ -935,6 +943,7 @@ public:
 
     // If we didn't find the exact match.
     if (i < 0) {
+      uint64_t new_t = MAX(trgba_gett(cur) + ((src & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
       TrgbTraits::pixel_t value = (src & ~trgba_t_mask) | (new_t << trgba_t_shift);
       *m_dstAddress = value;
       return;
@@ -961,7 +970,9 @@ public:
     uint8_t b = trgba_getb(m_palette->getEntry(i));
     uint8_t a = trgba_geta(m_palette->getEntry(i));
 
-    *m_dstAddress = trgba(r, g, b, a, new_t);
+    TrgbTraits::pixel_t new_pix = trgba(r, g, b, a, 0);
+    uint64_t new_t = MAX(trgba_gett(cur) + ((new_pix & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
+    *m_dstAddress = (new_pix & ~trgba_t_mask) | (new_t << trgba_t_shift);
   }
 
 private:
@@ -1091,7 +1102,7 @@ void XorInkProcessing<RgbTraits>::processPixel(int x, int y, uint32_t min_t) {
 template<>
 void XorInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) {
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  uint64_t new_t = MAX(trgba_gett(cur) + ((m_color & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (m_color & ~trgba_t_mask) | (new_t << trgba_t_shift);
 
   *m_dstAddress = trgba_blender_neg_bw(*m_srcAddress, value, 255);
@@ -1202,7 +1213,7 @@ void BrushInkProcessing<TrgbTraits>::processPixel(int x, int y, uint32_t min_t) 
   }
 
   TrgbTraits::pixel_t cur = *m_dstAddress;
-  uint64_t new_t = MAX(trgba_gett(cur) + 1, min_t);
+  uint64_t new_t = MAX(trgba_gett(cur) + ((c & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
   TrgbTraits::pixel_t value = (c & ~trgba_t_mask) | (new_t << trgba_t_shift);
 
   *m_dstAddress = rgba_blender_normal(*m_srcAddress, value, m_opacity);
