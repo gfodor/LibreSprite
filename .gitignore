@@ -11,6 +11,8 @@
 *.log
 *.res
 *.vs
+.vscode
+src/.vscode
 
 # CMake output
 build
