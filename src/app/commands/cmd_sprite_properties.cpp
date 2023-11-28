@@ -74,6 +74,9 @@ void SpritePropertiesCommand::onExecute(Context* context)
       case IMAGE_RGB:
         imgtype_text = "RGB";
         break;
+      case IMAGE_TRGB:
+        imgtype_text = "TRGB";
+        break;
       case IMAGE_GRAYSCALE:
         imgtype_text = "Grayscale";
         break;

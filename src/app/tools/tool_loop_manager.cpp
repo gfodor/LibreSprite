@@ -23,6 +23,8 @@
 #include "doc/primitives.h"
 #include "doc/sprite.h"
 #include "gfx/region.h"
+#include "doc/layer.h"
+#include "doc/cel.h"
 
 #include <climits>
 

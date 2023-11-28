@@ -41,7 +41,7 @@ void ClearImage::onUndo()
 {
   Image* image = this->image();
 
-  copy_image(image, m_copy.get());
+  copy_image(image, m_copy.get(), image->pixelFormat() == IMAGE_TRGB /* update_t */);
   m_copy.reset();
 
   image->incrementVersion();

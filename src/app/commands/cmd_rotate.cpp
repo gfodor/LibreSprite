@@ -99,7 +99,7 @@ protected:
             m_angle == 180 ? image->height(): image->width()));
         new_image->setMaskColor(image->maskColor());
 
-        doc::rotate_image(image, new_image.get(), m_angle);
+        doc::rotate_image(image, new_image.get(), m_angle, image->pixelFormat() == IMAGE_TRGB /* update_t */);
         api.replaceImage(m_sprite, cel->imageRef(), new_image);
       }
 

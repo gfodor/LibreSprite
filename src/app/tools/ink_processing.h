@@ -35,11 +35,7 @@ public:
   void operator()(int x1, int y, int x2, ToolLoop* loop) {
     int x;
 
-    // Normalize since our epoch, shift 4 so we can count up to 16 changes per second
-    // Note this timestamp method will overflow in 2031, need to fix before then by putting
-    // per-file epoch in the file format that gets updated based on the lowest timestamp across
-    // all the layers periodically.
-    uint32_t min_t = (time(NULL) - 0x65652b00) << 4;
+    uint32_t min_t = trgba_get_current_t();
 
     // Use mask
     if (loop->useMask()) {

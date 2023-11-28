@@ -68,11 +68,11 @@ namespace doc {
     // in case that you need bounds check.
     virtual uint8_t* getPixelAddress(int x, int y) const = 0;
     virtual color_t getPixel(int x, int y) const = 0;
-    virtual void putPixel(int x, int y, color_t color) = 0;
-    virtual void clear(color_t color) = 0;
-    virtual void copy(const Image* src, gfx::Clip area) = 0;
+    virtual void putPixel(int x, int y, color_t color, bool update_t = false) = 0;
+    virtual void clear(color_t color, bool update_t = false) = 0;
+    virtual void copy(const Image* src, gfx::Clip area, bool update_t = false) = 0;
     virtual void drawHLine(int x1, int y, int x2, color_t color) = 0;
-    virtual void fillRect(int x1, int y1, int x2, int y2, color_t color) = 0;
+    virtual void fillRect(int x1, int y1, int x2, int y2, color_t color, bool update_t = false) = 0;
     virtual void blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) = 0;
 
   protected:

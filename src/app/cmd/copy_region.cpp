@@ -89,6 +89,26 @@ void CopyRegion::swap()
     }
   }
 
+  if (image->pixelFormat() == IMAGE_TRGB) {
+    tmp.seekg(0, std::ios_base::beg);
+
+    // Properly update t
+    for (const auto& rc : m_region) {
+      TrgbTraits::pixel_t pix;
+      uint32_t min_t = trgba_get_current_t();
+
+      for (int y=0; y<rc.h; ++y) {
+        for (int x=0; x<rc.w; ++x) {
+          TrgbTraits::address_t attr = (TrgbTraits::address_t)image->getPixelAddress(rc.x+x, rc.y+y);
+          TrgbTraits::pixel_t cur = *attr;
+          tmp.read((char*)&pix, sizeof(pix));
+          uint64_t new_t = MAX(trgba_gett(cur) + ((pix & trgba_rgba_mask) != (cur & trgba_rgba_mask)), min_t);
+          *attr = (cur & ~trgba_t_mask) | (new_t << trgba_t_shift);
+        }
+      }
+    }
+  }
+
   // TODO use m_stream.swap(tmp) when clang and gcc support it
   m_stream.str(tmp.str());
   m_stream.clear();

@@ -31,35 +31,35 @@ color_t get_pixel(const Image* image, int x, int y)
     return -1;
 }
 
-void put_pixel(Image* image, int x, int y, color_t color)
+void put_pixel(Image* image, int x, int y, color_t color, bool update_t)
 {
   ASSERT(image);
 
   if ((x >= 0) && (y >= 0) && (x < image->width()) && (y < image->height()))
-    image->putPixel(x, y, color);
+    image->putPixel(x, y, color, update_t);
 }
 
-void clear_image(Image* image, color_t color)
+void clear_image(Image* image, color_t color, bool update_t)
 {
   ASSERT(image);
 
-  image->clear(color);
+  image->clear(color, update_t);
 }
 
-void copy_image(Image* dst, const Image* src)
+void copy_image(Image* dst, const Image* src, bool update_t)
 {
   ASSERT(dst);
   ASSERT(src);
 
-  dst->copy(src, gfx::Clip(0, 0, 0, 0, src->width(), src->height()));
+  dst->copy(src, gfx::Clip(0, 0, 0, 0, src->width(), src->height()), update_t);
 }
 
-void copy_image(Image* dst, const Image* src, int x, int y)
+void copy_image(Image* dst, const Image* src, int x, int y, bool update_t)
 {
   ASSERT(dst);
   ASSERT(src);
 
-  dst->copy(src, gfx::Clip(x, y, 0, 0, src->width(), src->height()));
+  dst->copy(src, gfx::Clip(x, y, 0, 0, src->width(), src->height()), update_t);
 }
 
 Image* crop_image(const Image* image, int x, int y, int w, int h, color_t bg, const ImageBufferPtr& buffer)
@@ -83,7 +83,7 @@ Image* crop_image(const Image* image, const gfx::Rect& bounds, color_t bg, const
   return crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h, bg, buffer);
 }
 
-void rotate_image(const Image* src, Image* dst, int angle)
+void rotate_image(const Image* src, Image* dst, int angle, bool update_t)
 {
   ASSERT(src);
   ASSERT(dst);
@@ -98,7 +98,7 @@ void rotate_image(const Image* src, Image* dst, int angle)
       for (y=0; y<src->height(); ++y)
         for (x=0; x<src->width(); ++x)
           dst->putPixel(src->width() - x - 1,
-                        src->height() - y - 1, src->getPixel(x, y));
+                        src->height() - y - 1, src->getPixel(x, y), update_t);
       break;
 
     case 90:
@@ -107,7 +107,7 @@ void rotate_image(const Image* src, Image* dst, int angle)
 
       for (y=0; y<src->height(); ++y)
         for (x=0; x<src->width(); ++x)
-          dst->putPixel(src->height() - y - 1, x, src->getPixel(x, y));
+          dst->putPixel(src->height() - y - 1, x, src->getPixel(x, y), update_t);
       break;
 
     case -90:
@@ -116,7 +116,7 @@ void rotate_image(const Image* src, Image* dst, int angle)
 
       for (y=0; y<src->height(); ++y)
         for (x=0; x<src->width(); ++x)
-          dst->putPixel(y, src->width() - x - 1, src->getPixel(x, y));
+          dst->putPixel(y, src->width() - x - 1, src->getPixel(x, y), update_t);
       break;
 
     // bad angle
@@ -194,7 +194,7 @@ void draw_rect(Image* image, int x1, int y1, int x2, int y2, color_t color)
   }
 }
 
-void fill_rect(Image* image, int x1, int y1, int x2, int y2, color_t color)
+void fill_rect(Image* image, int x1, int y1, int x2, int y2, color_t color, bool update_t)
 {
   ASSERT(image);
   int t;
@@ -219,10 +219,10 @@ void fill_rect(Image* image, int x1, int y1, int x2, int y2, color_t color)
   if (x2 >= image->width()) x2 = image->width()-1;
   if (y2 >= image->height()) y2 = image->height()-1;
 
-  image->fillRect(x1, y1, x2, y2, color);
+  image->fillRect(x1, y1, x2, y2, color, update_t);
 }
 
-void fill_rect(Image* image, const gfx::Rect& rc, color_t c)
+void fill_rect(Image* image, const gfx::Rect& rc, color_t c, bool update_t)
 {
   ASSERT(image);
 

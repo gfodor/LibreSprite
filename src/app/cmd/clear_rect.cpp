@@ -75,12 +75,12 @@ void ClearRect::clear()
             m_offsetX, m_offsetY,
             m_offsetX + m_copy->width() - 1,
             m_offsetY + m_copy->height() - 1,
-            m_bgcolor);
+            m_bgcolor, m_dstImage->image()->pixelFormat() == IMAGE_TRGB /* update_t */);
 }
 
 void ClearRect::restore()
 {
-  copy_image(m_dstImage->image(), m_copy.get(), m_offsetX, m_offsetY);
+  copy_image(m_dstImage->image(), m_copy.get(), m_offsetX, m_offsetY, m_dstImage->image()->pixelFormat() == IMAGE_TRGB /* update_t */);
 }
 
 } // namespace cmd

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "base/ints.h"
+#include <ctime>
 
 namespace doc {
 
@@ -120,6 +121,14 @@ namespace doc {
 
   inline uint32_t trgba_gett(uint64_t c) {
     return (c >> trgba_t_shift) & 0xffffffff;
+  }
+
+  inline uint32_t trgba_get_current_t() {
+    // Normalize since our epoch, shift 4 so we can count up to 16 changes per second
+    // Note this timestamp method will overflow in 2031, need to fix before then by putting
+    // per-file epoch in the file format that gets updated based on the lowest timestamp across
+    // all the layers periodically.
+    return (time(NULL) - 0x65652b00) << 4;
   }
 
   inline uint64_t trgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint32_t t) {

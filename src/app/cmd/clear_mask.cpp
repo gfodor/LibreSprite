@@ -114,7 +114,7 @@ void ClearMask::clear()
 
 void ClearMask::restore()
 {
-  copy_image(m_dstImage->image(), m_copy.get(), m_boundsX, m_boundsY);
+  copy_image(m_dstImage->image(), m_copy.get(), m_boundsX, m_boundsY, m_dstImage->image()->pixelFormat() == IMAGE_TRGB /* update_t */);
 }
 
 } // namespace cmd

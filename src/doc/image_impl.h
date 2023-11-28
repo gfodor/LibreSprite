@@ -91,14 +91,14 @@ namespace doc {
       return *address(x, y);
     }
 
-    void putPixel(int x, int y, color_t color) override {
+    void putPixel(int x, int y, color_t color, bool update_t) override {
       ASSERT(x >= 0 && x < width());
       ASSERT(y >= 0 && y < height());
 
       *address(x, y) = color;
     }
 
-    void clear(color_t color) override {
+    void clear(color_t color, bool update_t) override {
       int w = width();
       int h = height();
 
@@ -111,7 +111,7 @@ namespace doc {
         std::copy(first, first+w, address(0, y));
     }
 
-    void copy(const Image* _src, gfx::Clip area) override {
+    void copy(const Image* _src, gfx::Clip area, bool update_t) override {
       const ImageImpl<Traits>* src = (const ImageImpl<Traits>*)_src;
       address_t src_address;
       address_t dst_address;
@@ -140,7 +140,7 @@ namespace doc {
         *it = color;
     }
 
-    void fillRect(int x1, int y1, int x2, int y2, color_t color) override {
+    void fillRect(int x1, int y1, int x2, int y2, color_t color, bool update_t) override {
       // Fill the first line
       ImageImpl<Traits>::drawHLine(x1, y1, x2, color);
 
@@ -152,7 +152,7 @@ namespace doc {
     }
 
     void blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) override {
-      fillRect(x1, y1, x2, y2, color);
+      fillRect(x1, y1, x2, y2, color, false);
     }
 
   private:
@@ -216,14 +216,14 @@ namespace doc {
   // Specializations
 
   template<>
-  inline void ImageImpl<IndexedTraits>::clear(color_t color) {
+  inline void ImageImpl<IndexedTraits>::clear(color_t color, bool update_t) {
     std::fill(m_bits,
               m_bits + width()*height(),
               color);
   }
 
   template<>
-  inline void ImageImpl<BitmapTraits>::clear(color_t color) {
+  inline void ImageImpl<BitmapTraits>::clear(color_t color, bool update_t) {
     std::fill(m_bits,
               m_bits + BitmapTraits::getRowStrideBytes(width()) * height(),
               (color ? 0xff: 0x00));
@@ -239,7 +239,7 @@ namespace doc {
   }
 
   template<>
-  inline void ImageImpl<BitmapTraits>::putPixel(int x, int y, color_t color) {
+  inline void ImageImpl<BitmapTraits>::putPixel(int x, int y, color_t color, bool update_t) {
     ASSERT(x >= 0 && x < width());
     ASSERT(y >= 0 && y < height());
 
@@ -251,7 +251,7 @@ namespace doc {
   }
 
   template<>
-  inline void ImageImpl<BitmapTraits>::fillRect(int x1, int y1, int x2, int y2, color_t color) {
+  inline void ImageImpl<BitmapTraits>::fillRect(int x1, int y1, int x2, int y2, color_t color, bool update_t) {
     for (int y=y1; y<=y2; ++y)
       ImageImpl<BitmapTraits>::drawHLine(x1, y, x2, color);
   }
@@ -286,7 +286,7 @@ namespace doc {
 
   void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area);
   template<>
-  inline void ImageImpl<BitmapTraits>::copy(const Image* src, gfx::Clip area) {
+  inline void ImageImpl<BitmapTraits>::copy(const Image* src, gfx::Clip area, bool update_t) {
     copy_bitmaps(this, src, area);
   }
 

@@ -71,6 +71,8 @@ void AddCel::onRedo()
     ImageRef image(read_image(m_stream));
     io.addImageRef(image);
 
+    // TODO trgba update t
+
     CelDataRef celdata(read_celdata(m_stream, &io));
     io.addCelDataRef(celdata);
   }
