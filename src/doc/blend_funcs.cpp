@@ -726,10 +726,11 @@ color_t trgba_blender_src(color_t backdrop, color_t src, int opacity)
 
 color_t trgba_blender_merge(color_t backdrop, color_t src, int opacity)
 {
-  int Br, Bg, Bb, Ba, Bt;
-  int Sr, Sg, Sb, Sa, St;
+  int Br, Bg, Bb, Ba;
+  int Sr, Sg, Sb, Sa;
   int Rr, Rg, Rb, Ra;
   int t;
+  uint32_t Bt, St;
 
   Br = trgba_getr(backdrop);
   Bg = trgba_getg(backdrop);
@@ -803,9 +804,10 @@ color_t trgba_blender_normal(color_t backdrop, color_t src, int opacity)
     return backdrop;
   }
 
-  int Br, Bg, Bb, Ba, Bt;
-  int Sr, Sg, Sb, Sa, St;
+  int Br, Bg, Bb, Ba;
+  int Sr, Sg, Sb, Sa;
   int Rr, Rg, Rb, Ra;
+  uint32_t Bt, St;
 
   Br = trgba_getr(backdrop);
   Bg = trgba_getg(backdrop);
@@ -839,9 +841,10 @@ color_t trgba_blender_normal(color_t backdrop, color_t src)
     return backdrop;
   }
 
-  int Br, Bg, Bb, Ba, Bt;
-  int Sr, Sg, Sb, Sa, St;
+  int Br, Bg, Bb, Ba;
+  int Sr, Sg, Sb, Sa;
   int Rr, Rg, Rb, Ra;
+  uint32_t Bt, St;
 
   Br = trgba_getr(backdrop);
   Bg = trgba_getg(backdrop);
