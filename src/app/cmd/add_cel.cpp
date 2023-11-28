@@ -69,6 +69,22 @@ void AddCel::onRedo()
   bool has_data = (read8(m_stream) != 0);
   if (has_data) {
     ImageRef image(read_image(m_stream));
+    Image *imagePtr = image.get();
+
+    if (imagePtr->pixelFormat() == IMAGE_TRGB) {
+      // Set all pixels in cel to current t
+      const int w = image->width();
+      const int h = image->height();
+      uint32_t min_t = trgba_get_current_t();
+
+      for (int y=0; y<h; ++y) {
+        TrgbTraits::address_t addr = (TrgbTraits::address_t)imagePtr->getPixelAddress(0, y);
+        for (int x=0; x<w; ++x, ++addr) {
+          *addr = trgba_with_adjusted_t(0, *addr, min_t);
+        }
+      }
+    }
+
     io.addImageRef(image);
 
     // TODO trgba update t
@@ -87,6 +103,22 @@ void AddCel::onRedo()
 
 void AddCel::addCel(Layer* layer, std::shared_ptr<Cel> cel)
 {
+  Image *image = cel->image();
+
+  if (image->pixelFormat() == IMAGE_TRGB) {
+    // Set all pixels in cel to current t
+    const int w = image->width();
+    const int h = image->height();
+    uint32_t min_t = trgba_get_current_t();
+
+    for (int y=0; y<h; ++y) {
+      TrgbTraits::address_t addr = (TrgbTraits::address_t)image->getPixelAddress(0, y);
+      for (int x=0; x<w; ++x, ++addr) {
+        *addr = trgba_with_adjusted_t(0, *addr, min_t);
+      }
+    }
+  }
+
   static_cast<LayerImage*>(layer)->addCel(cel);
   layer->incrementVersion();
 
