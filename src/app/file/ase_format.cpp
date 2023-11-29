@@ -1467,8 +1467,11 @@ static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header,
 static void ase_file_read_cel_ts_chunk(FILE* f, CelData* cel_data)
 {
   /* read chunk data */
-  uint32_t position_t = ((uint32_t)fgetw(f));
-  uint32_t opacity_t = ((uint32_t)fgetw(f));
+  uint32_t position_t;
+  uint32_t opacity_t;
+  fread(&position_t, sizeof(uint32_t), 1, f);
+  fread(&opacity_t, sizeof(uint32_t), 1, f);
+
   cel_data->setPosition_t(position_t);
   cel_data->setOpacity_t(opacity_t);
 }
@@ -1477,8 +1480,11 @@ static void ase_file_read_cel_ts_chunk(FILE* f, CelData* cel_data)
 static void ase_file_write_cel_ts_chunk(FILE* f, ASE_FrameHeader* frame_header, const CelData* cel_data)
 {
   ChunkWriter chunk(f, frame_header, ASE_FILE_CHUNK_CEL_TS);
-  fputw(cel_data->position_t(), f);
-  fputw(cel_data->opacity_t(), f);
+  uint32_t position_t = cel_data->position_t();
+  uint32_t opacity_t = cel_data->opacity_t();
+
+  fwrite(&position_t, sizeof(uint32_t), 1, f);
+  fwrite(&opacity_t, sizeof(uint32_t), 1, f);
 }
 
 static Mask* ase_file_read_mask_chunk(FILE* f)
