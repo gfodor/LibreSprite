@@ -34,6 +34,7 @@
 #define ASE_FILE_CHUNK_FLI_COLOR            11
 #define ASE_FILE_CHUNK_LAYER                0x2004
 #define ASE_FILE_CHUNK_CEL                  0x2005
+#define ASE_FILE_CHUNK_CEL_TS               0x3005
 #define ASE_FILE_CHUNK_MASK                 0x2016
 #define ASE_FILE_CHUNK_PATH                 0x2017
 #define ASE_FILE_CHUNK_FRAME_TAGS           0x2018
@@ -118,6 +119,8 @@ static Layer* ase_file_read_layer_chunk(FILE* f, ASE_Header* header, Sprite* spr
 static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, const Layer* layer);
 static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop, ASE_Header* header, size_t chunk_end);
 static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header, const Cel* cel, const LayerImage* layer, const Sprite* sprite);
+static void ase_file_read_cel_ts_chunk(FILE* f, CelData* cel_data);
+static void ase_file_write_cel_ts_chunk(FILE* f, ASE_FrameHeader* frame_header, const CelData* cel);
 static Mask* ase_file_read_mask_chunk(FILE* f);
 #if 0
 static void ase_file_write_mask_chunk(FILE* f, ASE_FrameHeader* frame_header, Mask* mask);
@@ -207,6 +210,8 @@ bool AseFormat::onLoad(FileOp* fop)
   // Prepare variables for layer chunks
   Layer* last_layer = sprite->folder();
   WithUserData* last_object_with_user_data = nullptr;
+  CelData* last_cel_data = nullptr;
+
   int current_level = -1;
 
   // Read frame by frame to end-of-file
@@ -276,7 +281,18 @@ bool AseFormat::onLoad(FileOp* fop)
                                       chunk_pos+chunk_size);
             if (cel) {
               last_object_with_user_data = cel->data();
+              last_cel_data = cel->data();
             }
+            break;
+          }
+
+          case ASE_FILE_CHUNK_CEL_TS: {
+            if (last_cel_data) {
+              ase_file_read_cel_ts_chunk(f, last_cel_data);
+            } else {
+              fop->setError("Warning: error loading a cel ts data\n");
+            }
+
             break;
           }
 
@@ -606,6 +622,8 @@ static void ase_file_write_cels(FILE* f, ASE_FrameHeader* frame_header, const Sp
         ase_file_write_user_data_chunk(f, frame_header,
                                        &cel->data()->userData());
       }
+
+      ase_file_write_cel_ts_chunk(f, frame_header, cel.get()->data());
     }
   }
 
@@ -953,7 +971,7 @@ public:
     g = fgetc(f);
     b = fgetc(f);
     a = fgetc(f);
-    return trgba(r, g, b, a, (t3 << 24) | (t2 << 16) | (t1 << 8) | t0);
+    return trgba(r, g, b, a, ((uint32_t)t3 << 24) | ((uint32_t)t2 << 16) | ((uint32_t)t1 << 8) | (uint32_t)t0);
   }
   void write_pixel(FILE* f, TrgbTraits::pixel_t c) {
     uint32_t t = trgba_gett(c);
@@ -1444,6 +1462,23 @@ static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header,
       break;
     }
   }
+}
+
+static void ase_file_read_cel_ts_chunk(FILE* f, CelData* cel_data)
+{
+  /* read chunk data */
+  uint32_t position_t = ((uint32_t)fgetw(f));
+  uint32_t opacity_t = ((uint32_t)fgetw(f));
+  cel_data->setPosition_t(position_t);
+  cel_data->setOpacity_t(opacity_t);
+}
+
+
+static void ase_file_write_cel_ts_chunk(FILE* f, ASE_FrameHeader* frame_header, const CelData* cel_data)
+{
+  ChunkWriter chunk(f, frame_header, ASE_FILE_CHUNK_CEL_TS);
+  fputw(cel_data->position_t(), f);
+  fputw(cel_data->opacity_t(), f);
 }
 
 static Mask* ase_file_read_mask_chunk(FILE* f)

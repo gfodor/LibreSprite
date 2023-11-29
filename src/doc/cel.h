@@ -32,6 +32,7 @@ namespace doc {
     frame_t frame() const { return m_frame; }
     int x() const { return m_data->position().x; }
     int y() const { return m_data->position().y; }
+
     const gfx::Point& position() const { return m_data->position(); }
     int opacity() const { return m_data->opacity(); }
 

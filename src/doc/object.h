@@ -8,6 +8,16 @@
 
 #include "doc/object_id.h"
 #include "doc/object_type.h"
+#include <ctime>
+
+inline uint32_t get_current_t() {
+  return (time(NULL) - 0x65652b00) << 4;
+}
+
+// Utility to get the current t value when updating t's throughout the object tree
+inline uint32_t get_new_t(uint64_t cur, bool changed, uint64_t min_t = get_current_t()) {
+  return changed ? cur > min_t ? cur + 1 : min_t : cur;
+}
 
 namespace doc {
 
