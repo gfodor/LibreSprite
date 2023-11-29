@@ -240,6 +240,7 @@ add_library(app-lib
   commands/cmd_new_sprite_from_selection.cpp
   commands/cmd_onionskin.cpp
   commands/cmd_open_file.cpp
+  commands/cmd_merge_file.cpp
   commands/cmd_open_in_folder.cpp
   commands/cmd_open_scripts_folder.cpp
   commands/cmd_open_with_app.cpp

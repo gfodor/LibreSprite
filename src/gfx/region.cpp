@@ -150,6 +150,11 @@ bool Region::contains(const PointT<int>& pt) const
   return pixman_region32_contains_point(&m_region, pt.x, pt.y, NULL) ? true: false;
 }
 
+void Region::add(const PointT<int>& pt)
+{
+  pixman_region32_union_rect(&m_region, &m_region, pt.x, pt.y, 1, 1);
+}
+
 Region::Overlap Region::contains(const Rect& rect) const
 {
   static_assert(

@@ -75,6 +75,7 @@ namespace doc {
 
     color_t transparentColor() const { return m_transparentColor; }
     void setTransparentColor(color_t color);
+    void mergeWith(Sprite *sprite);
 
     virtual int getMemSize() const override;
 

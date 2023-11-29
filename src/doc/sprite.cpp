@@ -23,6 +23,10 @@
 #include "doc/primitives.h"
 #include "doc/remap.h"
 #include "doc/rgbmap.h"
+#include "doc/document.h"
+#include "app/document.h"
+#include "gfx/region.h"
+#include "gfx/point.h"
 
 #include <cstring>
 #include <vector>
@@ -179,6 +183,115 @@ void Sprite::setTransparentColor(color_t color)
   getImages(images);
   for (Image* image : images)
     image->setMaskColor(color);
+}
+
+void Sprite::mergeWith(Sprite *from) {
+  if (from->pixelFormat() != pixelFormat()) {
+    std::cout << "Different pixel format, cannot merge sprites" << std::endl;
+    return;
+  }
+
+  if (from->width() != width() ||
+      from->height() != height()) {
+    std::cout << "Different width or height, cannot merge sprites" << std::endl;
+    return;
+  }
+
+  if (countLayers() != 1 ||
+      from->countLayers() != 1) {
+    std::cout << "More than one layer, cannot merge sprites" << std::endl;
+    return;
+  }
+
+  // Iterate over every cel in the from, and find the corresponding cel in this sprite
+  for (auto fromCelRef : from->uniqueCels()) {
+    Cel* fromCel = fromCelRef.get();
+    Cel* cel = NULL;
+
+    for (auto thisCelRef : uniqueCels()) {
+      Cel *thisCel = thisCelRef.get();
+      // Print the cel infos
+      std::cout << "This Cel frame: " << thisCel->frame() << ", layer: " << thisCel->layer()->name() << std::endl;
+      std::cout << "From Cel frame: " << fromCel->frame() << ", layer: " << fromCel->layer()->name() << std::endl;
+
+      if (thisCel->frame() == fromCel->frame() && layerToIndex(thisCel->layer()) == from->layerToIndex(fromCel->layer())) {
+        cel = thisCel;
+        std::cout << "Found corresponding cel for frame " << fromCel->frame() << std::endl;
+        break;
+      }
+    }
+
+    if (!cel) {
+      std::cout << "No corresponding cel found for frame " << fromCel->frame() << std::endl;
+      continue;
+    }
+
+    gfx::Region dirtyRegion;
+
+    Image* fromImage = fromCel->image();
+    Image* image = cel->image();
+
+    uint32_t fromPositionT = fromCel->data()->position_t();
+    uint32_t positionT = cel->data()->position_t();
+
+    std::cout << "From position_t: " << fromPositionT << std::endl;
+    std::cout << "To position_t: " << positionT << std::endl;
+
+    if (fromPositionT > positionT) {
+      cel->setPosition(fromCel->position());
+      dirtyRegion = cel->bounds();
+      std::cout << "Moved cel to position " << fromCel->position().x << ", " << fromCel->position().y << std::endl;
+    } else if (fromPositionT == positionT) {
+      int x = cel->x();
+      int fromX = fromCel->x();
+      int y = cel->y();
+      int fromY = fromCel->y();
+
+      if (fromX > x && fromY > y) {
+        cel->setPosition(fromX, fromY);
+        dirtyRegion = cel->bounds();
+        std::cout << "Moved cel to position " << fromX << ", " << fromY << std::endl;
+      } else if (fromX > x) {
+        cel->setPosition(fromX, y);
+        dirtyRegion = cel->bounds();
+        std::cout << "Moved cel to position " << fromX << ", " << y << std::endl;
+      } else if (fromY > y) {
+        cel->setPosition(x, fromY);
+        dirtyRegion = cel->bounds();
+        std::cout << "Moved cel to position " << x << ", " << fromY << std::endl;
+      }
+    }
+
+    switch (pixelFormat()) {
+      case IMAGE_TRGB:
+        for (int y=0,h=height(); y<h; ++y) {
+          for (int x=0,w=width(); x<w; ++x) {
+            color_t fromColor = get_pixel(fromImage, x, y);
+            color_t color = get_pixel(image, x, y);
+
+            uint32_t fromT = trgba_gett(fromColor);
+            uint32_t toT = trgba_gett(color);
+
+            if (fromT > toT || (fromT == toT && fromColor > color)) {
+              dirtyRegion.add(gfx::Point(x, y));
+              put_pixel(image, x, y, fromColor);
+              std::cout << "Pixel modified at x: " << x << ", y: " << y << std::endl;
+            }
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    if (!dirtyRegion.isEmpty()) {
+      app::Document *appDoc = dynamic_cast<app::Document*>(document());
+      if (appDoc) {
+        appDoc->notifySpritePixelsModified(this, dirtyRegion, cel->frame());
+        std::cout << "Notifying sprite pixels modified for frame: " << cel->frame() << std::endl;
+      }
+    }
+  }
 }
 
 int Sprite::getMemSize() const

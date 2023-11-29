@@ -514,6 +514,7 @@
       <menu text="&amp;File">
         <item command="NewFile" text="&amp;New..." />
         <item command="OpenFile" text="&amp;Open..." />
+        <item command="MergeFile" text="&amp;Merge..." />
         <item id="recent_list" text="Open &amp;Recent" />
         <separator />
         <item command="SaveFile" text="&amp;Save" wasm="false" />

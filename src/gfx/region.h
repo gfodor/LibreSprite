@@ -94,6 +94,8 @@ namespace gfx {
     bool contains(const PointT<int>& pt) const;
     Overlap contains(const Rect& rect) const;
 
+    void add(const PointT<int>& pt);
+
     Rect operator[](int i);
     const Rect operator[](int i) const;
 
