@@ -30,13 +30,17 @@ namespace doc {
     ImageRef imageRef() const { return m_image; }
 
     void setImage(const ImageRef& image);
-    void setPosition(int x, int y) {
-      m_position_t = get_new_t(m_position_t, m_position.x != x || m_position.y != y);
+    void setPosition(int x, int y, bool update_t = false) {
+      if (update_t)
+        m_position_t = get_new_t(m_position_t, m_position.x != x || m_position.y != y);
+
       m_position.x = x;
       m_position.y = y;
     }
-    void setPosition(const gfx::Point& pos) { 
-      m_position_t = get_new_t(m_position_t, m_position.x != pos.x || m_position.y != pos.y);
+    void setPosition(const gfx::Point& pos, bool update_t = false) { 
+      if (update_t)
+        m_position_t = get_new_t(m_position_t, m_position.x != pos.x || m_position.y != pos.y);
+
       m_position = pos;
     }
     void setOpacity(int opacity) {

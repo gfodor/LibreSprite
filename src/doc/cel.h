@@ -52,8 +52,8 @@ namespace doc {
     // LayerImage::moveCel() member function.
     void setFrame(frame_t frame);
     void setDataRef(const CelDataRef& celData);
-    void setPosition(int x, int y);
-    void setPosition(const gfx::Point& pos);
+    void setPosition(int x, int y, bool update_t = false);
+    void setPosition(const gfx::Point& pos, bool update_t = false);
     void setOpacity(int opacity);
 
     virtual int getMemSize() const override {

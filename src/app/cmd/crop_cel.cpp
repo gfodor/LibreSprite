@@ -63,7 +63,7 @@ void CropCel::cropImage(const gfx::Point& origin,
   }
 
   if (cel->data()->position() != origin) {
-    cel->data()->setPosition(origin);
+    cel->data()->setPosition(origin, true);
     cel->incrementVersion();
   }
 }

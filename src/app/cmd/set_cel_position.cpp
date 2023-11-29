@@ -31,13 +31,13 @@ SetCelPosition::SetCelPosition(std::shared_ptr<Cel> cel, int x, int y)
 
 void SetCelPosition::onExecute()
 {
-  cel()->setPosition(m_newX, m_newY);
+  cel()->setPosition(m_newX, m_newY, true);
   cel()->incrementVersion();
 }
 
 void SetCelPosition::onUndo()
 {
-  cel()->setPosition(m_oldX, m_oldY);
+  cel()->setPosition(m_oldX, m_oldY, true);
   cel()->incrementVersion();
 }
 

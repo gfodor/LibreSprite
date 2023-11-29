@@ -106,7 +106,7 @@ void MergeDownLayerCommand::onExecute(Context* context)
 
         // Creating a copy of the cell
         dst_cel = std::make_shared<Cel>(frpos, dst_image);
-        dst_cel->setPosition(src_cel->x(), src_cel->y());
+        dst_cel->setPosition(src_cel->x(), src_cel->y(), true);
         dst_cel->setOpacity(opacity);
 
         transaction.execute(new cmd::AddCel(dst_layer, dst_cel));

@@ -60,14 +60,14 @@ void Cel::setDataRef(const CelDataRef& celData)
   m_data = celData;
 }
 
-void Cel::setPosition(int x, int y)
+void Cel::setPosition(int x, int y, bool update_t)
 {
-  setPosition(gfx::Point(x, y));
+  setPosition(gfx::Point(x, y), update_t);
 }
 
-void Cel::setPosition(const gfx::Point& pos)
+void Cel::setPosition(const gfx::Point& pos, bool update_t)
 {
-  m_data->setPosition(pos);
+  m_data->setPosition(pos, update_t);
 }
 
 void Cel::setOpacity(int opacity)
