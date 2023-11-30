@@ -60,6 +60,62 @@ public:
       })
       .doc("Set the freehand algorithm for a known tool");
 
+    addFunction("setFgColorRgb",
+      [] (int r, int g, int b) -> bool {
+        Preferences::instance().colorBar.fgColor(app::Color::fromRgb(r, g, b));
+        return true;
+      })
+      .doc("Set the foreground color via RGB");
+
+    addFunction("setFgColorHsv",
+      [] (int h, int s, int v) -> bool {
+        Preferences::instance().colorBar.fgColor(app::Color::fromHsv(h, s, v));
+        return true;
+      })
+      .doc("Set the foreground color via HSV");
+
+    addFunction("setFgColorGray",
+      [] (int g) -> bool {
+        Preferences::instance().colorBar.fgColor(app::Color::fromGray(g));
+        return true;
+      })
+      .doc("Set the foreground color via Gray");
+
+    addFunction("setFgColorIndex",
+      [] (int index) -> bool {
+        Preferences::instance().colorBar.fgColor(app::Color::fromIndex(index));
+        return true;
+      })
+      .doc("Set the foreground color via Index");
+
+    addFunction("setBgColorRgb",
+      [] (int r, int g, int b) -> bool {
+        Preferences::instance().colorBar.bgColor(app::Color::fromRgb(r, g, b));
+        return true;
+      })
+      .doc("Set the background color via RGB");
+
+    addFunction("setBgColorHsv",
+      [] (int h, int s, int v) -> bool {
+        Preferences::instance().colorBar.bgColor(app::Color::fromHsv(h, s, v));
+        return true;
+      })
+      .doc("Set the background color via HSV");
+
+    addFunction("setBgColorGray",
+      [] (int g) -> bool {
+        Preferences::instance().colorBar.bgColor(app::Color::fromGray(g));
+        return true;
+      })
+      .doc("Set the background color via Gray");
+
+    addFunction("setBgColorIndex",
+      [] (int index) -> bool {
+        Preferences::instance().colorBar.bgColor(app::Color::fromIndex(index));
+        return true;
+      })
+      .doc("Set the background color via Index");
+
     makeGlobal("tools");
   }
 };
