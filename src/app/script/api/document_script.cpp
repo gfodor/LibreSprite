@@ -17,8 +17,8 @@ DocumentScriptObject::DocumentScriptObject()
 {
   addProperty("sprite", [this]{return m_sprite.get();});
 
-  addMethod("saveAsAseprite", &DocumentScriptObject::saveAsAseprite)
-    .doc("saves the document as an .aseprite file at the specified name");
+  addMethod("saveToFile", &DocumentScriptObject::saveToFile)
+    .doc("saves the document to a file at the specified name");
 
   addMethod("mergeWithAsespriteBytes", &DocumentScriptObject::mergeWithAsepriteBytes)
     .doc("merges the document with the specified .aseprite file bytes");
@@ -26,7 +26,7 @@ DocumentScriptObject::DocumentScriptObject()
 
 static script::ScriptObject::Regular<DocumentScriptObject> reg("DocumentScriptObject");
 
-void DocumentScriptObject::saveAsAseprite(std::string filename) {
+void DocumentScriptObject::saveToFile(std::string filename) {
   auto ctx = UIContext::instance();
   const app::Document* doc = dynamic_cast<const app::Document*>(m_doc);
 
@@ -41,10 +41,8 @@ void DocumentScriptObject::mergeWithAsepriteBytes(const std::string& bytes) {
 
   if (doc == nullptr) return;
 
-  FileOp* fop = FileOp::createLoadDocumentOperation(ctx, "", FILE_LOAD_SEQUENCE_NONE, bytes);
+  FileOp* fop = FileOp::createLoadDocumentOperation(ctx, "file.ase", FILE_LOAD_SEQUENCE_NONE, bytes);
   fop->operate();
-  auto loadedDoc = dynamic_cast<app::Document*>(fop->document());
-
-  if (loadedDoc == nullptr) return;
-  doc->sprite()->mergeWith(loadedDoc->sprite());
+  auto loadedDoc = fop->document();
+  m_doc->sprite()->mergeWith(loadedDoc->sprite());
 }

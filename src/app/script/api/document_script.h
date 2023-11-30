@@ -17,7 +17,7 @@ public:
   void* getWrapped() override { return m_doc;}
 
   Provides provides{this, "activeDocument"};
-  void saveAsAseprite(std::string filename);
+  void saveToFile(std::string filename);
   void mergeWithAsepriteBytes(const std::string& bytes);
 
 private:
