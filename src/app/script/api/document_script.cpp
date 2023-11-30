@@ -31,7 +31,7 @@ void DocumentScriptObject::saveToFile(std::string filename) {
   const app::Document* doc = dynamic_cast<const app::Document*>(m_doc);
 
   if (doc == nullptr) return;
-  FileOp* fop = FileOp::createSaveDocumentOperation(ctx, doc, filename.c_str(), "");
+  std::unique_ptr<FileOp> fop(FileOp::createSaveDocumentOperation(ctx, doc, filename.c_str(), ""));
   fop->operate();
 }
 
