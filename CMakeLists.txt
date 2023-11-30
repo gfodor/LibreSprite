@@ -426,5 +426,5 @@ add_subdirectory(third_party)
 
 add_subdirectory(src)
 if(EMSCRIPTEN)
-  target_link_options(libresprite PRIVATE -sDEMANGLE_SUPPORT=1 -sINITIAL_MEMORY=128MB -sTOTAL_STACK=16777216 -sALLOW_MEMORY_GROWTH=1 --bind --preload-file bin/data/@/ --use-preload-plugins -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web "-sASYNCIFY_WHITELIST=['she::FileDialogWasm::show(she::Display*)']" -sASYNCIFY)
+  target_link_options(libresprite PRIVATE -sDEMANGLE_SUPPORT=1 -sINITIAL_MEMORY=128MB -sTOTAL_STACK=16777216 -sALLOW_MEMORY_GROWTH=1 --bind --preload-file bin/data/@/ --use-preload-plugins -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web "-sASYNCIFY_WHITELIST=['she::FileDialogWasm::show(she::Display*)']" -sASYNCIFY "-sEXPORTED_RUNTIME_METHODS=['FS']")
 endif()
