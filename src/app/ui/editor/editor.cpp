@@ -273,8 +273,8 @@ void Editor::setStateInternal(const EditorStatePtr& newState)
   // Notify observers
   m_observers.notifyStateChanged(this);
 
-  // Redraw layer edges
-  if (m_docPref.show.layerEdges())
+  // Invalidate whole editor when state changes so we clip out the pixels past the layer
+  // if (m_docPref.show.layerEdges())
     invalidate();
 
   // Setup the new mouse cursor
