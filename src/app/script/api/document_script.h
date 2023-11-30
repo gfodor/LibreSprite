@@ -18,6 +18,7 @@ public:
 
   Provides provides{this, "activeDocument"};
   void saveAsAseprite(std::string filename);
+  void mergeWithAsepriteBytes(const std::string& bytes);
 
 private:
   doc::Document* m_doc{app::UIContext::instance()->activeDocument()};

@@ -345,7 +345,7 @@ public:
     params.set("width", std::to_string(width).c_str());
     params.set("height", std::to_string(height).c_str());
     params.set("bg", "0");
-    params.set("format", "0");
+    params.set("format", "4");
 
     UIContext::instance()->executeCommand(newCommand, params);
     m_documents.emplace_back("DocumentScriptObject");
