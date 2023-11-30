@@ -364,6 +364,7 @@ add_library(app-lib
   script/api/sprite_script.cpp
   script/api/sprite_script.h
   script/api/selection_script.cpp
+  script/api/tools_script.cpp
 
   send_crash.cpp
   shade.cpp
