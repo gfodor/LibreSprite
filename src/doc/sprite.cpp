@@ -285,6 +285,8 @@ void Sprite::mergeWith(Sprite *from) {
     }
 
     if (!dirtyRegion.isEmpty()) {
+      dirtyRegion.offset(cel->position());
+
       app::Document *appDoc = dynamic_cast<app::Document*>(document());
       if (appDoc) {
         appDoc->notifySpritePixelsModified(this, dirtyRegion, cel->frame());
