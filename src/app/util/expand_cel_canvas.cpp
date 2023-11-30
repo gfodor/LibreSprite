@@ -372,14 +372,15 @@ void ExpandCelCanvas::copyValidDestToSourceCanvas(const gfx::Region& rgn)
 
 gfx::Rect ExpandCelCanvas::getTrimDstImageBounds() const
 {
-  if (m_layer->isBackground())
+  // This is removed so that new cels created will be the size of the sprite
+  //if (m_layer->isBackground())
     return m_dstImage->bounds();
-  else {
-    gfx::Rect bounds;
-    algorithm::shrink_bounds(m_dstImage.get(), bounds,
-                             m_dstImage->maskColor());
-    return bounds;
-  }
+  //else {
+  //  gfx::Rect bounds;
+  //  algorithm::shrink_bounds(m_dstImage.get(), bounds,
+  //                           m_dstImage->maskColor());
+  //  return bounds;
+  //}
 }
 
 ImageRef ExpandCelCanvas::trimDstImage(const gfx::Rect& bounds) const
