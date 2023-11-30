@@ -41,8 +41,8 @@ void DocumentScriptObject::mergeWithAsepriteBytes(const std::string& bytes) {
 
   if (doc == nullptr) return;
 
-  FileOp* fop = FileOp::createLoadDocumentOperation(ctx, "file.ase", FILE_LOAD_SEQUENCE_NONE, bytes);
+  std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(ctx, "file.ase", FILE_LOAD_SEQUENCE_NONE, bytes));
   fop->operate();
-  auto loadedDoc = fop->document();
+  std::unique_ptr<doc::Document> loadedDoc(fop->document());
   m_doc->sprite()->mergeWith(loadedDoc->sprite());
 }
