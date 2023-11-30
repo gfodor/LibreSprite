@@ -17,6 +17,7 @@ public:
   void* getWrapped() override { return m_doc;}
 
   Provides provides{this, "activeDocument"};
+  void saveAsAseprite(std::string filename);
 
 private:
   doc::Document* m_doc{app::UIContext::instance()->activeDocument()};
