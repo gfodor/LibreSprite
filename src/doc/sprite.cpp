@@ -210,19 +210,14 @@ void Sprite::mergeWith(Sprite *from) {
 
     for (auto thisCelRef : uniqueCels()) {
       Cel *thisCel = thisCelRef.get();
-      // Print the cel infos
-      std::cout << "This Cel frame: " << thisCel->frame() << ", layer: " << thisCel->layer()->name() << std::endl;
-      std::cout << "From Cel frame: " << fromCel->frame() << ", layer: " << fromCel->layer()->name() << std::endl;
 
       if (thisCel->frame() == fromCel->frame() && layerToIndex(thisCel->layer()) == from->layerToIndex(fromCel->layer())) {
         cel = thisCel;
-        std::cout << "Found corresponding cel for frame " << fromCel->frame() << std::endl;
         break;
       }
     }
 
     if (!cel) {
-      std::cout << "No corresponding cel found for frame " << fromCel->frame() << std::endl;
       continue;
     }
 
@@ -234,13 +229,9 @@ void Sprite::mergeWith(Sprite *from) {
     uint32_t fromPositionT = fromCel->data()->position_t();
     uint32_t positionT = cel->data()->position_t();
 
-    std::cout << "From position_t: " << fromPositionT << std::endl;
-    std::cout << "To position_t: " << positionT << std::endl;
-
     if (fromPositionT > positionT) {
       cel->setPosition(fromCel->position());
       dirtyRegion = cel->bounds();
-      std::cout << "Moved cel to position " << fromCel->position().x << ", " << fromCel->position().y << std::endl;
     } else if (fromPositionT == positionT) {
       int x = cel->x();
       int fromX = fromCel->x();
@@ -250,15 +241,12 @@ void Sprite::mergeWith(Sprite *from) {
       if (fromX > x && fromY > y) {
         cel->setPosition(fromX, fromY);
         dirtyRegion = cel->bounds();
-        std::cout << "Moved cel to position " << fromX << ", " << fromY << std::endl;
       } else if (fromX > x) {
         cel->setPosition(fromX, y);
         dirtyRegion = cel->bounds();
-        std::cout << "Moved cel to position " << fromX << ", " << y << std::endl;
       } else if (fromY > y) {
         cel->setPosition(x, fromY);
         dirtyRegion = cel->bounds();
-        std::cout << "Moved cel to position " << x << ", " << fromY << std::endl;
       }
     }
 
@@ -275,7 +263,6 @@ void Sprite::mergeWith(Sprite *from) {
             if (fromT > toT || (fromT == toT && fromColor > color)) {
               dirtyRegion.add(gfx::Point(x, y));
               put_pixel(image, x, y, fromColor);
-              std::cout << "Pixel modified at x: " << x << ", y: " << y << std::endl;
             }
           }
         }
@@ -290,7 +277,6 @@ void Sprite::mergeWith(Sprite *from) {
       app::Document *appDoc = dynamic_cast<app::Document*>(document());
       if (appDoc) {
         appDoc->notifySpritePixelsModified(this, dirtyRegion, cel->frame());
-        std::cout << "Notifying sprite pixels modified for frame: " << cel->frame() << std::endl;
       }
     }
   }

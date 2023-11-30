@@ -18,6 +18,7 @@
 #include "she/sdl2/sdl2_surface.h"
 #include "she/common/system.h"
 #include "she/logger.h"
+#include "app/app.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
@@ -49,11 +50,14 @@ namespace she {
     m_restoredHeight(0) {
 
     unique_display = this;
-
-    // width = 1440;
-    // height = 1440;
-    width = 512;
-    height = 512;
+    // Check if using chrome
+    if (app::App::instance()->hasChrome()) {
+      width = 512;
+      height = 512;
+    } else {
+      width = 1440;
+      height = 1440;
+    }
 
     m_window = SDL_CreateWindow("",
                                 SDL_WINDOWPOS_UNDEFINED,
