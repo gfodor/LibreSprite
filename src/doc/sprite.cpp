@@ -185,22 +185,22 @@ void Sprite::setTransparentColor(color_t color)
     image->setMaskColor(color);
 }
 
-void Sprite::mergeWith(Sprite *from) {
+bool Sprite::mergeWith(Sprite *from) {
   if (from->pixelFormat() != pixelFormat()) {
     std::cout << "Different pixel format, cannot merge sprites" << std::endl;
-    return;
+    return false;
   }
 
   if (from->width() != width() ||
       from->height() != height()) {
     std::cout << "Different width or height, cannot merge sprites" << std::endl;
-    return;
+    return false;
   }
 
   if (countLayers() != 1 ||
       from->countLayers() != 1) {
     std::cout << "More than one layer, cannot merge sprites" << std::endl;
-    return;
+    return false;
   }
 
   // Iterate over every cel in the from, and find the corresponding cel in this sprite
@@ -278,8 +278,12 @@ void Sprite::mergeWith(Sprite *from) {
       if (appDoc) {
         appDoc->notifySpritePixelsModified(this, dirtyRegion, cel->frame());
       }
+
+      return true;
     }
   }
+
+  return false;
 }
 
 int Sprite::getMemSize() const

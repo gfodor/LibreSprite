@@ -10,6 +10,8 @@
 #include "app/ui_context.h"
 #include "app/script/api/document_script.h"
 #include "app/file/file.h"
+#include "app/ui/editor/editor.h"
+#include "app/modules/editors.h"
 
 using namespace app;
 
@@ -44,5 +46,9 @@ void DocumentScriptObject::mergeWithAsepriteBytes(const std::string& bytes) {
   std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(ctx, "file.ase", FILE_LOAD_SEQUENCE_NONE, bytes));
   fop->operate();
   std::unique_ptr<doc::Document> loadedDoc(fop->document());
-  m_doc->sprite()->mergeWith(loadedDoc->sprite());
+  bool didChange = m_doc->sprite()->mergeWith(loadedDoc->sprite());
+
+  if (didChange) {
+    current_editor->invalidate();
+  }
 }

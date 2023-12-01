@@ -312,6 +312,8 @@ endif()
 
 if(EMSCRIPTEN)
   if (EMSCRIPTEN_DEBUG)
+    # Print out debug mode
+    message(STATUS "Debug mode enabled")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -s DISABLE_EXCEPTION_CATCHING=0")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
